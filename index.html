@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fight Yacht</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="dice-panel" aria-label="Area de rolagem de dados">
+        <div class="turn-board">
+          <span id="turnLabel">Turno de Marjorie</span>
+          <strong id="rollsLabel">Rolagens: 0/3</strong>
+        </div>
+        <button id="rollButton" class="roll-button" type="button">Rolar Dados</button>
+        <p id="roundMessage" class="round-message">Role os dados para iniciar o ataque.</p>
+      </section>
+
+      <section class="dice-slots" aria-label="Espacos dos dados">
+        <button class="die empty" type="button" aria-label="Dado 1"></button>
+        <button class="die empty" type="button" aria-label="Dado 2"></button>
+        <button class="die empty" type="button" aria-label="Dado 3"></button>
+        <button class="die empty" type="button" aria-label="Dado 4"></button>
+        <button class="die empty" type="button" aria-label="Dado 5"></button>
+      </section>
+
+      <section class="arena" aria-label="Arena de combate">
+        <article class="fighter fighter-left active">
+          <div class="health-card">
+            <span>Marjorie</span>
+            <div class="health-track">
+              <div id="p1Health" class="health-fill"></div>
+            </div>
+            <strong id="p1Hp">100</strong>
+          </div>
+          <img src="assets/marjorie.png" alt="Marjorie" />
+        </article>
+
+        <div class="versus">VS</div>
+
+        <article class="fighter fighter-right">
+          <div class="health-card">
+            <span>Akira</span>
+            <div class="health-track">
+              <div id="p2Health" class="health-fill"></div>
+            </div>
+            <strong id="p2Hp">100</strong>
+          </div>
+          <img src="assets/akira.png" alt="Akira" />
+        </article>
+      </section>
+
+      <section class="actions" aria-label="Golpes disponiveis">
+        <div class="action-column">
+          <button data-action="soco" type="button">
+            <span>SOCO</span>
+            <small>|||||</small>
+          </button>
+          <button data-action="chute" type="button">
+            <span>CHUTE</span>
+            <small>||||||||||</small>
+          </button>
+          <button data-action="gancho" type="button">
+            <span>GANCHO</span>
+            <small>|||||||||||||||</small>
+          </button>
+          <button data-action="voadora" type="button">
+            <span>VOADORA</span>
+            <small>||||||||||||||||||||</small>
+          </button>
+        </div>
+
+        <button class="special-button" data-action="especial" type="button">
+          <span>ESPECIAL</span>
+          <small>5 CORES IGUAIS</small>
+        </button>
+
+        <div class="action-column">
+          <button data-action="magia1" type="button">
+            <span>MAGIA 1</span>
+            <small>3 + 2 CORES IGUAIS</small>
+          </button>
+          <button data-action="magia2" type="button">
+            <span>MAGIA 2</span>
+            <small>4 CORES IGUAIS</small>
+          </button>
+          <button data-action="magia3" type="button">
+            <span>MAGIA 3</span>
+            <small>5 CORES DIFERENTES</small>
+          </button>
+          <button data-action="magia4" type="button">
+            <span>MAGIA 4</span>
+            <small>QUALQUER COMBINACAO</small>
+          </button>
+        </div>
+      </section>
+
+      <section id="koOverlay" class="ko-overlay" aria-live="assertive" aria-hidden="true">
+        <div class="ko-text">K.O</div>
+        <p id="winnerText"></p>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
