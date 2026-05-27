@@ -5,6 +5,16 @@ const path = require("node:path");
 const port = Number(process.env.PORT) || 4175;
 const root = __dirname;
 const colors = ["blue", "red", "yellow", "green", "pink"];
+const specialColors = {
+  marjorie: "blue",
+  baby: "yellow",
+  marcelo: "green",
+  bill: "blue",
+  lord: "red",
+  chris: "red",
+  akira: "green",
+  chefe: "pink",
+};
 const actions = {
   soco: { type: "repeat", maxDamage: 5, maxUses: 2 },
   chute: { type: "repeat", maxDamage: 7, maxUses: 2 },
@@ -99,7 +109,7 @@ function startMatchIfReady(room) {
   };
 }
 
-function calculateDamage(actionKey, dice) {
+function calculateDamage(actionKey, dice, characterId) {
   const action = actions[actionKey];
   const countMap = dice.reduce((counts, color) => {
     if (color) counts[color] = (counts[color] || 0) + 1;
@@ -107,12 +117,31 @@ function calculateDamage(actionKey, dice) {
   }, {});
   const counts = Object.values(countMap).sort((a, b) => b - a);
   const maxRepeat = counts[0] || 0;
-  if (action.type === "repeat") return Math.max(1, Math.round((maxRepeat / 5) * action.maxDamage));
-  if (action.type === "fullHouse") return counts[0] === 3 && counts[1] === 2 ? action.damage : 0;
-  if (action.type === "threeKind") return maxRepeat >= 3 ? action.damage : 0;
-  if (action.type === "fourKind") return maxRepeat >= 4 ? action.damage : 0;
-  if (action.type === "multicolor") return counts.length === 5 ? action.damage : 0;
-  return maxRepeat === 5 ? action.damage : 0;
+  let baseDamage = 0;
+  if (action.type === "repeat") baseDamage = Math.max(1, Math.round((maxRepeat / 5) * action.maxDamage));
+  if (action.type === "fullHouse") baseDamage = counts[0] === 3 && counts[1] === 2 ? action.damage : 0;
+  if (action.type === "threeKind") baseDamage = maxRepeat >= 3 ? action.damage : 0;
+  if (action.type === "fourKind") baseDamage = maxRepeat >= 4 ? action.damage : 0;
+  if (action.type === "multicolor") baseDamage = counts.length === 5 ? action.damage : 0;
+  if (action.type === "yacht") baseDamage = maxRepeat === 5 ? action.damage : 0;
+
+  const bonusColor = specialColors[characterId];
+  const bonus = baseDamage > 0 && hasSpecialColorBonus(action.type, countMap, bonusColor) ? 7 : 0;
+  return { damage: baseDamage + bonus, baseDamage, bonus, bonusColor };
+}
+
+function hasSpecialColorBonus(actionType, countMap, specialColor) {
+  if (!specialColor) return false;
+  const specialCount = countMap[specialColor] || 0;
+  if (actionType === "repeat") {
+    const maxRepeat = Math.max(...Object.values(countMap), 0);
+    return specialCount > 0 && specialCount === maxRepeat;
+  }
+  if (actionType === "fullHouse") return specialCount === 2 || specialCount === 3;
+  if (actionType === "threeKind") return specialCount >= 3;
+  if (actionType === "fourKind") return specialCount >= 4;
+  if (actionType === "multicolor") return specialCount === 1 && Object.keys(countMap).length === 5;
+  return specialCount === 5;
 }
 
 function command(room, member, body) {
@@ -157,9 +186,9 @@ function command(room, member, body) {
     const attacker = match.players[member.playerIndex];
     if ((attacker.used[body.actionKey] || 0) >= action.maxUses) throw new Error("Esse poder ja foi utilizado.");
     const defenderIndex = member.playerIndex === 0 ? 1 : 0;
-    const damage = calculateDamage(body.actionKey, match.dice);
+    const result = calculateDamage(body.actionKey, match.dice, match.characters[member.playerIndex]);
     attacker.used[body.actionKey] = (attacker.used[body.actionKey] || 0) + 1;
-    match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - damage);
+    match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - result.damage);
     const exhausted = match.players.every((player) =>
       Object.keys(actions).every((key) => (player.used[key] || 0) >= actions[key].maxUses),
     );
@@ -176,7 +205,10 @@ function command(room, member, body) {
     event(room, "attack", {
       playerIndex: member.playerIndex,
       actionKey: body.actionKey,
-      damage,
+      damage: result.damage,
+      baseDamage: result.baseDamage,
+      bonus: result.bonus,
+      bonusColor: result.bonusColor,
       gameOver: match.gameOver,
       winnerIndex: match.winnerIndex,
     });

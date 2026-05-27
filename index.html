@@ -89,6 +89,24 @@
         <button id="battleButton" class="battle-button" type="button">Ir pra batalha</button>
       </section>
 
+      <section id="vsScreen" class="screen vs-screen hidden">
+        <div class="vs-matchup" aria-label="Confronto">
+          <article class="vs-fighter-card">
+            <img id="vsP1Icon" src="" alt="" />
+            <strong id="vsP1Name">Jogador 1</strong>
+            <small id="vsP1Color">COR - Azul</small>
+          </article>
+          <div class="vs-mark">VS.</div>
+          <article class="vs-fighter-card">
+            <img id="vsP2Icon" src="" alt="" />
+            <strong id="vsP2Name">Jogador 2</strong>
+            <small id="vsP2Color">COR - Verde</small>
+          </article>
+        </div>
+        <p id="vsSubtitle" class="vs-subtitle">Prepare-se para a batalha.</p>
+        <button id="vsBattleButton" class="battle-button" type="button">Ir pra batalha</button>
+      </section>
+
       <section id="gameScreen" class="game-view hidden">
       <section class="dice-panel" aria-label="Area de rolagem de dados">
         <div class="turn-board">
@@ -143,22 +161,22 @@
         <div class="action-column">
           <button data-action="soco" type="button">
             <span>SOCO</span>
-            <small>MÁX. DE CORES IGUAIS</small>
+            <small>CORES IGUAIS</small>
             <b class="use-counter">0/2</b>
           </button>
           <button data-action="chute" type="button">
             <span>CHUTE</span>
-            <small>MÁX. DE CORES IGUAIS</small>
+            <small>CORES IGUAIS</small>
             <b class="use-counter">0/2</b>
           </button>
           <button data-action="gancho" type="button">
             <span>GANCHO</span>
-            <small>MÁX. DE CORES IGUAIS</small>
+            <small>CORES IGUAIS</small>
             <b class="use-counter">0/2</b>
           </button>
           <button data-action="voadora" type="button">
             <span>VOADORA</span>
-            <small>MÁX. DE CORES IGUAIS</small>
+            <small>CORES IGUAIS</small>
             <b class="use-counter">0/2</b>
           </button>
         </div>

@@ -160,6 +160,11 @@ button:disabled {
   border-radius: 6px;
 }
 
+.character-card small {
+  color: var(--gold);
+  font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+}
+
 .soon-card {
   width: min(460px, 90vw);
   min-height: 240px;
@@ -177,11 +182,69 @@ button:disabled {
 }
 
 .draw-screen,
-.online-screen {
+.online-screen,
+.vs-screen {
   place-items: stretch;
   align-content: start;
   gap: clamp(18px, 4vh, 30px);
   padding: 10px 0;
+}
+
+.vs-screen {
+  min-height: calc(100svh - 16px);
+  place-items: center;
+  align-content: center;
+}
+
+.vs-matchup {
+  width: min(840px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(12px, 4vw, 30px);
+}
+
+.vs-fighter-card {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.vs-fighter-card img {
+  width: min(250px, 34vw);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 3px solid rgba(246, 200, 76, 0.42);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.42);
+}
+
+.vs-fighter-card strong {
+  font-size: clamp(0.95rem, 2.4vw, 1.4rem);
+}
+
+.vs-fighter-card small {
+  color: var(--gold);
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.8vw, 0.86rem);
+}
+
+.vs-mark {
+  color: var(--danger);
+  font-size: clamp(3.8rem, 13vw, 8.5rem);
+  font-weight: 950;
+  text-shadow: 0 8px 0 rgba(0, 0, 0, 0.32), 0 0 28px rgba(244, 68, 68, 0.46);
+  transform: rotate(-5deg);
+}
+
+.vs-subtitle {
+  color: var(--muted);
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .roulette-stage {
@@ -783,6 +846,10 @@ button:disabled {
   animation: specialAttack 2s ease;
 }
 
+.fighter.magic-fail .sprite-stage {
+  animation: magicFail 2s ease;
+}
+
 .fighter.take-damage .sprite-stage {
   animation: takeDamage 2s ease;
 }
@@ -796,7 +863,8 @@ button:disabled {
 }
 
 .fighter.fx-hit .fighter-fx::before,
-.fighter.fx-confetti .fighter-fx::before {
+.fighter.fx-confetti .fighter-fx::before,
+.fighter.fx-fail .fighter-fx::before {
   position: absolute;
   z-index: 2;
   font-weight: 950;
@@ -818,6 +886,13 @@ button:disabled {
   inset: 2% 0 auto;
   color: #8af0ff;
   font-size: clamp(1.2rem, 3.8vw, 2.8rem);
+}
+
+.fighter.fx-fail .fighter-fx::before {
+  content: "BOOM!";
+  top: 24%;
+  color: #ff8b45;
+  font-size: clamp(2.2rem, 5.4vw, 4.7rem);
 }
 
 .health-card {
@@ -1119,6 +1194,29 @@ button:disabled {
   }
 }
 
+@keyframes magicFail {
+  0%,
+  100% {
+    transform: translate(0, 0) scaleX(var(--face-direction, 1));
+    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
+  }
+
+  18% {
+    transform: translateY(-8px) scale(1.05) scaleX(var(--face-direction, 1));
+    filter: drop-shadow(0 0 26px rgba(255, 139, 69, 0.9));
+  }
+
+  34%,
+  58% {
+    transform: translateX(var(--damage-shift, -12px)) rotate(-2deg) scaleX(var(--face-direction, 1));
+  }
+
+  46%,
+  70% {
+    transform: translateX(calc(var(--damage-shift, -12px) * -1)) rotate(2deg) scaleX(var(--face-direction, 1));
+  }
+}
+
 @keyframes fighterBounce {
   0%,
   100% {
@@ -1209,6 +1307,19 @@ button:disabled {
 
   .screen-header {
     grid-template-columns: 1fr;
+  }
+
+  .vs-matchup {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .vs-fighter-card img {
+    width: min(250px, 58vw);
+  }
+
+  .vs-mark {
+    font-size: clamp(3.4rem, 17vw, 5.4rem);
   }
 
   .map-screen-header {

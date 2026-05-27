@@ -1,50 +1,57 @@
 const colors = ["blue", "red", "yellow", "green", "pink"];
 const spriteDuration = 2000;
+const colorLabels = {
+  blue: "Azul",
+  red: "Vermelho",
+  yellow: "Amarelo",
+  green: "Verde",
+  pink: "Rosa",
+};
 
 const characters = [
-  character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", {
+  character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
     idle: "assets/marjorie.png",
     attack: "assets/marjorie-attack.png",
     damage: "assets/marjorie-damage.png",
     win: "assets/marjorie-win.png",
   }),
-  character("baby", "Baby Betinho", "assets/select-baby.png", {
+  character("baby", "Baby Betinho", "assets/select-baby.png", "yellow", {
     idle: "assets/baby.png",
     attack: "assets/baby-attack.png",
     damage: "assets/baby-damage.png",
     win: "assets/baby-win.png",
   }),
-  character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo.png", {
+  character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo.png", "green", {
     idle: "assets/marcelo.png",
     attack: "assets/marcelo-attack.png",
     damage: "assets/marcelo-damage.png",
     win: "assets/marcelo-win.png",
   }),
-  character("bill", "Bill Games", "assets/select-bill.png", {
+  character("bill", "Bill Games", "assets/select-bill.png", "blue", {
     idle: "assets/bill.png",
     attack: "assets/bill-attack.png",
     damage: "assets/bill-damage.png",
     win: "assets/bill-win.png",
   }),
-  character("lord", "Lord Mathias", "assets/select-lord.png", {
+  character("lord", "Lord Mathias", "assets/select-lord.png", "red", {
     idle: "assets/lord.png",
     attack: "assets/lord-attack.png",
     damage: "assets/lord-damage.png",
     win: "assets/lord-win.png",
   }),
-  character("chris", "Chris Combo", "assets/select-chris.png", {
+  character("chris", "Chris Combo", "assets/select-chris.png", "red", {
     idle: "assets/chris.png",
     attack: "assets/chris-attack.png",
     damage: "assets/chris-damage.png",
     win: "assets/chris-win.png",
   }),
-  character("akira", "Akira e Agora", "assets/select-akira.png", {
+  character("akira", "Akira e Agora", "assets/select-akira.png", "green", {
     idle: "assets/akira.png",
     attack: "assets/akira-attack.png",
     damage: "assets/akira-damage.png",
     win: "assets/akira-win.png",
   }),
-  character("chefe", "O Chefe", "assets/select-chefe.png", {
+  character("chefe", "O Chefe", "assets/select-chefe.png", "pink", {
     idle: "assets/chefe.png",
     attack: "assets/chefe-attack.png",
     damage: "assets/chefe-damage.png",
@@ -163,6 +170,7 @@ const screens = {
   draw: document.querySelector("#drawScreen"),
   online: document.querySelector("#onlineScreen"),
   map: document.querySelector("#mapScreen"),
+  vs: document.querySelector("#vsScreen"),
   game: document.querySelector("#gameScreen"),
 };
 
@@ -179,6 +187,7 @@ let selectStep = null;
 let pendingP1 = null;
 let arcade = { heroId: null, opponents: [], index: 0 };
 let versusDraw = null;
+let pendingVs = null;
 let online = {
   clientId: getClientId(),
   roomId: null,
@@ -189,6 +198,7 @@ let online = {
   pollTimer: null,
   characterId: null,
   roomsSignature: "",
+  showingVs: false,
 };
 
 const characterGrid = document.querySelector("#characterGrid");
@@ -209,6 +219,14 @@ const onlineWaitingTitle = document.querySelector("#onlineWaitingTitle");
 const onlineStatus = document.querySelector("#onlineStatus");
 const onlineSubtitle = document.querySelector("#onlineSubtitle");
 const onlineBackButton = document.querySelector("#onlineBackButton");
+const vsP1Icon = document.querySelector("#vsP1Icon");
+const vsP2Icon = document.querySelector("#vsP2Icon");
+const vsP1Name = document.querySelector("#vsP1Name");
+const vsP2Name = document.querySelector("#vsP2Name");
+const vsP1Color = document.querySelector("#vsP1Color");
+const vsP2Color = document.querySelector("#vsP2Color");
+const vsSubtitle = document.querySelector("#vsSubtitle");
+const vsBattleButton = document.querySelector("#vsBattleButton");
 const rollButton = document.querySelector("#rollButton");
 const diceButtons = [...document.querySelectorAll(".die")];
 const actionButtons = [...document.querySelectorAll("[data-action]")];
@@ -231,6 +249,7 @@ rollButton.addEventListener("click", () => rollDice());
 koButton.addEventListener("click", continueAfterKo);
 battleButton.addEventListener("click", startCurrentArcadeBattle);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
+vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
 diceButtons.forEach((button, index) => button.addEventListener("click", () => toggleHold(index)));
 actionButtons.forEach((button) => button.addEventListener("click", () => useAction(button.dataset.action)));
@@ -238,8 +257,8 @@ actionButtons.forEach((button) => button.addEventListener("click", () => useActi
 preloadSprites();
 showScreen("home");
 
-function character(id, name, select, sprites) {
-  return { id, name, select, sprites };
+function character(id, name, select, specialColor, sprites) {
+  return { id, name, select, specialColor, sprites };
 }
 
 function chooseMode(nextMode) {
@@ -281,7 +300,7 @@ function renderCharacterSelect() {
     const button = document.createElement("button");
     button.className = "character-card";
     button.type = "button";
-    button.innerHTML = `<img src="${fighter.select}" alt="${fighter.name}"><span>${fighter.name}</span>`;
+    button.innerHTML = `<img src="${fighter.select}" alt="${fighter.name}"><span>${fighter.name}</span><small>COR - ${colorLabels[fighter.specialColor]}</small>`;
     if (selectStep === "arcadeHero" && fighter.id === "chefe") button.disabled = true;
     if (isSecondPlayer && pendingP1?.id === fighter.id) button.disabled = true;
     button.addEventListener("click", () => selectCharacter(fighter.id));
@@ -317,7 +336,7 @@ function startArcade(hero) {
 function startCurrentArcadeBattle() {
   const hero = getCharacter(arcade.heroId);
   const opponent = arcade.opponents[arcade.index];
-  startMatch(hero, opponent, 0, `Arcade ${arcade.index + 1}/${arcade.opponents.length}: ${hero.name} contra ${opponent.name}`);
+  showVsScreen(hero, opponent, 0, `Arcade ${arcade.index + 1}/${arcade.opponents.length}: ${hero.name} contra ${opponent.name}`);
 }
 
 function startVersus(p1, p2) {
@@ -342,10 +361,40 @@ function playersLabel(index, p1, p2) {
   return index === 0 ? p1.name : p2.name;
 }
 
+function showVsScreen(p1, p2, starter, message, options = {}) {
+  pendingVs = { p1, p2, starter, message };
+  vsP1Icon.src = p1.select;
+  vsP1Icon.alt = p1.name;
+  vsP2Icon.src = p2.select;
+  vsP2Icon.alt = p2.name;
+  vsP1Name.textContent = p1.name;
+  vsP2Name.textContent = p2.name;
+  vsP1Color.textContent = `COR - ${colorLabels[p1.specialColor]}`;
+  vsP2Color.textContent = `COR - ${colorLabels[p2.specialColor]}`;
+  vsSubtitle.textContent = message;
+  vsBattleButton.disabled = Boolean(options.autoStart);
+  vsBattleButton.textContent = options.autoStart ? "Preparando..." : "Ir pra batalha";
+  showScreen("vs");
+  if (options.autoStart) {
+    window.setTimeout(() => {
+      if (pendingVs?.p1.id === p1.id && pendingVs?.p2.id === p2.id) startPendingVsBattle();
+    }, options.delay || 1400);
+  }
+}
+
+function startPendingVsBattle() {
+  if (!pendingVs) return;
+  const { p1, p2, starter, message } = pendingVs;
+  pendingVs = null;
+  vsBattleButton.disabled = false;
+  vsBattleButton.textContent = "Ir pra batalha";
+  startMatch(p1, p2, starter, message);
+}
+
 function startDrawnVersusBattle() {
   if (!versusDraw) return;
   const { p1, p2, starter } = versusDraw;
-  startMatch(p1, p2, starter, `Roleta: ${playersLabel(starter, p1, p2)} comeca!`);
+  showVsScreen(p1, p2, starter, `Roleta: ${playersLabel(starter, p1, p2)} comeca!`);
 }
 
 async function showOnlineLobby() {
@@ -402,6 +451,7 @@ async function joinOnlineRoom(roomId) {
     online.revision = -1;
     online.lastEventId = 0;
     online.matchStarted = false;
+    online.showingVs = false;
     selectStep = "onlinePick";
     renderCharacterSelect();
     showScreen("select");
@@ -450,7 +500,13 @@ async function syncOnlineMatch(state) {
   if (!online.matchStarted) {
     const left = getCharacter(match.characters[0]);
     const right = getCharacter(match.characters[1]);
-    startMatch(left, right, match.starter, `Online: ${playersLabel(match.starter, left, right)} comeca!`);
+    if (!online.showingVs) {
+      online.showingVs = true;
+      showVsScreen(left, right, match.starter, `Online: ${playersLabel(match.starter, left, right)} comeca!`, {
+        autoStart: true,
+      });
+    }
+    if (pendingVs) return;
     online.matchStarted = true;
     applyOnlineSnapshot(match);
     online.lastEventId = match.startEventId;
@@ -530,6 +586,7 @@ function resetOnlineSession(notify = true) {
   online.lastEventId = 0;
   online.matchStarted = false;
   online.characterId = null;
+  online.showingVs = false;
 }
 
 function scheduleOnlinePoll(callback, duration) {
@@ -642,9 +699,10 @@ function useAction(actionKey, fromServer = false) {
   opponent.hp = Math.max(0, opponent.hp - result.damage);
   playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
 
+  const bonusText = result.bonus ? ` Bonus de cor ${colorLabels[result.bonusColor]}: +${result.bonus}.` : "";
   const hitText =
     result.damage > 0
-      ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.`
+      ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.${bonusText}`
       : `${player.name} tentou ${action.label}, mas a combinacao nao fechou.`;
 
   if (opponent.hp <= 0) {
@@ -774,7 +832,10 @@ function getCpuHeldDice(actionKey) {
     }, []);
   }
 
-  const entries = Object.entries(getCounts()).sort((a, b) => b[1] - a[1]);
+  const specialColor = players[currentPlayer]?.specialColor;
+  const entries = Object.entries(getCounts()).sort(
+    (a, b) => b[1] - a[1] || Number(b[0] === specialColor) - Number(a[0] === specialColor),
+  );
   if (actionKey === "magia1") {
     const targets = entries.slice(0, 2).map(([color]) => color);
     return dice.reduce((indices, color, index) => {
@@ -792,20 +853,47 @@ function getCpuHeldDice(actionKey) {
   }, []);
 }
 
-function calculateDamage(actionKey) {
+function calculateDamage(actionKey, source = dice, player = players[currentPlayer]) {
   const action = actions[actionKey];
-  const countValues = Object.values(getCounts()).sort((a, b) => b - a);
+  const countMap = getCounts(source);
+  const countValues = Object.values(countMap).sort((a, b) => b - a);
   const maxRepeat = countValues[0] || 0;
-  if (action.type === "repeat") return { damage: Math.max(1, Math.round((maxRepeat / 5) * action.maxDamage)) };
-  if (action.type === "fullHouse") return { damage: countValues[0] === 3 && countValues[1] === 2 ? action.damage : 0 };
-  if (action.type === "threeKind") return { damage: maxRepeat >= 3 ? action.damage : 0 };
-  if (action.type === "fourKind") return { damage: maxRepeat >= 4 ? action.damage : 0 };
-  if (action.type === "multicolor") return { damage: countValues.length === 5 ? action.damage : 0 };
-  return { damage: maxRepeat === 5 ? action.damage : 0 };
+  let baseDamage = 0;
+  if (action.type === "repeat") baseDamage = Math.max(1, Math.round((maxRepeat / 5) * action.maxDamage));
+  if (action.type === "fullHouse") baseDamage = countValues[0] === 3 && countValues[1] === 2 ? action.damage : 0;
+  if (action.type === "threeKind") baseDamage = maxRepeat >= 3 ? action.damage : 0;
+  if (action.type === "fourKind") baseDamage = maxRepeat >= 4 ? action.damage : 0;
+  if (action.type === "multicolor") baseDamage = countValues.length === 5 ? action.damage : 0;
+  if (action.type === "yacht") baseDamage = maxRepeat === 5 ? action.damage : 0;
+
+  const bonus = baseDamage > 0 && hasSpecialColorBonus(action.type, countMap, player?.specialColor) ? 7 : 0;
+  return { damage: baseDamage + bonus, baseDamage, bonus, bonusColor: player?.specialColor };
+}
+
+function hasSpecialColorBonus(actionType, countMap, specialColor) {
+  if (!specialColor) return false;
+  const specialCount = countMap[specialColor] || 0;
+  if (actionType === "repeat") {
+    const maxRepeat = Math.max(...Object.values(countMap), 0);
+    return specialCount > 0 && specialCount === maxRepeat;
+  }
+  if (actionType === "fullHouse") return specialCount === 2 || specialCount === 3;
+  if (actionType === "threeKind") return specialCount >= 3;
+  if (actionType === "fourKind") return specialCount >= 4;
+  if (actionType === "multicolor") return specialCount === 1 && Object.keys(countMap).length === 5;
+  return specialCount === 5;
 }
 
 function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
   const action = actions[actionKey];
+  const failedPower = action.type !== "repeat" && damage === 0;
+  if (failedPower) {
+    setTemporarySprite(attackerIndex, "damage");
+    restartAnimation(fighters[attackerIndex], "magic-fail", spriteDuration);
+    restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
+    return;
+  }
+
   const attackClass = action.type === "yacht" ? "attack-special" : action.type === "repeat" ? "attack-strike" : "attack-magic";
   const emojiSet = attackEmojis[players[attackerIndex].id] || attackEmojis.akira;
   setTemporarySprite(attackerIndex, "attack");
@@ -970,6 +1058,7 @@ function showHome() {
   mode = null;
   pendingP1 = null;
   versusDraw = null;
+  pendingVs = null;
   showScreen("home");
 }
 
