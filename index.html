@@ -8,6 +8,88 @@
   </head>
   <body>
     <main class="game-shell">
+      <section id="homeScreen" class="screen menu-screen">
+        <img class="game-logo" src="assets/sgp-logo.png" alt="Super Gamepower: Fighting Edition" />
+        <nav class="main-menu" aria-label="Modos de jogo">
+          <button data-mode="arcade" type="button">Arcade</button>
+          <button data-mode="versus" type="button">Versus Local</button>
+          <button data-mode="online" type="button">Online</button>
+          <button data-mode="newsstand" type="button">Banca de Revistas</button>
+        </nav>
+      </section>
+
+      <section id="selectScreen" class="screen select-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1 id="selectTitle">Selecione seu lutador</h1>
+            <p id="selectSubtitle">Escolha quem entra na luta.</p>
+          </div>
+        </header>
+        <div id="characterGrid" class="character-grid" aria-label="Selecao de personagens"></div>
+      </section>
+
+      <section id="soonScreen" class="screen soon-screen hidden">
+        <div class="soon-card">
+          <h1>Em breve</h1>
+          <button class="back-button" data-back type="button">Voltar</button>
+        </div>
+      </section>
+
+      <section id="drawScreen" class="screen draw-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Sorteio inicial</h1>
+            <p>A roleta decide quem faz a primeira jogada.</p>
+          </div>
+        </header>
+        <div class="roulette-stage">
+          <div class="roulette-pointer" aria-hidden="true"></div>
+          <div id="rouletteWheel" class="roulette-wheel">
+            <span id="rouletteP1">Jogador 1</span>
+            <span id="rouletteP2">Jogador 2</span>
+          </div>
+        </div>
+        <p id="drawResult" class="draw-result">Preparando o sorteio...</p>
+        <button id="drawBattleButton" class="battle-button" type="button" disabled>Ir pra batalha</button>
+      </section>
+
+      <section id="onlineScreen" class="screen online-screen hidden">
+        <header class="screen-header">
+          <button id="onlineBackButton" class="back-button" type="button">Voltar</button>
+          <div>
+            <h1>Online</h1>
+            <p id="onlineSubtitle">Escolha uma sala para criar ou entrar em uma partida.</p>
+          </div>
+        </header>
+        <div id="roomList" class="room-list" aria-label="Salas online"></div>
+        <section id="onlineWaiting" class="online-waiting hidden" aria-live="polite">
+          <div class="waiting-pulse" aria-hidden="true"></div>
+          <strong id="onlineWaitingTitle">Sala aberta</strong>
+          <p id="onlineStatus">Aguardando outro jogador...</p>
+        </section>
+      </section>
+
+      <section id="mapScreen" class="screen map-screen hidden">
+        <header class="map-screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Modo Arcade</h1>
+            <p>Sua jornada ate a batalha final</p>
+          </div>
+        </header>
+        <section id="arcadeMap" class="arcade-map" aria-label="Progressao do modo Arcade">
+          <div class="map-heading">
+            <strong>Rota de luta</strong>
+            <span id="mapCounter"></span>
+          </div>
+          <div id="mapRoute" class="map-route"></div>
+        </section>
+        <button id="battleButton" class="battle-button" type="button">Ir pra batalha</button>
+      </section>
+
+      <section id="gameScreen" class="game-view hidden">
       <section class="dice-panel" aria-label="Area de rolagem de dados">
         <div class="turn-board">
           <span id="turnLabel">Turno de Marjorie</span>
@@ -34,7 +116,10 @@
             </div>
             <strong id="p1Hp">100</strong>
           </div>
-          <img src="assets/marjorie.png" alt="Marjorie" />
+          <div class="sprite-stage">
+            <img src="assets/marjorie.png" alt="Marjorie" />
+            <div class="fighter-fx" aria-hidden="true"></div>
+          </div>
         </article>
 
         <div class="versus">VS</div>
@@ -47,7 +132,10 @@
             </div>
             <strong id="p2Hp">100</strong>
           </div>
-          <img src="assets/akira.png" alt="Akira" />
+          <div class="sprite-stage">
+            <img src="assets/akira.png" alt="Akira" />
+            <div class="fighter-fx" aria-hidden="true"></div>
+          </div>
         </article>
       </section>
 
@@ -55,19 +143,23 @@
         <div class="action-column">
           <button data-action="soco" type="button">
             <span>SOCO</span>
-            <small>|||||</small>
+            <small>MÁX. DE CORES IGUAIS</small>
+            <b class="use-counter">0/2</b>
           </button>
           <button data-action="chute" type="button">
             <span>CHUTE</span>
-            <small>||||||||||</small>
+            <small>MÁX. DE CORES IGUAIS</small>
+            <b class="use-counter">0/2</b>
           </button>
           <button data-action="gancho" type="button">
             <span>GANCHO</span>
-            <small>|||||||||||||||</small>
+            <small>MÁX. DE CORES IGUAIS</small>
+            <b class="use-counter">0/2</b>
           </button>
           <button data-action="voadora" type="button">
             <span>VOADORA</span>
-            <small>||||||||||||||||||||</small>
+            <small>MÁX. DE CORES IGUAIS</small>
+            <b class="use-counter">0/2</b>
           </button>
         </div>
 
@@ -83,7 +175,7 @@
           </button>
           <button data-action="magia2" type="button">
             <span>MAGIA 2</span>
-            <small>4 CORES IGUAIS</small>
+            <small>3 CORES IGUAIS</small>
           </button>
           <button data-action="magia3" type="button">
             <span>MAGIA 3</span>
@@ -91,14 +183,17 @@
           </button>
           <button data-action="magia4" type="button">
             <span>MAGIA 4</span>
-            <small>QUALQUER COMBINACAO</small>
+            <small>4 CORES IGUAIS</small>
           </button>
         </div>
       </section>
 
       <section id="koOverlay" class="ko-overlay" aria-live="assertive" aria-hidden="true">
         <div class="ko-text">K.O</div>
+        <img id="winnerSprite" class="winner-sprite" src="" alt="" />
         <p id="winnerText"></p>
+        <button id="koButton" type="button">Continuar</button>
+      </section>
       </section>
     </main>
 
