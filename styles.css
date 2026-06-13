@@ -188,7 +188,7 @@ button:disabled {
   opacity: 0.28;
 }
 
-.character-card img {
+.character-card .character-portrait {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
@@ -198,6 +198,19 @@ button:disabled {
 .character-card small {
   color: var(--gold);
   font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+}
+
+.character-cartridge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.character-cartridge img {
+  width: clamp(30px, 5vw, 48px);
+  height: clamp(22px, 3.8vw, 36px);
+  object-fit: contain;
 }
 
 .soon-card {
@@ -790,6 +803,26 @@ button:disabled {
   gap: 20px;
   padding: 0 14px;
   overflow: hidden;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(3, 5, 10, 0.16), rgba(3, 5, 10, 0.34)),
+    var(--battle-stage, none) center bottom / cover no-repeat,
+    rgba(10, 12, 17, 0.35);
+}
+
+.arena::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.arena.attack-dim::before {
+  opacity: 1;
 }
 
 .fighter {
@@ -815,6 +848,7 @@ button:disabled {
   isolation: isolate;
   display: grid;
   place-items: end center;
+  width: 100%;
 }
 
 .sprite-stage::after {
@@ -831,22 +865,19 @@ button:disabled {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.38);
 }
 
-.fighter img {
+.sprite-stage img {
   position: relative;
   z-index: 1;
-  max-width: min(116%, 410px);
+  width: min(116%, 410px);
+  max-width: none;
   height: min(47vh, 470px);
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
 }
 
-.fighter.mirror img {
+.fighter.mirror .sprite-stage img {
   transform: scaleX(-1);
-}
-
-.fighter-right img {
-  max-width: min(118%, 430px);
 }
 
 .fighter.attack-glow .sprite-stage::before {
@@ -914,9 +945,30 @@ button:disabled {
   border-radius: 8px;
 }
 
-.health-card span,
+.health-card .fighter-name,
 .health-card strong {
   font-weight: 900;
+}
+
+.fighter-label {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fighter-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fighter-cartridge {
+  width: clamp(28px, 4vw, 42px);
+  height: clamp(20px, 3vw, 30px);
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .health-track {
@@ -1329,8 +1381,9 @@ button:disabled {
     grid-template-rows: auto auto;
   }
 
-  .fighter img {
-    max-width: 158%;
+  .sprite-stage img {
+    width: 158%;
+    max-width: none;
     height: min(46vh, 410px);
   }
 
@@ -1445,8 +1498,9 @@ button:disabled {
     gap: 4px;
   }
 
-  .fighter img {
-    max-width: 166%;
+  .sprite-stage img {
+    width: 166%;
+    max-width: none;
     height: min(38svh, 320px);
   }
 

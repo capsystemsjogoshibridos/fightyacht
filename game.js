@@ -7,6 +7,23 @@ const colorLabels = {
   green: "Verde",
   pink: "Rosa",
 };
+const cartridgeByColor = {
+  blue: { label: "SNES", src: "assets/cart-snes.png" },
+  red: { label: "32X", src: "assets/cart-32x.png" },
+  yellow: { label: "N64", src: "assets/cart-n64.png" },
+  green: { label: "PCE", src: "assets/cart-pce.png" },
+  pink: { label: "ATARI", src: "assets/cart-atari.png" },
+};
+const battleStages = [
+  "assets/cenario-arvores.jpg",
+  "assets/cenario-estadio.jpg",
+  "assets/cenario-estatua.jpg",
+  "assets/cenario-estudios.jpg",
+  "assets/cenario-pao-de-acucar.jpg",
+  "assets/cenario-parque.jpg",
+  "assets/cenario-predios.jpg",
+  "assets/cenario-ruas.jpg",
+];
 
 const characters = [
   character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
@@ -294,8 +311,10 @@ const turnLabel = document.querySelector("#turnLabel");
 const rollsLabel = document.querySelector("#rollsLabel");
 const roundMessage = document.querySelector("#roundMessage");
 const fighters = [...document.querySelectorAll(".fighter")];
-const fighterImages = fighters.map((fighter) => fighter.querySelector("img"));
-const fighterNames = fighters.map((fighter) => fighter.querySelector(".health-card span"));
+const fighterImages = fighters.map((fighter) => fighter.querySelector(".sprite-stage img"));
+const fighterNames = fighters.map((fighter) => fighter.querySelector(".fighter-name"));
+const fighterCartridges = fighters.map((fighter) => fighter.querySelector(".fighter-cartridge"));
+const arena = document.querySelector(".arena");
 const koOverlay = document.querySelector("#koOverlay");
 const winnerSprite = document.querySelector("#winnerSprite");
 const winnerText = document.querySelector("#winnerText");
@@ -363,10 +382,15 @@ function renderCharacterSelect() {
   characterGrid.innerHTML = "";
 
   characters.forEach((fighter) => {
+    const cartridge = cartridgeByColor[fighter.specialColor];
     const button = document.createElement("button");
     button.className = "character-card";
     button.type = "button";
-    button.innerHTML = `<img src="${fighter.select}" alt="${fighter.name}"><span>${fighter.name}</span><small>COR - ${colorLabels[fighter.specialColor]}</small>`;
+    button.innerHTML = `
+      <img class="character-portrait" src="${fighter.select}" alt="${fighter.name}">
+      <span>${fighter.name}</span>
+      <small class="character-cartridge">CARTUCHO: <img src="${cartridge.src}" alt="${cartridge.label}"></small>
+    `;
     if (selectStep === "arcadeHero" && fighter.id === "chefe") button.disabled = true;
     if (isSecondPlayer && pendingP1?.id === fighter.id) button.disabled = true;
     button.addEventListener("click", () => selectCharacter(fighter.id));
@@ -693,6 +717,9 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assop
   winnerSprite.alt = "";
   fighterNames[0].textContent = players[0].name;
   fighterNames[1].textContent = players[1].name;
+  updateFighterCartridge(0);
+  updateFighterCartridge(1);
+  setRandomBattleStage();
   fighterImages[0].src = players[0].sprites.idle;
   fighterImages[1].src = players[1].sprites.idle;
   spriteStates = ["idle", "idle"];
@@ -704,6 +731,11 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assop
 
 function makePlayer(fighter) {
   return { ...fighter, hp: 100, used: {} };
+}
+
+function setRandomBattleStage() {
+  const stage = battleStages[Math.floor(Math.random() * battleStages.length)];
+  arena.style.setProperty("--battle-stage", `url("${stage}")`);
 }
 
 async function rollDice(syncedDice = null) {
@@ -959,11 +991,13 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
 async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
   const action = actions[actionKey];
   const failedPower = action.type !== "repeat" && damage === 0;
+  arena.classList.add("attack-dim");
   if (failedPower) {
     setTemporarySprite(attackerIndex, "damage", false);
     restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
     await wait(spriteDuration);
     restoreIdleSprite(attackerIndex);
+    arena.classList.remove("attack-dim");
     return;
   }
 
@@ -977,10 +1011,12 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
     restoreIdleSprite(attackerIndex);
     await wait(spriteDuration / 2);
     restoreIdleSprite(defenderIndex);
+    arena.classList.remove("attack-dim");
     return;
   }
   await wait(spriteDuration);
   restoreIdleSprite(attackerIndex);
+  arena.classList.remove("attack-dim");
 }
 
 function getActionSpriteState(actionKey) {
@@ -1091,6 +1127,12 @@ function renderPlayers() {
   });
 }
 
+function updateFighterCartridge(playerIndex) {
+  const cartridge = cartridgeByColor[players[playerIndex].specialColor];
+  fighterCartridges[playerIndex].src = cartridge.src;
+  fighterCartridges[playerIndex].alt = cartridge.label;
+}
+
 function shouldMirror(playerIndex) {
   return playerIndex === 1;
 }
@@ -1181,5 +1223,9 @@ function preloadSprites() {
       const image = new Image();
       image.src = src;
     });
+  });
+  battleStages.forEach((src) => {
+    const image = new Image();
+    image.src = src;
   });
 }
