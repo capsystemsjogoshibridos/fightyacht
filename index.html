@@ -121,16 +121,14 @@
             </span>
             <div class="health-track">
               <div id="p1Health" class="health-fill"></div>
+              <strong id="p1Hp" class="health-value">100</strong>
             </div>
-            <strong id="p1Hp">100</strong>
           </div>
           <div class="sprite-stage">
             <img src="assets/marjorie.png" alt="Marjorie" />
             <div class="fighter-fx" aria-hidden="true"></div>
           </div>
         </article>
-
-        <div class="versus">VS</div>
 
         <article class="fighter fighter-right">
           <div class="health-card">
@@ -140,8 +138,8 @@
             </span>
             <div class="health-track">
               <div id="p2Health" class="health-fill"></div>
+              <strong id="p2Hp" class="health-value">100</strong>
             </div>
-            <strong id="p2Hp">100</strong>
           </div>
           <div class="sprite-stage">
             <img src="assets/akira.png" alt="Akira" />
@@ -163,7 +161,6 @@
           <button class="die empty" type="button" aria-label="Cartucho 5"></button>
         </section>
         <button id="rollButton" class="roll-button" type="button">Assoprar Cartuchos</button>
-        <p id="roundMessage" class="round-message">Assopre os cartuchos para iniciar o ataque.</p>
       </section>
 
       <section class="actions" aria-label="Golpes disponiveis">
@@ -210,6 +207,8 @@
           </button>
         </div>
       </section>
+
+      <p id="roundMessage" class="round-message">Assopre os cartuchos para iniciar o ataque.</p>
 
       <section id="koOverlay" class="ko-overlay" aria-live="assertive" aria-hidden="true">
         <div class="ko-text">K.O</div>
