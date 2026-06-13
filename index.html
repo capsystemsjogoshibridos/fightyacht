@@ -8,7 +8,11 @@
   </head>
   <body>
     <main class="game-shell">
-      <section id="homeScreen" class="screen menu-screen">
+      <section id="splashScreen" class="screen splash-screen">
+        <img class="splash-logo" src="assets/cap-systems-logo.png" alt="Cap Systems Jogos Hibridos" />
+      </section>
+
+      <section id="homeScreen" class="screen menu-screen hidden">
         <img class="game-logo" src="assets/sgp-logo.png" alt="Super Gamepower: Fighting Edition" />
         <nav class="main-menu" aria-label="Modos de jogo">
           <button data-mode="arcade" type="button">Arcade</button>
@@ -108,23 +112,6 @@
       </section>
 
       <section id="gameScreen" class="game-view hidden">
-      <section class="dice-panel" aria-label="Area de rolagem de dados">
-        <div class="turn-board">
-          <span id="turnLabel">Turno de Marjorie</span>
-          <strong id="rollsLabel">Rolagens: 0/3</strong>
-        </div>
-        <button id="rollButton" class="roll-button" type="button">Rolar Dados</button>
-        <p id="roundMessage" class="round-message">Role os dados para iniciar o ataque.</p>
-      </section>
-
-      <section class="dice-slots" aria-label="Espacos dos dados">
-        <button class="die empty" type="button" aria-label="Dado 1"></button>
-        <button class="die empty" type="button" aria-label="Dado 2"></button>
-        <button class="die empty" type="button" aria-label="Dado 3"></button>
-        <button class="die empty" type="button" aria-label="Dado 4"></button>
-        <button class="die empty" type="button" aria-label="Dado 5"></button>
-      </section>
-
       <section class="arena" aria-label="Arena de combate">
         <article class="fighter fighter-left active">
           <div class="health-card">
@@ -157,27 +144,39 @@
         </article>
       </section>
 
+      <section class="dice-panel" aria-label="Area de assoprada de cartuchos">
+        <div class="turn-board">
+          <span id="turnLabel">Turno de Marjorie</span>
+          <strong id="rollsLabel">Assopradas: 0/3</strong>
+        </div>
+        <section class="dice-slots" aria-label="Espacos dos cartuchos">
+          <button class="die empty" type="button" aria-label="Cartucho 1"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 2"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 3"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 4"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 5"></button>
+        </section>
+        <button id="rollButton" class="roll-button" type="button">Assoprar Cartuchos</button>
+        <p id="roundMessage" class="round-message">Assopre os cartuchos para iniciar o ataque.</p>
+      </section>
+
       <section class="actions" aria-label="Golpes disponiveis">
         <div class="action-column">
           <button data-action="soco" type="button">
-            <span>SOCO</span>
+            <span class="action-title">SOCO <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="chute" type="button">
-            <span>CHUTE</span>
+            <span class="action-title">CHUTE <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="gancho" type="button">
-            <span>GANCHO</span>
+            <span class="action-title">SOC&Atilde;O <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="voadora" type="button">
-            <span>VOADORA</span>
+            <span class="action-title">CHUT&Atilde;O <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
         </div>
 
@@ -188,19 +187,19 @@
 
         <div class="action-column">
           <button data-action="magia1" type="button">
-            <span>MAGIA 1</span>
+            <span>EVOCA&Ccedil;&Atilde;O</span>
             <small>3 + 2 CORES IGUAIS</small>
           </button>
           <button data-action="magia2" type="button">
-            <span>MAGIA 2</span>
+            <span>PODER</span>
             <small>3 CORES IGUAIS</small>
           </button>
           <button data-action="magia3" type="button">
-            <span>MAGIA 3</span>
+            <span>FEITI&Ccedil;O</span>
             <small>5 CORES DIFERENTES</small>
           </button>
           <button data-action="magia4" type="button">
-            <span>MAGIA 4</span>
+            <span>MAGIA</span>
             <small>4 CORES IGUAIS</small>
           </button>
         </div>

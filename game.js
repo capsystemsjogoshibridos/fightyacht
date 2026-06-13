@@ -10,51 +10,107 @@ const colorLabels = {
 
 const characters = [
   character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
-    idle: "assets/marjorie.png",
-    attack: "assets/marjorie-attack.png",
-    damage: "assets/marjorie-damage.png",
+    idle: "assets/marjorie-idle.webp",
+    attack: "assets/marjorie-punch.webp",
+    punch: "assets/marjorie-punch.webp",
+    kick: "assets/marjorie-kick.webp",
+    poder1: "assets/marjorie-poder-1.webp",
+    poder2: "assets/marjorie-poder-2.webp",
+    poder3: "assets/marjorie-poder-3.webp",
+    poder4: "assets/marjorie-poder-4.webp",
+    especial: "assets/marjorie-especial.webp",
+    damage: "assets/marjorie-pancada.webp",
     win: "assets/marjorie-win.png",
   }),
   character("baby", "Baby Betinho", "assets/select-baby.png", "yellow", {
-    idle: "assets/baby.png",
-    attack: "assets/baby-attack.png",
-    damage: "assets/baby-damage.png",
+    idle: "assets/baby-idle.webp",
+    attack: "assets/baby-punch.webp",
+    punch: "assets/baby-punch.webp",
+    kick: "assets/baby-kick.webp",
+    poder1: "assets/baby-poder-1.webp",
+    poder2: "assets/baby-poder-2.webp",
+    poder3: "assets/baby-poder-3.webp",
+    poder4: "assets/baby-poder-4.webp",
+    especial: "assets/baby-especial.webp",
+    damage: "assets/baby-pancada.webp",
     win: "assets/baby-win.png",
   }),
   character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo.png", "green", {
-    idle: "assets/marcelo.png",
-    attack: "assets/marcelo-attack.png",
-    damage: "assets/marcelo-damage.png",
+    idle: "assets/marcelo-idle.webp",
+    attack: "assets/marcelo-punch.webp",
+    punch: "assets/marcelo-punch.webp",
+    kick: "assets/marcelo-kick.webp",
+    poder1: "assets/marcelo-poder-1.webp",
+    poder2: "assets/marcelo-poder-2.webp",
+    poder3: "assets/marcelo-poder-3.webp",
+    poder4: "assets/marcelo-poder-4.webp",
+    especial: "assets/marcelo-especial.webp",
+    damage: "assets/marcelo-pancada.webp",
     win: "assets/marcelo-win.png",
   }),
   character("bill", "Bill Games", "assets/select-bill.png", "blue", {
-    idle: "assets/bill.png",
-    attack: "assets/bill-attack.png",
-    damage: "assets/bill-damage.png",
+    idle: "assets/bill-idle.webp",
+    attack: "assets/bill-punch.webp",
+    punch: "assets/bill-punch.webp",
+    kick: "assets/bill-kick.webp",
+    poder1: "assets/bill-poder-1.webp",
+    poder2: "assets/bill-poder-2.webp",
+    poder3: "assets/bill-poder-3.webp",
+    poder4: "assets/bill-poder-4.webp",
+    especial: "assets/bill-especial.webp",
+    damage: "assets/bill-pancada.webp",
     win: "assets/bill-win.png",
   }),
   character("lord", "Lord Mathias", "assets/select-lord.png", "red", {
-    idle: "assets/lord.png",
-    attack: "assets/lord-attack.png",
-    damage: "assets/lord-damage.png",
+    idle: "assets/lord-idle.webp",
+    attack: "assets/lord-punch.webp",
+    punch: "assets/lord-punch.webp",
+    kick: "assets/lord-kick.webp",
+    poder1: "assets/lord-poder-1.webp",
+    poder2: "assets/lord-poder-2.webp",
+    poder3: "assets/lord-poder-3.webp",
+    poder4: "assets/lord-poder-4.webp",
+    especial: "assets/lord-especial.webp",
+    damage: "assets/lord-pancada.webp",
     win: "assets/lord-win.png",
   }),
   character("chris", "Chris Combo", "assets/select-chris.png", "red", {
-    idle: "assets/chris.png",
-    attack: "assets/chris-attack.png",
-    damage: "assets/chris-damage.png",
+    idle: "assets/chris-idle.webp",
+    attack: "assets/chris-punch.webp",
+    punch: "assets/chris-punch.webp",
+    kick: "assets/chris-kick.webp",
+    poder1: "assets/chris-poder-1.webp",
+    poder2: "assets/chris-poder-2.webp",
+    poder3: "assets/chris-poder-3.webp",
+    poder4: "assets/chris-poder-4.webp",
+    especial: "assets/chris-especial.webp",
+    damage: "assets/chris-pancada.webp",
     win: "assets/chris-win.png",
   }),
   character("akira", "Akira e Agora", "assets/select-akira.png", "green", {
-    idle: "assets/akira.png",
-    attack: "assets/akira-attack.png",
-    damage: "assets/akira-damage.png",
+    idle: "assets/akira-idle.webp",
+    attack: "assets/akira-punch.webp",
+    punch: "assets/akira-punch.webp",
+    kick: "assets/akira-kick.webp",
+    poder1: "assets/akira-poder-1.webp",
+    poder2: "assets/akira-poder-2.webp",
+    poder3: "assets/akira-poder-3.webp",
+    poder4: "assets/akira-poder-4.webp",
+    especial: "assets/akira-especial.webp",
+    damage: "assets/akira-pancada.webp",
     win: "assets/akira-win.png",
   }),
   character("chefe", "O Chefe", "assets/select-chefe.png", "pink", {
-    idle: "assets/chefe.png",
-    attack: "assets/chefe-attack.png",
-    damage: "assets/chefe-damage.png",
+    idle: "assets/chefe-idle.webp",
+    attack: "assets/chefe-punch.webp",
+    punch: "assets/chefe-punch.webp",
+    kick: "assets/chefe-kick.webp",
+    poder1: "assets/chefe-poder-1.webp",
+    poder2: "assets/chefe-poder-2.webp",
+    poder3: "assets/chefe-poder-3.webp",
+    poder4: "assets/chefe-poder-4.webp",
+    especial: "assets/chefe-especial.webp",
+    damage: "assets/chefe-pancada.webp",
     win: "assets/chefe-win.png",
   }),
 ];
@@ -153,17 +209,18 @@ const attackEmojis = {
 const actions = {
   soco: { label: "Soco", type: "repeat", maxDamage: 5, maxUses: 2 },
   chute: { label: "Chute", type: "repeat", maxDamage: 7, maxUses: 2 },
-  gancho: { label: "Gancho", type: "repeat", maxDamage: 10, maxUses: 2 },
-  voadora: { label: "Voadora", type: "repeat", maxDamage: 15, maxUses: 2 },
-  magia1: { label: "Magia 1", type: "fullHouse", damage: 20, maxUses: 1 },
-  magia2: { label: "Magia 2", type: "threeKind", damage: 23, maxUses: 1 },
-  magia3: { label: "Magia 3", type: "multicolor", damage: 25, maxUses: 1 },
-  magia4: { label: "Magia 4", type: "fourKind", damage: 27, maxUses: 1 },
+  gancho: { label: "Soc\u00e3o", type: "repeat", maxDamage: 10, maxUses: 2 },
+  voadora: { label: "Chut\u00e3o", type: "repeat", maxDamage: 15, maxUses: 2 },
+  magia1: { label: "Evoca\u00e7\u00e3o", type: "fullHouse", damage: 20, maxUses: 1 },
+  magia2: { label: "Poder", type: "threeKind", damage: 23, maxUses: 1 },
+  magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 25, maxUses: 1 },
+  magia4: { label: "Magia", type: "fourKind", damage: 27, maxUses: 1 },
   especial: { label: "Poder Especial", type: "yacht", damage: 40, maxUses: 1 },
 };
 
 const actionKeys = Object.keys(actions);
 const screens = {
+  splash: document.querySelector("#splashScreen"),
   home: document.querySelector("#homeScreen"),
   select: document.querySelector("#selectScreen"),
   soon: document.querySelector("#soonScreen"),
@@ -175,16 +232,19 @@ const screens = {
 };
 
 let players = [];
+let spriteStates = ["idle", "idle"];
 let currentPlayer = 0;
 let dice = Array(5).fill(null);
 let held = Array(5).fill(false);
 let rolls = 0;
 let gameOver = false;
 let isRolling = false;
+let isAnimating = false;
 let matchWinnerIndex = null;
 let mode = null;
 let selectStep = null;
 let pendingP1 = null;
+let splashTimer = null;
 let arcade = { heroId: null, opponents: [], index: 0 };
 let versusDraw = null;
 let pendingVs = null;
@@ -241,6 +301,11 @@ const winnerSprite = document.querySelector("#winnerSprite");
 const winnerText = document.querySelector("#winnerText");
 const koButton = document.querySelector("#koButton");
 
+screens.splash.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  finishSplash();
+});
 document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => chooseMode(button.dataset.mode));
 });
@@ -255,7 +320,8 @@ diceButtons.forEach((button, index) => button.addEventListener("click", () => to
 actionButtons.forEach((button) => button.addEventListener("click", () => useAction(button.dataset.action)));
 
 preloadSprites();
-showScreen("home");
+showScreen("splash");
+splashTimer = window.setTimeout(finishSplash, 3000);
 
 function character(id, name, select, specialColor, sprites) {
   return { id, name, select, specialColor, sprites };
@@ -524,7 +590,7 @@ async function syncOnlineMatch(state) {
       held = [...event.held];
       renderDice();
     } else if (event.type === "attack") {
-      useAction(event.actionKey, true);
+      await useAction(event.actionKey, true);
     }
   }
   applyOnlineSnapshot(match);
@@ -612,7 +678,7 @@ function getClientId() {
   return generated;
 }
 
-function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Role os dados para iniciar o ataque.") {
+function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
   currentPlayer = starter;
   dice = Array(5).fill(null);
@@ -629,6 +695,7 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Role 
   fighterNames[1].textContent = players[1].name;
   fighterImages[0].src = players[0].sprites.idle;
   fighterImages[1].src = players[1].sprites.idle;
+  spriteStates = ["idle", "idle"];
   roundMessage.textContent = message;
   showScreen("game");
   render();
@@ -665,7 +732,7 @@ async function rollDice(syncedDice = null) {
   rolls += 1;
   isRolling = false;
   roundMessage.textContent =
-    rolls === 3 ? "Ultima rolagem. Escolha um golpe." : "Clique nos dados para separar/segurar cores antes de rolar de novo.";
+    rolls === 3 ? "Ultima assoprada. Escolha um golpe." : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
   render();
 }
 
@@ -679,13 +746,13 @@ function toggleHold(index) {
   renderDice();
 }
 
-function useAction(actionKey, fromServer = false) {
+async function useAction(actionKey, fromServer = false) {
   if (mode === "online" && !fromServer) {
     requestOnlineCommand("attack", { actionKey });
     return;
   }
-  if (gameOver || isRolling || rolls === 0) {
-    roundMessage.textContent = "Role os dados antes de atacar.";
+  if (gameOver || isRolling || isAnimating || rolls === 0) {
+    roundMessage.textContent = "Assopre os cartuchos antes de atacar.";
     return;
   }
   const player = players[currentPlayer];
@@ -697,13 +764,18 @@ function useAction(actionKey, fromServer = false) {
   const result = calculateDamage(actionKey);
   player.used[actionKey] = getUseCount(player, actionKey) + 1;
   opponent.hp = Math.max(0, opponent.hp - result.damage);
-  playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
+  isAnimating = true;
+  renderActions();
+  renderRollButton();
 
   const bonusText = result.bonus ? ` Bonus de cor ${colorLabels[result.bonusColor]}: +${result.bonus}.` : "";
   const hitText =
     result.damage > 0
       ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.${bonusText}`
       : `${player.name} tentou ${action.label}, mas a combinacao nao fechou.`;
+
+  await playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
+  isAnimating = false;
 
   if (opponent.hp <= 0) {
     finishMatch(currentPlayer, `${hitText} ${player.name} venceu!`);
@@ -751,7 +823,7 @@ async function maybeCpuTurn() {
     if (index < 2) {
       const strategy = chooseCpuStrategy();
       held = dice.map((_, dieIndex) => strategy.held.includes(dieIndex));
-      roundMessage.textContent = `${players[currentPlayer].name} separou dados para buscar ${actions[strategy.action].label}.`;
+      roundMessage.textContent = `${players[currentPlayer].name} separou cartuchos para buscar ${actions[strategy.action].label}.`;
       renderDice();
       await wait(820);
     } else {
@@ -762,7 +834,7 @@ async function maybeCpuTurn() {
     const actionKey = pickCpuAction();
     roundMessage.textContent = `${players[currentPlayer].name} escolheu ${actions[actionKey].label}.`;
     await wait(420);
-    useAction(actionKey);
+    await useAction(actionKey);
   }
 }
 
@@ -884,26 +956,47 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   return specialCount === 5;
 }
 
-function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
+async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
   const action = actions[actionKey];
   const failedPower = action.type !== "repeat" && damage === 0;
   if (failedPower) {
-    setTemporarySprite(attackerIndex, "damage");
-    restartAnimation(fighters[attackerIndex], "magic-fail", spriteDuration);
+    setTemporarySprite(attackerIndex, "damage", false);
     restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
+    await wait(spriteDuration);
+    restoreIdleSprite(attackerIndex);
     return;
   }
 
-  const attackClass = action.type === "yacht" ? "attack-special" : action.type === "repeat" ? "attack-strike" : "attack-magic";
-  const emojiSet = attackEmojis[players[attackerIndex].id] || attackEmojis.akira;
-  setTemporarySprite(attackerIndex, "attack");
-  restartAnimation(fighters[attackerIndex], attackClass, spriteDuration);
-  launchAttackEmojis(emojiSet[actionKey], attackerIndex, defenderIndex);
+  setTemporarySprite(attackerIndex, getActionSpriteState(actionKey), false);
+  if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[attackerIndex], "attack-glow", spriteDuration);
   if (damage > 0) {
-    setTemporarySprite(defenderIndex, "damage");
-    restartAnimation(fighters[defenderIndex], "take-damage", spriteDuration);
+    await wait(spriteDuration / 2);
+    setTemporarySprite(defenderIndex, "damage", false);
     restartAnimation(fighters[defenderIndex], "fx-hit", spriteDuration);
+    await wait(spriteDuration / 2);
+    restoreIdleSprite(attackerIndex);
+    await wait(spriteDuration / 2);
+    restoreIdleSprite(defenderIndex);
+    return;
   }
+  await wait(spriteDuration);
+  restoreIdleSprite(attackerIndex);
+}
+
+function getActionSpriteState(actionKey) {
+  return (
+    {
+      soco: "punch",
+      gancho: "punch",
+      chute: "kick",
+      voadora: "kick",
+      magia1: "poder1",
+      magia2: "poder2",
+      magia3: "poder3",
+      magia4: "poder4",
+      especial: "especial",
+    }[actionKey] || "attack"
+  );
 }
 
 function restartAnimation(element, className, duration = 820) {
@@ -913,12 +1006,21 @@ function restartAnimation(element, className, duration = 820) {
   window.setTimeout(() => element.classList.remove(className), duration);
 }
 
+function restoreIdleSprite(playerIndex) {
+  if (gameOver || !players[playerIndex]) return;
+  spriteStates[playerIndex] = "idle";
+  fighterImages[playerIndex].src = players[playerIndex].sprites.idle;
+  updateFighterMirror(playerIndex);
+}
+
 function setTemporarySprite(playerIndex, state, shouldRestore = true) {
-  fighterImages[playerIndex].src = players[playerIndex].sprites[state];
+  spriteStates[playerIndex] = state;
+  fighterImages[playerIndex].src = players[playerIndex].sprites[state] || players[playerIndex].sprites.attack || players[playerIndex].sprites.idle;
+  updateFighterMirror(playerIndex);
   if (state === "win") restartAnimation(fighters[playerIndex], "fx-confetti", spriteDuration * 2);
   if (shouldRestore) {
     window.setTimeout(() => {
-      if (!gameOver) fighterImages[playerIndex].src = players[playerIndex].sprites.idle;
+      restoreIdleSprite(playerIndex);
     }, spriteDuration);
   }
 }
@@ -930,7 +1032,7 @@ function showKo(winnerIndex) {
   if (winner) {
     winnerSprite.src = winner.sprites.win;
     winnerSprite.alt = `${winner.name} venceu`;
-    winnerSprite.classList.toggle("mirror", shouldMirror(winnerIndex));
+    winnerSprite.classList.remove("mirror");
   }
   koOverlay.classList.add("show");
   koOverlay.setAttribute("aria-hidden", "false");
@@ -954,39 +1056,13 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-function launchAttackEmojis(emoji, attackerIndex, defenderIndex) {
-  const arena = document.querySelector(".arena");
-  const arenaRect = arena.getBoundingClientRect();
-  const attackerRect = fighterImages[attackerIndex].getBoundingClientRect();
-  const defenderRect = fighterImages[defenderIndex].getBoundingClientRect();
-  const startX = attackerRect.left + attackerRect.width / 2 - arenaRect.left;
-  const startY = attackerRect.top + attackerRect.height * 0.32 - arenaRect.top;
-  const endX = defenderRect.left + defenderRect.width / 2 - arenaRect.left;
-  const endY = defenderRect.top + defenderRect.height * 0.32 - arenaRect.top;
-  for (let index = 0; index < 10; index += 1) {
-    const projectile = document.createElement("span");
-    const spreadX = (Math.random() - 0.5) * 110;
-    const spreadY = (Math.random() - 0.5) * 150;
-    projectile.className = "attack-emoji";
-    projectile.textContent = emoji;
-    projectile.style.left = `${startX}px`;
-    projectile.style.top = `${startY}px`;
-    projectile.style.setProperty("--tx", `${endX - startX + spreadX}px`);
-    projectile.style.setProperty("--ty", `${endY - startY + spreadY}px`);
-    projectile.style.setProperty("--delay", `${index * 45}ms`);
-    projectile.style.setProperty("--spin", `${attackerIndex === 0 ? 1 : -1}`);
-    arena.appendChild(projectile);
-    window.setTimeout(() => projectile.remove(), 1500);
-  }
-}
-
 function render() {
   renderDice();
   renderPlayers();
   renderActions();
   renderRollButton();
   turnLabel.textContent = gameOver ? "Fim de luta" : `Turno de ${players[currentPlayer].name}`;
-  rollsLabel.textContent = `Rolagens: ${rolls}/3`;
+  rollsLabel.textContent = `Assopradas: ${rolls}/3`;
 }
 
 function renderDice() {
@@ -996,13 +1072,13 @@ function renderDice() {
     if (!dice[index]) {
       button.classList.add("empty");
       if (isRollingDie) button.classList.add("rolling");
-      button.setAttribute("aria-label", `Dado ${index + 1} vazio`);
+      button.setAttribute("aria-label", `Cartucho ${index + 1} vazio`);
       return;
     }
     button.classList.add(dice[index]);
     button.classList.toggle("held", held[index]);
     button.classList.toggle("rolling", isRollingDie);
-    button.setAttribute("aria-label", `Dado ${index + 1}: ${dice[index]}${held[index] ? ", separado" : ""}`);
+    button.setAttribute("aria-label", `Cartucho ${index + 1}: ${dice[index]}${held[index] ? ", separado" : ""}`);
   });
 }
 
@@ -1011,12 +1087,16 @@ function renderPlayers() {
     document.querySelector(`#p${index + 1}Hp`).textContent = player.hp;
     document.querySelector(`#p${index + 1}Health`).style.width = `${player.hp}%`;
     fighters[index].classList.toggle("active", index === currentPlayer && !gameOver);
-    fighters[index].classList.toggle("mirror", shouldMirror(index));
+    updateFighterMirror(index);
   });
 }
 
 function shouldMirror(playerIndex) {
-  return playerIndex === 0;
+  return playerIndex === 1;
+}
+
+function updateFighterMirror(playerIndex) {
+  fighters[playerIndex].classList.toggle("mirror", spriteStates[playerIndex] !== "win" && shouldMirror(playerIndex));
 }
 
 function renderActions() {
@@ -1027,23 +1107,23 @@ function renderActions() {
     const isUsed = usedCount >= action.maxUses;
     const counter = button.querySelector(".use-counter");
     if (counter) counter.textContent = `${usedCount}/${action.maxUses}`;
-    button.disabled = gameOver || rolls === 0 || isRolling || isUsed || isCpuTurn() || isOnlineOpponentTurn();
+    button.disabled = gameOver || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
 }
 
 function renderRollButton() {
-  rollButton.disabled = gameOver || isRolling || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
+  rollButton.disabled = gameOver || isRolling || isAnimating || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
   if (rolls > 0) rollButton.classList.add(`roll-${rolls}`);
-  rollButton.textContent = isRolling ? "Rolando..." : `Rolar Dados ${rolls}/3`;
+  rollButton.textContent = isRolling ? "Assoprando..." : `Assoprar Cartuchos ${rolls}/3`;
 }
 
 function showArcadeMap() {
   mapCounter.textContent = `Luta ${arcade.index + 1} de ${arcade.opponents.length}`;
   mapRoute.innerHTML = "";
   arcade.opponents.forEach((opponent, index) => {
-    const passed = index < arcade.index || (gameOver && matchWinnerIndex === 0 && index === arcade.index);
+    const passed = index < arcade.index;
     const current = index === arcade.index && !passed;
     const node = document.createElement("div");
     node.className = `route-fight${passed ? " done" : ""}${current ? " current" : ""}${opponent.id === "chefe" ? " boss" : ""}`;
@@ -1060,6 +1140,14 @@ function showHome() {
   versusDraw = null;
   pendingVs = null;
   showScreen("home");
+}
+
+function finishSplash() {
+  if (splashTimer) {
+    window.clearTimeout(splashTimer);
+    splashTimer = null;
+  }
+  if (!screens.splash.classList.contains("hidden")) showHome();
 }
 
 function showScreen(name) {

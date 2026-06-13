@@ -60,14 +60,49 @@ button:disabled {
   place-items: center;
 }
 
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  min-height: 100vh;
+  background: #000;
+}
+
+.splash-logo {
+  width: min(210px, 42vw);
+  max-height: 30vh;
+  object-fit: contain;
+}
+
 .menu-screen {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   align-content: center;
   gap: 28px;
+  padding: 24px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(4, 6, 12, 0.1), rgba(4, 6, 12, 0.54)),
+    url("assets/title-screen.jpeg") center / cover no-repeat;
+}
+
+.menu-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.62), transparent 48%, rgba(0, 0, 0, 0.38));
+  pointer-events: none;
+}
+
+.menu-screen > * {
+  position: relative;
+  z-index: 1;
 }
 
 .game-logo {
-  width: min(900px, 96vw);
-  max-height: min(48vh, 330px);
+  width: min(520px, 74vw);
+  max-height: min(28vh, 210px);
   object-fit: contain;
   filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.65));
 }
@@ -131,7 +166,7 @@ button:disabled {
 
 .character-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -460,7 +495,7 @@ button:disabled {
 .game-view {
   min-height: calc(100svh - 16px);
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto auto;
   gap: 8px;
 }
 
@@ -605,7 +640,7 @@ button:disabled {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
@@ -625,7 +660,7 @@ button:disabled {
 }
 
 .roll-button {
-  min-width: 174px;
+  min-width: 220px;
   min-height: 50px;
   border-radius: 8px;
   background: var(--gold);
@@ -658,40 +693,43 @@ button:disabled {
 
 .round-message {
   grid-column: 1 / -1;
-  min-height: 24px;
+  min-height: 42px;
+  padding: 10px 12px;
   margin: 0;
-  color: var(--muted);
+  color: var(--text);
+  background: rgba(9, 11, 16, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
 }
 
 .dice-slots {
-  min-height: 76px;
-  padding: 8px;
-  background: var(--panel-strong);
-  border-radius: 8px;
+  min-height: 70px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(54px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(5, minmax(54px, 82px));
+  justify-content: start;
+  gap: 8px;
 }
 
 .die {
   position: relative;
   min-height: 58px;
+  aspect-ratio: 1.34;
   border: 3px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.18);
+  background-color: rgba(255, 255, 255, 0.05);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  box-shadow: inset 0 -10px 18px rgba(0, 0, 0, 0.18), 0 7px 16px rgba(0, 0, 0, 0.24);
   transition: transform 160ms ease, border-color 160ms ease;
   transform-style: preserve-3d;
 }
 
 .die:not(.empty)::after {
-  content: "";
-  display: block;
-  width: 24%;
-  aspect-ratio: 1;
-  margin: auto;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.72);
+  content: none;
 }
 
 .die.held {
@@ -719,23 +757,28 @@ button:disabled {
 }
 
 .die.blue {
-  background: var(--blue);
+  background-color: var(--blue);
+  background-image: url("assets/cart-snes.png");
 }
 
 .die.red {
-  background: var(--red);
+  background-color: var(--red);
+  background-image: url("assets/cart-32x.png");
 }
 
 .die.yellow {
-  background: var(--yellow);
+  background-color: var(--yellow);
+  background-image: url("assets/cart-n64.png");
 }
 
 .die.green {
-  background: var(--green);
+  background-color: var(--green);
+  background-image: url("assets/cart-pce.png");
 }
 
 .die.pink {
-  background: var(--pink);
+  background-color: var(--pink);
+  background-image: url("assets/cart-atari.png");
 }
 
 .arena {
@@ -747,30 +790,6 @@ button:disabled {
   gap: 20px;
   padding: 0 14px;
   overflow: hidden;
-}
-
-.arena::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  left: 5%;
-  right: 5%;
-  bottom: 8px;
-  height: 24px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #5b6474, #252b34);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.46), inset 0 3px 0 rgba(255, 255, 255, 0.16);
-}
-
-.attack-emoji {
-  position: absolute;
-  z-index: 5;
-  transform: translate(-50%, -50%);
-  font-size: clamp(2.1rem, 4.8vw, 4.2rem);
-  line-height: 1;
-  pointer-events: none;
-  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.55));
-  animation: attackEmojiFly 1.08s cubic-bezier(0.18, 0.8, 0.28, 1) var(--delay, 0ms) both;
 }
 
 .fighter {
@@ -789,10 +808,6 @@ button:disabled {
 
 .fighter.active {
   opacity: 1;
-}
-
-.fighter.active .sprite-stage {
-  animation: fighterBounce 720ms ease-in-out infinite;
 }
 
 .sprite-stage {
@@ -819,8 +834,8 @@ button:disabled {
 .fighter img {
   position: relative;
   z-index: 1;
-  max-width: min(90%, 310px);
-  height: min(37vh, 360px);
+  max-width: min(116%, 410px);
+  height: min(47vh, 470px);
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
@@ -831,27 +846,19 @@ button:disabled {
 }
 
 .fighter-right img {
-  max-width: min(92%, 330px);
+  max-width: min(118%, 430px);
 }
 
-.fighter.attack-strike .sprite-stage {
-  animation: strikeAttack 2s ease;
-}
-
-.fighter.attack-magic .sprite-stage {
-  animation: magicAttack 2s ease;
-}
-
-.fighter.attack-special .sprite-stage {
-  animation: specialAttack 2s ease;
-}
-
-.fighter.magic-fail .sprite-stage {
-  animation: magicFail 2s ease;
-}
-
-.fighter.take-damage .sprite-stage {
-  animation: takeDamage 2s ease;
+.fighter.attack-glow .sprite-stage::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 5% 8%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(255, 244, 139, 0.58), rgba(255, 143, 43, 0.26) 42%, transparent 72%);
+  filter: blur(12px);
+  animation: attackGlowPulse 2s ease both;
 }
 
 .fighter-fx {
@@ -980,6 +987,13 @@ button:disabled {
   line-height: 1;
 }
 
+.actions button .action-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
 .actions button small {
   color: var(--muted);
   font-size: 0.62rem;
@@ -1094,39 +1108,6 @@ button:disabled {
   width: min(260px, 70vw);
 }
 
-@keyframes strikeAttack {
-  0%,
-  100% {
-    transform: translateX(0) rotate(0) scaleX(var(--face-direction, 1));
-  }
-
-  45% {
-    transform: translateX(var(--attack-shift, 28px)) rotate(var(--attack-tilt, 2deg))
-      scaleX(var(--face-direction, 1));
-  }
-}
-
-@keyframes attackEmojiFly {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.55) rotate(0deg);
-  }
-
-  14% {
-    opacity: 1;
-  }
-
-  72% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(calc(var(--tx) - 50%), calc(var(--ty) - 50%)) scale(1.22)
-      rotate(calc(var(--spin, 1) * 140deg));
-  }
-}
-
 @keyframes dieCubeRoll {
   0% {
     transform: rotateX(0deg) rotateY(0deg) scale(0.92);
@@ -1141,79 +1122,6 @@ button:disabled {
   100% {
     transform: rotateX(360deg) rotateY(280deg) scale(1);
     filter: brightness(1);
-  }
-}
-
-@keyframes magicAttack {
-  0%,
-  100% {
-    transform: translateY(0) scale(1) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
-  }
-
-  45% {
-    transform: translateY(-14px) scale(1.05) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 0 22px rgba(255, 92, 168, 0.9));
-  }
-}
-
-@keyframes specialAttack {
-  0%,
-  100% {
-    transform: translateX(0) scale(1) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
-  }
-
-  35% {
-    transform: translateX(var(--attack-shift, 36px)) scale(1.1) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 0 28px rgba(246, 200, 76, 0.95));
-  }
-
-  60% {
-    transform: translateX(calc(var(--attack-shift, 36px) * -0.35)) scale(0.98)
-      scaleX(var(--face-direction, 1));
-  }
-}
-
-@keyframes takeDamage {
-  0%,
-  100% {
-    transform: translateX(0) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
-  }
-
-  20%,
-  60% {
-    transform: translateX(var(--damage-shift, -12px)) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 0 20px rgba(232, 73, 73, 0.95));
-  }
-
-  40%,
-  80% {
-    transform: translateX(calc(var(--damage-shift, -12px) * -1)) scaleX(var(--face-direction, 1));
-  }
-}
-
-@keyframes magicFail {
-  0%,
-  100% {
-    transform: translate(0, 0) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
-  }
-
-  18% {
-    transform: translateY(-8px) scale(1.05) scaleX(var(--face-direction, 1));
-    filter: drop-shadow(0 0 26px rgba(255, 139, 69, 0.9));
-  }
-
-  34%,
-  58% {
-    transform: translateX(var(--damage-shift, -12px)) rotate(-2deg) scaleX(var(--face-direction, 1));
-  }
-
-  46%,
-  70% {
-    transform: translateX(calc(var(--damage-shift, -12px) * -1)) rotate(2deg) scaleX(var(--face-direction, 1));
   }
 }
 
@@ -1274,6 +1182,23 @@ button:disabled {
   }
 }
 
+@keyframes attackGlowPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  28% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
 @keyframes rouletteSpin {
   from {
     transform: rotate(0deg);
@@ -1302,7 +1227,14 @@ button:disabled {
 
 @media (max-width: 760px) {
   .character-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .character-card {
+    padding: 6px;
+    gap: 6px;
+    font-size: clamp(0.62rem, 2.4vw, 0.82rem);
   }
 
   .screen-header {
@@ -1310,16 +1242,17 @@ button:disabled {
   }
 
   .vs-matchup {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     justify-items: center;
+    gap: 8px;
   }
 
   .vs-fighter-card img {
-    width: min(250px, 58vw);
+    width: min(190px, 34vw);
   }
 
   .vs-mark {
-    font-size: clamp(3.4rem, 17vw, 5.4rem);
+    font-size: clamp(2rem, 12vw, 4.2rem);
   }
 
   .map-screen-header {
@@ -1333,7 +1266,7 @@ button:disabled {
 
   .game-view {
     min-height: calc(100svh - 16px);
-    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto auto;
     gap: 6px;
   }
 
@@ -1380,6 +1313,11 @@ button:disabled {
     width: 100%;
   }
 
+  .dice-slots {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+
   .arena {
     min-height: clamp(250px, calc(100svh - 420px), 340px);
     grid-template-columns: 1fr 48px 1fr;
@@ -1392,8 +1330,8 @@ button:disabled {
   }
 
   .fighter img {
-    max-width: 128%;
-    height: min(38vh, 320px);
+    max-width: 158%;
+    height: min(46vh, 410px);
   }
 
   .health-card {
@@ -1441,6 +1379,14 @@ button:disabled {
 
   .game-view {
     min-height: calc(100svh - 12px);
+  }
+
+  .menu-screen {
+    background-position: center top;
+  }
+
+  .game-logo {
+    width: min(330px, 68vw);
   }
 
   .map-screen {
@@ -1500,8 +1446,8 @@ button:disabled {
   }
 
   .fighter img {
-    max-width: 136%;
-    height: min(31svh, 250px);
+    max-width: 166%;
+    height: min(38svh, 320px);
   }
 
   .health-card {
