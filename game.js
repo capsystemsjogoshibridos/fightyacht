@@ -236,6 +236,7 @@ const actions = {
 };
 
 const actionKeys = Object.keys(actions);
+const turnDuration = 20;
 const screens = {
   splash: document.querySelector("#splashScreen"),
   home: document.querySelector("#homeScreen"),
@@ -258,6 +259,9 @@ let gameOver = false;
 let isRolling = false;
 let isAnimating = false;
 let matchWinnerIndex = null;
+let turnTimerId = null;
+let turnTimerStartedAt = 0;
+let turnToken = 0;
 let mode = null;
 let selectStep = null;
 let pendingP1 = null;
@@ -308,6 +312,8 @@ const rollButton = document.querySelector("#rollButton");
 const diceButtons = [...document.querySelectorAll(".die")];
 const actionButtons = [...document.querySelectorAll("[data-action]")];
 const turnLabel = document.querySelector("#turnLabel");
+const turnTimer = document.querySelector("#turnTimer");
+const turnTimerValue = document.querySelector("#turnTimerValue");
 const rollsLabel = document.querySelector("#rollsLabel");
 const roundMessage = document.querySelector("#roundMessage");
 const fighters = [...document.querySelectorAll(".fighter")];
@@ -726,6 +732,7 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assop
   roundMessage.textContent = message;
   showScreen("game");
   render();
+  beginTurn();
   maybeCpuTurn();
 }
 
@@ -738,12 +745,86 @@ function setRandomBattleStage() {
   arena.style.setProperty("--battle-stage", `url("${stage}")`);
 }
 
+function shouldUseTurnTimer() {
+  return mode !== "online" && players.length === 2 && !gameOver;
+}
+
+function beginTurn() {
+  turnToken += 1;
+  startTurnTimer();
+}
+
+function startTurnTimer() {
+  stopTurnTimer();
+  if (!shouldUseTurnTimer()) {
+    turnTimer.classList.add("hidden");
+    return;
+  }
+
+  turnTimerStartedAt = performance.now();
+  turnTimer.classList.remove("hidden");
+  updateTurnTimer();
+  turnTimerId = window.setInterval(updateTurnTimer, 120);
+}
+
+function stopTurnTimer() {
+  if (turnTimerId) {
+    window.clearInterval(turnTimerId);
+    turnTimerId = null;
+  }
+}
+
+function hideTurnTimer() {
+  stopTurnTimer();
+  turnTimer.classList.add("hidden");
+}
+
+function updateTurnTimer() {
+  if (!shouldUseTurnTimer()) {
+    hideTurnTimer();
+    return;
+  }
+
+  const elapsed = (performance.now() - turnTimerStartedAt) / 1000;
+  const remaining = Math.max(0, turnDuration - elapsed);
+  const progress = (remaining / turnDuration) * 100;
+  turnTimer.style.setProperty("--timer-progress", `${progress}%`);
+  turnTimerValue.textContent = Math.ceil(remaining).toString();
+  turnTimer.classList.toggle("timer-green", remaining > 10);
+  turnTimer.classList.toggle("timer-yellow", remaining <= 10 && remaining > 5);
+  turnTimer.classList.toggle("timer-red", remaining <= 5);
+
+  if (remaining <= 0) passTurnByTimeout();
+}
+
+function clearRollingState() {
+  isRolling = false;
+  diceButtons.forEach((button) => button.classList.remove("rolling"));
+}
+
+function passTurnByTimeout() {
+  if (!shouldUseTurnTimer() || isAnimating) return;
+  stopTurnTimer();
+
+  const timedOutPlayer = players[currentPlayer];
+  currentPlayer = currentPlayer === 0 ? 1 : 0;
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  clearRollingState();
+  roundMessage.textContent = `${timedOutPlayer.name} ficou sem tempo. Agora e a vez de ${players[currentPlayer].name}.`;
+  render();
+  beginTurn();
+  maybeCpuTurn();
+}
+
 async function rollDice(syncedDice = null) {
   if (mode === "online" && !syncedDice) {
     requestOnlineCommand("roll");
     return;
   }
   if (gameOver || isRolling || rolls >= 3) return;
+  const rollingToken = turnToken;
   isRolling = true;
   rollButton.disabled = true;
   renderActions();
@@ -753,16 +834,26 @@ async function rollDice(syncedDice = null) {
     if (held[index] && nextDice[index]) continue;
     diceButtons[index].classList.add("rolling");
     await wait(110);
+    if (rollingToken !== turnToken || gameOver) {
+      clearRollingState();
+      render();
+      return;
+    }
     nextDice[index] = syncedDice ? syncedDice[index] : randomColor();
     dice = [...nextDice];
     renderDice();
     diceButtons[index].classList.add("rolling");
     await wait(210);
+    if (rollingToken !== turnToken || gameOver) {
+      clearRollingState();
+      render();
+      return;
+    }
     diceButtons[index].classList.remove("rolling");
   }
 
   rolls += 1;
-  isRolling = false;
+  clearRollingState();
   roundMessage.textContent =
     rolls === 3 ? "Ultima assoprada. Escolha um golpe." : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
   render();
@@ -793,6 +884,7 @@ async function useAction(actionKey, fromServer = false) {
   const action = actions[actionKey];
   if (getUseCount(player, actionKey) >= action.maxUses) return;
 
+  stopTurnTimer();
   const result = calculateDamage(actionKey);
   player.used[actionKey] = getUseCount(player, actionKey) + 1;
   opponent.hp = Math.max(0, opponent.hp - result.damage);
@@ -821,11 +913,13 @@ async function useAction(actionKey, fromServer = false) {
     rolls = 0;
     roundMessage.textContent = `${hitText} Agora e a vez de ${players[currentPlayer].name}.`;
     render();
+    beginTurn();
     maybeCpuTurn();
   }
 }
 
 function finishMatch(winnerIndex, message) {
+  hideTurnTimer();
   gameOver = true;
   matchWinnerIndex = winnerIndex;
   if (winnerIndex !== null) setTemporarySprite(winnerIndex, "win", false);
@@ -850,22 +944,27 @@ function continueAfterKo() {
 async function maybeCpuTurn() {
   if (!isCpuTurn()) return;
   await wait(650);
-  for (let index = 0; index < 3 && !gameOver; index += 1) {
+  if (!isCpuTurn()) return;
+  for (let index = 0; index < 3 && isCpuTurn(); index += 1) {
     await rollDice();
+    if (!isCpuTurn()) return;
     if (index < 2) {
       const strategy = chooseCpuStrategy();
       held = dice.map((_, dieIndex) => strategy.held.includes(dieIndex));
       roundMessage.textContent = `${players[currentPlayer].name} separou cartuchos para buscar ${actions[strategy.action].label}.`;
       renderDice();
       await wait(820);
+      if (!isCpuTurn()) return;
     } else {
       await wait(320);
+      if (!isCpuTurn()) return;
     }
   }
-  if (!gameOver) {
+  if (isCpuTurn()) {
     const actionKey = pickCpuAction();
     roundMessage.textContent = `${players[currentPlayer].name} escolheu ${actions[actionKey].label}.`;
     await wait(420);
+    if (!isCpuTurn()) return;
     await useAction(actionKey);
   }
 }
@@ -1176,6 +1275,7 @@ function showArcadeMap() {
 }
 
 function showHome() {
+  hideTurnTimer();
   if (mode === "online") resetOnlineSession();
   mode = null;
   pendingP1 = null;

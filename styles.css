@@ -672,6 +672,53 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.turn-timer {
+  --timer-progress: 100%;
+  --timer-color: #36d66f;
+  width: 46px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  position: relative;
+  flex: 0 0 auto;
+  background: conic-gradient(var(--timer-color) var(--timer-progress), rgba(255, 255, 255, 0.16) 0);
+  box-shadow: 0 0 18px rgba(54, 214, 111, 0.24), inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.turn-timer::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: inherit;
+  background: #151a22;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.turn-timer span {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.turn-timer.timer-yellow {
+  --timer-color: #ffd24a;
+  box-shadow: 0 0 18px rgba(255, 210, 74, 0.24), inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.turn-timer.timer-red {
+  --timer-color: #ff4f4f;
+  box-shadow: 0 0 18px rgba(255, 79, 79, 0.28), inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+}
+
+.turn-timer.hidden {
+  display: none;
+}
+
 .roll-button {
   min-width: 220px;
   min-height: 50px;
@@ -1449,6 +1496,14 @@ button:disabled {
   .turn-board {
     flex-wrap: wrap;
     gap: 4px 10px;
+    font-size: 0.78rem;
+  }
+
+  .turn-timer {
+    width: 40px;
+  }
+
+  .turn-timer span {
     font-size: 0.78rem;
   }
 
