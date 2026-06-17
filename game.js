@@ -7,54 +7,127 @@ const colorLabels = {
   green: "Verde",
   pink: "Rosa",
 };
+const cartridgeByColor = {
+  blue: { label: "SNES", src: "assets/cart-snes.png" },
+  red: { label: "32X", src: "assets/cart-32x.png" },
+  yellow: { label: "N64", src: "assets/cart-n64.png" },
+  green: { label: "PCE", src: "assets/cart-pce.png" },
+  pink: { label: "ATARI", src: "assets/cart-atari.png" },
+};
+const battleStages = [
+  "assets/cenario-arvores.jpg",
+  "assets/cenario-estadio.jpg",
+  "assets/cenario-estatua.jpg",
+  "assets/cenario-estudios.jpg",
+  "assets/cenario-pao-de-acucar.jpg",
+  "assets/cenario-parque.jpg",
+  "assets/cenario-predios.jpg",
+  "assets/cenario-ruas.jpg",
+];
 
 const characters = [
   character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
-    idle: "assets/marjorie.png",
-    attack: "assets/marjorie-attack.png",
-    damage: "assets/marjorie-damage.png",
+    idle: "assets/marjorie-idle.webp",
+    attack: "assets/marjorie-punch.webp",
+    punch: "assets/marjorie-punch.webp",
+    kick: "assets/marjorie-kick.webp",
+    poder1: "assets/marjorie-poder-1.webp",
+    poder2: "assets/marjorie-poder-2.webp",
+    poder3: "assets/marjorie-poder-3.webp",
+    poder4: "assets/marjorie-poder-4.webp",
+    especial: "assets/marjorie-especial.webp",
+    damage: "assets/marjorie-pancada.webp",
     win: "assets/marjorie-win.png",
   }),
   character("baby", "Baby Betinho", "assets/select-baby.png", "yellow", {
-    idle: "assets/baby.png",
-    attack: "assets/baby-attack.png",
-    damage: "assets/baby-damage.png",
+    idle: "assets/baby-idle.webp",
+    attack: "assets/baby-punch.webp",
+    punch: "assets/baby-punch.webp",
+    kick: "assets/baby-kick.webp",
+    poder1: "assets/baby-poder-1.webp",
+    poder2: "assets/baby-poder-2.webp",
+    poder3: "assets/baby-poder-3.webp",
+    poder4: "assets/baby-poder-4.webp",
+    especial: "assets/baby-especial.webp",
+    damage: "assets/baby-pancada.webp",
     win: "assets/baby-win.png",
   }),
   character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo.png", "green", {
-    idle: "assets/marcelo.png",
-    attack: "assets/marcelo-attack.png",
-    damage: "assets/marcelo-damage.png",
+    idle: "assets/marcelo-idle.webp",
+    attack: "assets/marcelo-punch.webp",
+    punch: "assets/marcelo-punch.webp",
+    kick: "assets/marcelo-kick.webp",
+    poder1: "assets/marcelo-poder-1.webp",
+    poder2: "assets/marcelo-poder-2.webp",
+    poder3: "assets/marcelo-poder-3.webp",
+    poder4: "assets/marcelo-poder-4.webp",
+    especial: "assets/marcelo-especial.webp",
+    damage: "assets/marcelo-pancada.webp",
     win: "assets/marcelo-win.png",
   }),
   character("bill", "Bill Games", "assets/select-bill.png", "blue", {
-    idle: "assets/bill.png",
-    attack: "assets/bill-attack.png",
-    damage: "assets/bill-damage.png",
+    idle: "assets/bill-idle.webp",
+    attack: "assets/bill-punch.webp",
+    punch: "assets/bill-punch.webp",
+    kick: "assets/bill-kick.webp",
+    poder1: "assets/bill-poder-1.webp",
+    poder2: "assets/bill-poder-2.webp",
+    poder3: "assets/bill-poder-3.webp",
+    poder4: "assets/bill-poder-4.webp",
+    especial: "assets/bill-especial.webp",
+    damage: "assets/bill-pancada.webp",
     win: "assets/bill-win.png",
   }),
   character("lord", "Lord Mathias", "assets/select-lord.png", "red", {
-    idle: "assets/lord.png",
-    attack: "assets/lord-attack.png",
-    damage: "assets/lord-damage.png",
+    idle: "assets/lord-idle.webp",
+    attack: "assets/lord-punch.webp",
+    punch: "assets/lord-punch.webp",
+    kick: "assets/lord-kick.webp",
+    poder1: "assets/lord-poder-1.webp",
+    poder2: "assets/lord-poder-2.webp",
+    poder3: "assets/lord-poder-3.webp",
+    poder4: "assets/lord-poder-4.webp",
+    especial: "assets/lord-especial.webp",
+    damage: "assets/lord-pancada.webp",
     win: "assets/lord-win.png",
   }),
   character("chris", "Chris Combo", "assets/select-chris.png", "red", {
-    idle: "assets/chris.png",
-    attack: "assets/chris-attack.png",
-    damage: "assets/chris-damage.png",
+    idle: "assets/chris-idle.webp",
+    attack: "assets/chris-punch.webp",
+    punch: "assets/chris-punch.webp",
+    kick: "assets/chris-kick.webp",
+    poder1: "assets/chris-poder-1.webp",
+    poder2: "assets/chris-poder-2.webp",
+    poder3: "assets/chris-poder-3.webp",
+    poder4: "assets/chris-poder-4.webp",
+    especial: "assets/chris-especial.webp",
+    damage: "assets/chris-pancada.webp",
     win: "assets/chris-win.png",
   }),
   character("akira", "Akira e Agora", "assets/select-akira.png", "green", {
-    idle: "assets/akira.png",
-    attack: "assets/akira-attack.png",
-    damage: "assets/akira-damage.png",
+    idle: "assets/akira-idle.webp",
+    attack: "assets/akira-punch.webp",
+    punch: "assets/akira-punch.webp",
+    kick: "assets/akira-kick.webp",
+    poder1: "assets/akira-poder-1.webp",
+    poder2: "assets/akira-poder-2.webp",
+    poder3: "assets/akira-poder-3.webp",
+    poder4: "assets/akira-poder-4.webp",
+    especial: "assets/akira-especial.webp",
+    damage: "assets/akira-pancada.webp",
     win: "assets/akira-win.png",
   }),
   character("chefe", "O Chefe", "assets/select-chefe.png", "pink", {
-    idle: "assets/chefe.png",
-    attack: "assets/chefe-attack.png",
-    damage: "assets/chefe-damage.png",
+    idle: "assets/chefe-idle.webp",
+    attack: "assets/chefe-punch.webp",
+    punch: "assets/chefe-punch.webp",
+    kick: "assets/chefe-kick.webp",
+    poder1: "assets/chefe-poder-1.webp",
+    poder2: "assets/chefe-poder-2.webp",
+    poder3: "assets/chefe-poder-3.webp",
+    poder4: "assets/chefe-poder-4.webp",
+    especial: "assets/chefe-especial.webp",
+    damage: "assets/chefe-pancada.webp",
     win: "assets/chefe-win.png",
   }),
 ];
@@ -153,18 +226,22 @@ const attackEmojis = {
 const actions = {
   soco: { label: "Soco", type: "repeat", maxDamage: 5, maxUses: 2 },
   chute: { label: "Chute", type: "repeat", maxDamage: 7, maxUses: 2 },
-  gancho: { label: "Gancho", type: "repeat", maxDamage: 10, maxUses: 2 },
-  voadora: { label: "Voadora", type: "repeat", maxDamage: 15, maxUses: 2 },
-  magia1: { label: "Magia 1", type: "fullHouse", damage: 20, maxUses: 1 },
-  magia2: { label: "Magia 2", type: "threeKind", damage: 23, maxUses: 1 },
-  magia3: { label: "Magia 3", type: "multicolor", damage: 25, maxUses: 1 },
-  magia4: { label: "Magia 4", type: "fourKind", damage: 27, maxUses: 1 },
+  gancho: { label: "Soc\u00e3o", type: "repeat", maxDamage: 10, maxUses: 2 },
+  voadora: { label: "Chut\u00e3o", type: "repeat", maxDamage: 15, maxUses: 2 },
+  magia1: { label: "Evoca\u00e7\u00e3o", type: "fullHouse", damage: 20, maxUses: 1 },
+  magia2: { label: "Poder", type: "threeKind", damage: 23, maxUses: 1 },
+  magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 25, maxUses: 1 },
+  magia4: { label: "Magia", type: "fourKind", damage: 27, maxUses: 1 },
   especial: { label: "Poder Especial", type: "yacht", damage: 40, maxUses: 1 },
 };
 
 const actionKeys = Object.keys(actions);
+const turnDuration = 20;
 const screens = {
+  splash: document.querySelector("#splashScreen"),
+  legal: document.querySelector("#legalScreen"),
   home: document.querySelector("#homeScreen"),
+  tutorial: document.querySelector("#tutorialScreen"),
   select: document.querySelector("#selectScreen"),
   soon: document.querySelector("#soonScreen"),
   draw: document.querySelector("#drawScreen"),
@@ -175,16 +252,24 @@ const screens = {
 };
 
 let players = [];
+let spriteStates = ["idle", "idle"];
 let currentPlayer = 0;
 let dice = Array(5).fill(null);
 let held = Array(5).fill(false);
 let rolls = 0;
 let gameOver = false;
 let isRolling = false;
+let isAnimating = false;
 let matchWinnerIndex = null;
+let turnTimerId = null;
+let turnTimerStartedAt = 0;
+let turnToken = 0;
 let mode = null;
 let selectStep = null;
 let pendingP1 = null;
+let splashTimer = null;
+let legalTimer = null;
+let tutorialStep = 0;
 let arcade = { heroId: null, opponents: [], index: 0 };
 let versusDraw = null;
 let pendingVs = null;
@@ -228,19 +313,190 @@ const vsP2Color = document.querySelector("#vsP2Color");
 const vsSubtitle = document.querySelector("#vsSubtitle");
 const vsBattleButton = document.querySelector("#vsBattleButton");
 const rollButton = document.querySelector("#rollButton");
-const diceButtons = [...document.querySelectorAll(".die")];
-const actionButtons = [...document.querySelectorAll("[data-action]")];
+const diceButtons = [...document.querySelectorAll("#gameScreen .die")];
+const actionButtons = [...document.querySelectorAll("#gameScreen [data-action]")];
 const turnLabel = document.querySelector("#turnLabel");
+const turnTimer = document.querySelector("#turnTimer");
+const turnTimerValue = document.querySelector("#turnTimerValue");
 const rollsLabel = document.querySelector("#rollsLabel");
 const roundMessage = document.querySelector("#roundMessage");
 const fighters = [...document.querySelectorAll(".fighter")];
-const fighterImages = fighters.map((fighter) => fighter.querySelector("img"));
-const fighterNames = fighters.map((fighter) => fighter.querySelector(".health-card span"));
+const fighterImages = fighters.map((fighter) => fighter.querySelector(".sprite-stage img"));
+const fighterNames = fighters.map((fighter) => fighter.querySelector(".fighter-name"));
+const fighterCartridges = fighters.map((fighter) => fighter.querySelector(".fighter-cartridge"));
+const arena = document.querySelector(".arena");
 const koOverlay = document.querySelector("#koOverlay");
+const koText = document.querySelector(".ko-text");
 const winnerSprite = document.querySelector("#winnerSprite");
 const winnerText = document.querySelector("#winnerText");
 const koButton = document.querySelector("#koButton");
+const specialOverlay = document.querySelector("#specialOverlay");
+const specialChallengeImage = document.querySelector("#specialChallengeImage");
+const specialChallengeTitle = document.querySelector("#specialChallengeTitle");
+const specialChallengeText = document.querySelector("#specialChallengeText");
+const specialMeterFill = document.querySelector("#specialMeterFill");
+const specialTimerText = document.querySelector("#specialTimerText");
+const specialPowerText = document.querySelector("#specialPowerText");
+const specialPowerButton = document.querySelector("#specialPowerButton");
+const tutorialStepLabel = document.querySelector("#tutorialStepLabel");
+const tutorialText = document.querySelector("#tutorialText");
+const tutorialCoachSprite = document.querySelector("#tutorialCoachSprite");
+const tutorialRollButton = document.querySelector("#tutorialRollButton");
+const tutorialDiceButtons = [...document.querySelectorAll(".tutorial-cart")];
+const tutorialActionButtons = [...document.querySelectorAll("[data-tutorial-action]")];
+const tutorialPrevButton = document.querySelector("#tutorialPrevButton");
+const tutorialNextButton = document.querySelector("#tutorialNextButton");
+const tutorialDots = document.querySelector("#tutorialDots");
 
+const tutorialSteps = [
+  {
+    text: "Primeiro, voce assopra os cartuchos. Cada turno permite ate 3 assopradas, e os cartuchos aparecem um por um.",
+    dice: [null, null, null, null, null],
+    rollText: "Assoprar Cartuchos 0/3",
+    focus: "roll",
+    sprite: "idle",
+  },
+  {
+    text: "Depois da primeira assoprada, segure os cartuchos que parecem bons. Aqui, tres rosas foram separados para o exemplo do Chefe.",
+    dice: ["pink", "pink", "pink", "blue", "yellow"],
+    held: [0, 1, 2],
+    rollText: "Assoprar Cartuchos 1/3",
+    focus: "dice",
+    sprite: "idle",
+  },
+  {
+    text: "SOCO: use quando tiver cores repetidas. Neste exemplo ha 2 cartuchos rosa; o dano vem da maior repeticao.",
+    dice: ["pink", "pink", "blue", "green", "yellow"],
+    held: [0, 1],
+    rollText: "Assoprar Cartuchos 1/3",
+    focus: "basic",
+    actions: ["soco"],
+    sprite: "punch",
+  },
+  {
+    text: "CHUTE: funciona pela mesma regra, mas tem teto de dano maior. Aqui, 3 verdes sao a melhor repeticao.",
+    dice: ["green", "green", "green", "red", "yellow"],
+    held: [0, 1, 2],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "basic",
+    actions: ["chute"],
+    sprite: "kick",
+  },
+  {
+    text: "SOCAO: procure 4 cores iguais para bater mais forte. Como O Chefe usa rosa, este exemplo tambem teria bonus de +7.",
+    dice: ["pink", "pink", "pink", "pink", "red"],
+    held: [0, 1, 2, 3],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "basic",
+    actions: ["gancho"],
+    sprite: "punch",
+    glow: true,
+  },
+  {
+    text: "CHUTAO: com 5 cores iguais, voce chega no melhor resultado dos golpes normais. Cada golpe normal pode ser usado 2 vezes.",
+    dice: ["red", "red", "red", "red", "red"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Assoprar Cartuchos 3/3",
+    focus: "basic",
+    actions: ["voadora"],
+    sprite: "kick",
+    glow: true,
+  },
+  {
+    text: "EVOCAÇÃO: precisa de Full House, ou seja, 3 cartuchos de uma cor e 2 cartuchos de outra cor.",
+    dice: ["pink", "pink", "pink", "blue", "blue"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "magic",
+    actions: ["magia1"],
+    sprite: "poder1",
+  },
+  {
+    text: "PODER: precisa de pelo menos 3 cores iguais. Aqui os 3 amarelos ja liberam o botao.",
+    dice: ["yellow", "yellow", "yellow", "green", "red"],
+    held: [0, 1, 2],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "magic",
+    actions: ["magia2"],
+    sprite: "poder2",
+  },
+  {
+    text: "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinacao multicolor.",
+    dice: ["blue", "green", "yellow", "pink", "red"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Assoprar Cartuchos 3/3",
+    focus: "magic",
+    actions: ["magia3"],
+    sprite: "poder3",
+  },
+  {
+    text: "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 rosas ativam a Magia e ainda combinam com a cor do Chefe.",
+    dice: ["pink", "pink", "pink", "pink", "red"],
+    held: [0, 1, 2, 3],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "magic",
+    actions: ["magia4"],
+    sprite: "poder4",
+  },
+  {
+    text: "ESPECIAL: precisa de 5 cores iguais. Se forem da cor especial do lutador, o dano recebe o bonus de +7.",
+    dice: ["pink", "pink", "pink", "pink", "pink"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Assoprar Cartuchos 3/3",
+    focus: "damage",
+    actions: ["especial"],
+    sprite: "especial",
+    glow: true,
+  },
+  {
+    text: "Teste POWER: quando o Especial for valido, aperte o botao ESPECIAL aqui no tutorial e tente encher a barra em 5 segundos.",
+    dice: ["pink", "pink", "pink", "pink", "pink"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Especial pronto",
+    focus: "damage",
+    actions: ["especial"],
+    sprite: "especial",
+    glow: true,
+    miniGame: true,
+  },
+  {
+    text: "Falha de magia: se voce apertar uma magia sem a combinacao, ela explode no atacante, nao causa dano e mesmo assim gasta o botao.",
+    dice: ["blue", "blue", "green", "yellow", "pink"],
+    held: [0, 1],
+    rollText: "Assoprar Cartuchos 2/3",
+    focus: "magic",
+    actions: ["magia4", "especial"],
+    sprite: "damage",
+  },
+  {
+    text: "Quando o ataque e valido, o sprite muda, o alvo recebe a pancada e a vida desce. Depois o turno passa para o adversario.",
+    dice: ["pink", "pink", "pink", "blue", "yellow"],
+    held: [0, 1, 2],
+    rollText: "Assoprar Cartuchos 3/3",
+    focus: "damage",
+    actions: ["soco"],
+    sprite: "punch",
+  },
+  {
+    text: "Vence quem derrubar o adversario ou quem ainda tiver botoes quando o outro nao puder mais atacar. Agora voce esta pronto para a batalha.",
+    dice: ["blue", "green", "yellow", "pink", "red"],
+    held: [],
+    rollText: "Tutorial completo",
+    focus: "finish",
+    sprite: "idle",
+  },
+];
+
+screens.splash.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  finishSplash();
+});
+screens.legal.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  finishLegal();
+});
 document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => chooseMode(button.dataset.mode));
 });
@@ -251,18 +507,46 @@ battleButton.addEventListener("click", startCurrentArcadeBattle);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
 vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
+tutorialPrevButton.addEventListener("click", () => changeTutorialStep(-1));
+tutorialNextButton.addEventListener("click", () => changeTutorialStep(1));
+tutorialRollButton.addEventListener("click", () => {
+  if (tutorialStep === 0) changeTutorialStep(1);
+});
 diceButtons.forEach((button, index) => button.addEventListener("click", () => toggleHold(index)));
+tutorialDiceButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!button.classList.contains("empty")) button.classList.toggle("held");
+  });
+});
 actionButtons.forEach((button) => button.addEventListener("click", () => useAction(button.dataset.action)));
+tutorialActionButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    button.classList.add("tutorial-tapped");
+    window.setTimeout(() => button.classList.remove("tutorial-tapped"), 260);
+    const step = tutorialSteps[tutorialStep];
+    if (step.miniGame && button.dataset.tutorialAction === "especial") {
+      const bonus = await runSpecialMiniGame(getCharacter("chefe"), true);
+      tutorialText.textContent = bonus
+        ? "Perfeito! Voce encheu a barra POWER e ganharia +3 de dano no Especial."
+        : "Sem bonus de especial. Na luta real, o Especial continua acontecendo, so sem os +3 extras.";
+    }
+  });
+});
 
 preloadSprites();
-showScreen("home");
+showScreen("splash");
+splashTimer = window.setTimeout(finishSplash, 5000);
 
 function character(id, name, select, specialColor, sprites) {
-  return { id, name, select, specialColor, sprites };
+  return { id, name, select, specialColor, sprites, specialScreen: `assets/${id}-especial-screen.png` };
 }
 
 function chooseMode(nextMode) {
   mode = nextMode;
+  if (mode === "tutorial") {
+    startTutorial();
+    return;
+  }
   if (mode === "online") {
     showOnlineLobby();
     return;
@@ -274,6 +558,59 @@ function chooseMode(nextMode) {
   selectStep = mode === "arcade" ? "arcadeHero" : "versusP1";
   renderCharacterSelect();
   showScreen("select");
+}
+
+function startTutorial() {
+  tutorialStep = 0;
+  renderTutorial();
+  showScreen("tutorial");
+}
+
+function changeTutorialStep(delta) {
+  if (tutorialStep === tutorialSteps.length - 1 && delta > 0) {
+    showHome();
+    return;
+  }
+  tutorialStep = Math.max(0, Math.min(tutorialSteps.length - 1, tutorialStep + delta));
+  renderTutorial();
+}
+
+function renderTutorial() {
+  const step = tutorialSteps[tutorialStep];
+  const chefe = getCharacter("chefe");
+  tutorialStepLabel.textContent = `Passo ${tutorialStep + 1} de ${tutorialSteps.length}`;
+  tutorialText.textContent = step.text;
+  tutorialRollButton.textContent = step.rollText;
+  tutorialCoachSprite.src = chefe.sprites[step.sprite] || chefe.sprites.idle;
+  tutorialCoachSprite.alt = chefe.name;
+  tutorialCoachSprite.classList.toggle("tutorial-sprite-glow", Boolean(step.glow));
+  screens.tutorial.dataset.focus = step.focus;
+
+  tutorialDiceButtons.forEach((button, index) => {
+    const color = step.dice[index];
+    button.className = "tutorial-cart";
+    if (!color) {
+      button.classList.add("empty");
+    } else {
+      button.classList.add(color);
+    }
+    button.classList.toggle("held", (step.held || []).includes(index));
+    button.setAttribute("aria-label", color ? `Cartucho ${colorLabels[color]}` : `Cartucho vazio`);
+  });
+
+  tutorialActionButtons.forEach((button) => {
+    const isActive = (step.actions || []).includes(button.dataset.tutorialAction);
+    button.classList.toggle("tutorial-highlight", isActive);
+  });
+
+  tutorialPrevButton.disabled = tutorialStep === 0;
+  tutorialNextButton.textContent = tutorialStep === tutorialSteps.length - 1 ? "Concluir" : "Proximo";
+  tutorialDots.innerHTML = "";
+  tutorialSteps.forEach((_, index) => {
+    const dot = document.createElement("span");
+    dot.className = index === tutorialStep ? "active" : "";
+    tutorialDots.appendChild(dot);
+  });
 }
 
 function renderCharacterSelect() {
@@ -297,10 +634,15 @@ function renderCharacterSelect() {
   characterGrid.innerHTML = "";
 
   characters.forEach((fighter) => {
+    const cartridge = cartridgeByColor[fighter.specialColor];
     const button = document.createElement("button");
     button.className = "character-card";
     button.type = "button";
-    button.innerHTML = `<img src="${fighter.select}" alt="${fighter.name}"><span>${fighter.name}</span><small>COR - ${colorLabels[fighter.specialColor]}</small>`;
+    button.innerHTML = `
+      <img class="character-portrait" src="${fighter.select}" alt="${fighter.name}">
+      <span>${fighter.name}</span>
+      <small class="character-cartridge">CARTUCHO: <img src="${cartridge.src}" alt="${cartridge.label}"></small>
+    `;
     if (selectStep === "arcadeHero" && fighter.id === "chefe") button.disabled = true;
     if (isSecondPlayer && pendingP1?.id === fighter.id) button.disabled = true;
     button.addEventListener("click", () => selectCharacter(fighter.id));
@@ -524,7 +866,7 @@ async function syncOnlineMatch(state) {
       held = [...event.held];
       renderDice();
     } else if (event.type === "attack") {
-      useAction(event.actionKey, true);
+      await useAction(event.actionKey, true, event);
     }
   }
   applyOnlineSnapshot(match);
@@ -612,7 +954,7 @@ function getClientId() {
   return generated;
 }
 
-function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Role os dados para iniciar o ataque.") {
+function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
   currentPlayer = starter;
   dice = Array(5).fill(null);
@@ -627,16 +969,99 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Role 
   winnerSprite.alt = "";
   fighterNames[0].textContent = players[0].name;
   fighterNames[1].textContent = players[1].name;
+  updateFighterCartridge(0);
+  updateFighterCartridge(1);
+  setRandomBattleStage();
   fighterImages[0].src = players[0].sprites.idle;
   fighterImages[1].src = players[1].sprites.idle;
+  spriteStates = ["idle", "idle"];
   roundMessage.textContent = message;
   showScreen("game");
   render();
+  beginTurn();
   maybeCpuTurn();
 }
 
 function makePlayer(fighter) {
   return { ...fighter, hp: 100, used: {} };
+}
+
+function setRandomBattleStage() {
+  const stage = battleStages[Math.floor(Math.random() * battleStages.length)];
+  arena.style.setProperty("--battle-stage", `url("${stage}")`);
+}
+
+function shouldUseTurnTimer() {
+  return mode !== "online" && players.length === 2 && !gameOver;
+}
+
+function beginTurn() {
+  turnToken += 1;
+  startTurnTimer();
+}
+
+function startTurnTimer() {
+  stopTurnTimer();
+  if (!shouldUseTurnTimer()) {
+    turnTimer.classList.add("hidden");
+    return;
+  }
+
+  turnTimerStartedAt = performance.now();
+  turnTimer.classList.remove("hidden");
+  updateTurnTimer();
+  turnTimerId = window.setInterval(updateTurnTimer, 120);
+}
+
+function stopTurnTimer() {
+  if (turnTimerId) {
+    window.clearInterval(turnTimerId);
+    turnTimerId = null;
+  }
+}
+
+function hideTurnTimer() {
+  stopTurnTimer();
+  turnTimer.classList.add("hidden");
+}
+
+function updateTurnTimer() {
+  if (!shouldUseTurnTimer()) {
+    hideTurnTimer();
+    return;
+  }
+
+  const elapsed = (performance.now() - turnTimerStartedAt) / 1000;
+  const remaining = Math.max(0, turnDuration - elapsed);
+  const progress = (remaining / turnDuration) * 100;
+  turnTimer.style.setProperty("--timer-progress", `${progress}%`);
+  turnTimerValue.textContent = Math.ceil(remaining).toString();
+  turnTimer.classList.toggle("timer-green", remaining > 10);
+  turnTimer.classList.toggle("timer-yellow", remaining <= 10 && remaining > 5);
+  turnTimer.classList.toggle("timer-red", remaining <= 5);
+
+  if (remaining <= 0) passTurnByTimeout();
+}
+
+function clearRollingState() {
+  isRolling = false;
+  diceButtons.forEach((button) => button.classList.remove("rolling"));
+}
+
+function passTurnByTimeout() {
+  if (!shouldUseTurnTimer() || isAnimating) return;
+  stopTurnTimer();
+
+  const timedOutPlayer = players[currentPlayer];
+  currentPlayer = currentPlayer === 0 ? 1 : 0;
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  clearRollingState();
+  roundMessage.textContent = `${timedOutPlayer.name} ficou sem tempo. Agora e a vez de ${players[currentPlayer].name}.`;
+  render();
+  beginTurn();
+  maybeCpuTurn();
 }
 
 async function rollDice(syncedDice = null) {
@@ -645,6 +1070,7 @@ async function rollDice(syncedDice = null) {
     return;
   }
   if (gameOver || isRolling || rolls >= 3) return;
+  const rollingToken = turnToken;
   isRolling = true;
   rollButton.disabled = true;
   renderActions();
@@ -654,18 +1080,28 @@ async function rollDice(syncedDice = null) {
     if (held[index] && nextDice[index]) continue;
     diceButtons[index].classList.add("rolling");
     await wait(110);
+    if (rollingToken !== turnToken || gameOver) {
+      clearRollingState();
+      render();
+      return;
+    }
     nextDice[index] = syncedDice ? syncedDice[index] : randomColor();
     dice = [...nextDice];
     renderDice();
     diceButtons[index].classList.add("rolling");
     await wait(210);
+    if (rollingToken !== turnToken || gameOver) {
+      clearRollingState();
+      render();
+      return;
+    }
     diceButtons[index].classList.remove("rolling");
   }
 
   rolls += 1;
-  isRolling = false;
+  clearRollingState();
   roundMessage.textContent =
-    rolls === 3 ? "Ultima rolagem. Escolha um golpe." : "Clique nos dados para separar/segurar cores antes de rolar de novo.";
+    rolls === 3 ? "Ultima assoprada. Escolha um golpe." : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
   render();
 }
 
@@ -679,13 +1115,76 @@ function toggleHold(index) {
   renderDice();
 }
 
-function useAction(actionKey, fromServer = false) {
+function runSpecialMiniGame(player, isTutorial = false) {
+  return new Promise((resolve) => {
+    const duration = 5000;
+    const step = isTutorial ? 14 : 11;
+    let power = 0;
+    let finished = false;
+    const startedAt = performance.now();
+    const titleName = player?.name || "Especial";
+
+    specialChallengeImage.src = player?.specialScreen || "assets/chefe-especial-screen.png";
+    specialChallengeImage.alt = `${titleName} especial`;
+    specialChallengeTitle.textContent = `${titleName} Especial`;
+    specialChallengeText.textContent = "Aperte POWER o mais rapido possivel!";
+    specialPowerButton.disabled = false;
+    updateSpecialChallenge(0, duration);
+    specialOverlay.classList.add("show");
+    specialOverlay.setAttribute("aria-hidden", "false");
+
+    const finish = (bonus) => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(timerId);
+      specialPowerButton.removeEventListener("click", pressPower);
+      specialPowerButton.disabled = true;
+      specialChallengeText.textContent = bonus ? "Bonus de especial: +3!" : "Sem bonus de especial.";
+      window.setTimeout(() => {
+        specialOverlay.classList.remove("show");
+        specialOverlay.setAttribute("aria-hidden", "true");
+        resolve(bonus);
+      }, 720);
+    };
+
+    const pressPower = (event) => {
+      event.preventDefault();
+      power = Math.min(100, power + step);
+      updateSpecialChallenge(power, Math.max(0, duration - (performance.now() - startedAt)));
+      if (power >= 100) finish(3);
+    };
+
+    const timerId = window.setInterval(() => {
+      const remaining = Math.max(0, duration - (performance.now() - startedAt));
+      updateSpecialChallenge(power, remaining);
+      if (remaining <= 0) finish(0);
+    }, 60);
+
+    specialPowerButton.addEventListener("click", pressPower);
+  });
+}
+
+function updateSpecialChallenge(power, remainingMs) {
+  specialMeterFill.style.width = `${Math.round(power)}%`;
+  specialPowerText.textContent = `${Math.round(power)}%`;
+  specialTimerText.textContent = `${(remainingMs / 1000).toFixed(1)}s`;
+}
+
+async function useAction(actionKey, fromServer = false, serverEvent = null) {
   if (mode === "online" && !fromServer) {
-    requestOnlineCommand("attack", { actionKey });
+    let specialBonus = 0;
+    const player = players[currentPlayer];
+    const action = actions[actionKey];
+    const canTryAction = action && getUseCount(player, actionKey) < action.maxUses;
+    if (actionKey === "especial" && canTryAction && rolls > 0 && !gameOver && !isRolling && !isAnimating) {
+      const preview = calculateDamage(actionKey);
+      if (preview.damage > 0) specialBonus = await runSpecialMiniGame(players[currentPlayer]);
+    }
+    requestOnlineCommand("attack", { actionKey, specialBonus });
     return;
   }
-  if (gameOver || isRolling || rolls === 0) {
-    roundMessage.textContent = "Role os dados antes de atacar.";
+  if (gameOver || isRolling || isAnimating || rolls === 0) {
+    roundMessage.textContent = "Assopre os cartuchos antes de atacar.";
     return;
   }
   const player = players[currentPlayer];
@@ -694,16 +1193,34 @@ function useAction(actionKey, fromServer = false) {
   const action = actions[actionKey];
   if (getUseCount(player, actionKey) >= action.maxUses) return;
 
+  stopTurnTimer();
   const result = calculateDamage(actionKey);
+  if (fromServer && serverEvent) {
+    result.damage = serverEvent.damage;
+    result.baseDamage = serverEvent.baseDamage;
+    result.bonus = serverEvent.bonus;
+    result.bonusColor = serverEvent.bonusColor;
+    result.specialBonus = serverEvent.specialBonus || 0;
+  }
+  if (actionKey === "especial" && result.damage > 0 && !fromServer && !isCpuTurn()) {
+    result.specialBonus = await runSpecialMiniGame(player);
+    result.damage += result.specialBonus;
+  }
   player.used[actionKey] = getUseCount(player, actionKey) + 1;
   opponent.hp = Math.max(0, opponent.hp - result.damage);
-  playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
+  isAnimating = true;
+  renderActions();
+  renderRollButton();
 
   const bonusText = result.bonus ? ` Bonus de cor ${colorLabels[result.bonusColor]}: +${result.bonus}.` : "";
+  const specialBonusText = result.specialBonus ? ` Bonus POWER: +${result.specialBonus}.` : actionKey === "especial" && result.damage > 0 ? " Sem bonus de especial." : "";
   const hitText =
     result.damage > 0
-      ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.${bonusText}`
+      ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.${bonusText}${specialBonusText}`
       : `${player.name} tentou ${action.label}, mas a combinacao nao fechou.`;
+
+  await playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
+  isAnimating = false;
 
   if (opponent.hp <= 0) {
     finishMatch(currentPlayer, `${hitText} ${player.name} venceu!`);
@@ -717,11 +1234,13 @@ function useAction(actionKey, fromServer = false) {
     rolls = 0;
     roundMessage.textContent = `${hitText} Agora e a vez de ${players[currentPlayer].name}.`;
     render();
+    beginTurn();
     maybeCpuTurn();
   }
 }
 
 function finishMatch(winnerIndex, message) {
+  hideTurnTimer();
   gameOver = true;
   matchWinnerIndex = winnerIndex;
   if (winnerIndex !== null) setTemporarySprite(winnerIndex, "win", false);
@@ -746,23 +1265,28 @@ function continueAfterKo() {
 async function maybeCpuTurn() {
   if (!isCpuTurn()) return;
   await wait(650);
-  for (let index = 0; index < 3 && !gameOver; index += 1) {
+  if (!isCpuTurn()) return;
+  for (let index = 0; index < 3 && isCpuTurn(); index += 1) {
     await rollDice();
+    if (!isCpuTurn()) return;
     if (index < 2) {
       const strategy = chooseCpuStrategy();
       held = dice.map((_, dieIndex) => strategy.held.includes(dieIndex));
-      roundMessage.textContent = `${players[currentPlayer].name} separou dados para buscar ${actions[strategy.action].label}.`;
+      roundMessage.textContent = `${players[currentPlayer].name} separou cartuchos para buscar ${actions[strategy.action].label}.`;
       renderDice();
       await wait(820);
+      if (!isCpuTurn()) return;
     } else {
       await wait(320);
+      if (!isCpuTurn()) return;
     }
   }
-  if (!gameOver) {
+  if (isCpuTurn()) {
     const actionKey = pickCpuAction();
     roundMessage.textContent = `${players[currentPlayer].name} escolheu ${actions[actionKey].label}.`;
     await wait(420);
-    useAction(actionKey);
+    if (!isCpuTurn()) return;
+    await useAction(actionKey);
   }
 }
 
@@ -884,26 +1408,51 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   return specialCount === 5;
 }
 
-function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
+async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
   const action = actions[actionKey];
   const failedPower = action.type !== "repeat" && damage === 0;
+  arena.classList.add("attack-dim");
   if (failedPower) {
-    setTemporarySprite(attackerIndex, "damage");
-    restartAnimation(fighters[attackerIndex], "magic-fail", spriteDuration);
+    setTemporarySprite(attackerIndex, "damage", false);
     restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
+    await wait(spriteDuration);
+    restoreIdleSprite(attackerIndex);
+    arena.classList.remove("attack-dim");
     return;
   }
 
-  const attackClass = action.type === "yacht" ? "attack-special" : action.type === "repeat" ? "attack-strike" : "attack-magic";
-  const emojiSet = attackEmojis[players[attackerIndex].id] || attackEmojis.akira;
-  setTemporarySprite(attackerIndex, "attack");
-  restartAnimation(fighters[attackerIndex], attackClass, spriteDuration);
-  launchAttackEmojis(emojiSet[actionKey], attackerIndex, defenderIndex);
+  setTemporarySprite(attackerIndex, getActionSpriteState(actionKey), false);
+  if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[attackerIndex], "attack-glow", spriteDuration);
   if (damage > 0) {
-    setTemporarySprite(defenderIndex, "damage");
-    restartAnimation(fighters[defenderIndex], "take-damage", spriteDuration);
+    await wait(spriteDuration / 2);
+    setTemporarySprite(defenderIndex, "damage", false);
     restartAnimation(fighters[defenderIndex], "fx-hit", spriteDuration);
+    await wait(spriteDuration / 2);
+    restoreIdleSprite(attackerIndex);
+    await wait(spriteDuration / 2);
+    restoreIdleSprite(defenderIndex);
+    arena.classList.remove("attack-dim");
+    return;
   }
+  await wait(spriteDuration);
+  restoreIdleSprite(attackerIndex);
+  arena.classList.remove("attack-dim");
+}
+
+function getActionSpriteState(actionKey) {
+  return (
+    {
+      soco: "punch",
+      gancho: "punch",
+      chute: "kick",
+      voadora: "kick",
+      magia1: "poder1",
+      magia2: "poder2",
+      magia3: "poder3",
+      magia4: "poder4",
+      especial: "especial",
+    }[actionKey] || "attack"
+  );
 }
 
 function restartAnimation(element, className, duration = 820) {
@@ -913,24 +1462,36 @@ function restartAnimation(element, className, duration = 820) {
   window.setTimeout(() => element.classList.remove(className), duration);
 }
 
+function restoreIdleSprite(playerIndex) {
+  if (gameOver || !players[playerIndex]) return;
+  spriteStates[playerIndex] = "idle";
+  fighterImages[playerIndex].src = players[playerIndex].sprites.idle;
+  updateFighterMirror(playerIndex);
+}
+
 function setTemporarySprite(playerIndex, state, shouldRestore = true) {
-  fighterImages[playerIndex].src = players[playerIndex].sprites[state];
+  spriteStates[playerIndex] = state;
+  fighterImages[playerIndex].src = players[playerIndex].sprites[state] || players[playerIndex].sprites.attack || players[playerIndex].sprites.idle;
+  updateFighterMirror(playerIndex);
   if (state === "win") restartAnimation(fighters[playerIndex], "fx-confetti", spriteDuration * 2);
   if (shouldRestore) {
     window.setTimeout(() => {
-      if (!gameOver) fighterImages[playerIndex].src = players[playerIndex].sprites.idle;
+      restoreIdleSprite(playerIndex);
     }, spriteDuration);
   }
 }
 
 function showKo(winnerIndex) {
   const winner = winnerIndex === null ? null : players[winnerIndex];
+  const isArcadeGameOver = mode === "arcade" && winnerIndex === 1;
+  koOverlay.classList.toggle("game-over", isArcadeGameOver);
+  koText.textContent = isArcadeGameOver ? "GAME OVER" : "K.O";
   winnerText.textContent = winner ? `${winner.name} venceu!` : "Empate!";
   winnerSprite.classList.toggle("hidden", !winner);
   if (winner) {
     winnerSprite.src = winner.sprites.win;
     winnerSprite.alt = `${winner.name} venceu`;
-    winnerSprite.classList.toggle("mirror", shouldMirror(winnerIndex));
+    winnerSprite.classList.remove("mirror");
   }
   koOverlay.classList.add("show");
   koOverlay.setAttribute("aria-hidden", "false");
@@ -954,39 +1515,13 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
-function launchAttackEmojis(emoji, attackerIndex, defenderIndex) {
-  const arena = document.querySelector(".arena");
-  const arenaRect = arena.getBoundingClientRect();
-  const attackerRect = fighterImages[attackerIndex].getBoundingClientRect();
-  const defenderRect = fighterImages[defenderIndex].getBoundingClientRect();
-  const startX = attackerRect.left + attackerRect.width / 2 - arenaRect.left;
-  const startY = attackerRect.top + attackerRect.height * 0.32 - arenaRect.top;
-  const endX = defenderRect.left + defenderRect.width / 2 - arenaRect.left;
-  const endY = defenderRect.top + defenderRect.height * 0.32 - arenaRect.top;
-  for (let index = 0; index < 10; index += 1) {
-    const projectile = document.createElement("span");
-    const spreadX = (Math.random() - 0.5) * 110;
-    const spreadY = (Math.random() - 0.5) * 150;
-    projectile.className = "attack-emoji";
-    projectile.textContent = emoji;
-    projectile.style.left = `${startX}px`;
-    projectile.style.top = `${startY}px`;
-    projectile.style.setProperty("--tx", `${endX - startX + spreadX}px`);
-    projectile.style.setProperty("--ty", `${endY - startY + spreadY}px`);
-    projectile.style.setProperty("--delay", `${index * 45}ms`);
-    projectile.style.setProperty("--spin", `${attackerIndex === 0 ? 1 : -1}`);
-    arena.appendChild(projectile);
-    window.setTimeout(() => projectile.remove(), 1500);
-  }
-}
-
 function render() {
   renderDice();
   renderPlayers();
   renderActions();
   renderRollButton();
   turnLabel.textContent = gameOver ? "Fim de luta" : `Turno de ${players[currentPlayer].name}`;
-  rollsLabel.textContent = `Rolagens: ${rolls}/3`;
+  rollsLabel.textContent = `Assopradas: ${rolls}/3`;
 }
 
 function renderDice() {
@@ -996,13 +1531,13 @@ function renderDice() {
     if (!dice[index]) {
       button.classList.add("empty");
       if (isRollingDie) button.classList.add("rolling");
-      button.setAttribute("aria-label", `Dado ${index + 1} vazio`);
+      button.setAttribute("aria-label", `Cartucho ${index + 1} vazio`);
       return;
     }
     button.classList.add(dice[index]);
     button.classList.toggle("held", held[index]);
     button.classList.toggle("rolling", isRollingDie);
-    button.setAttribute("aria-label", `Dado ${index + 1}: ${dice[index]}${held[index] ? ", separado" : ""}`);
+    button.setAttribute("aria-label", `Cartucho ${index + 1}: ${dice[index]}${held[index] ? ", separado" : ""}`);
   });
 }
 
@@ -1011,12 +1546,22 @@ function renderPlayers() {
     document.querySelector(`#p${index + 1}Hp`).textContent = player.hp;
     document.querySelector(`#p${index + 1}Health`).style.width = `${player.hp}%`;
     fighters[index].classList.toggle("active", index === currentPlayer && !gameOver);
-    fighters[index].classList.toggle("mirror", shouldMirror(index));
+    updateFighterMirror(index);
   });
 }
 
+function updateFighterCartridge(playerIndex) {
+  const cartridge = cartridgeByColor[players[playerIndex].specialColor];
+  fighterCartridges[playerIndex].src = cartridge.src;
+  fighterCartridges[playerIndex].alt = cartridge.label;
+}
+
 function shouldMirror(playerIndex) {
-  return playerIndex === 0;
+  return playerIndex === 1;
+}
+
+function updateFighterMirror(playerIndex) {
+  fighters[playerIndex].classList.toggle("mirror", spriteStates[playerIndex] !== "win" && shouldMirror(playerIndex));
 }
 
 function renderActions() {
@@ -1027,23 +1572,23 @@ function renderActions() {
     const isUsed = usedCount >= action.maxUses;
     const counter = button.querySelector(".use-counter");
     if (counter) counter.textContent = `${usedCount}/${action.maxUses}`;
-    button.disabled = gameOver || rolls === 0 || isRolling || isUsed || isCpuTurn() || isOnlineOpponentTurn();
+    button.disabled = gameOver || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
 }
 
 function renderRollButton() {
-  rollButton.disabled = gameOver || isRolling || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
+  rollButton.disabled = gameOver || isRolling || isAnimating || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
   if (rolls > 0) rollButton.classList.add(`roll-${rolls}`);
-  rollButton.textContent = isRolling ? "Rolando..." : `Rolar Dados ${rolls}/3`;
+  rollButton.textContent = isRolling ? "Assoprando..." : `Assoprar Cartuchos ${rolls}/3`;
 }
 
 function showArcadeMap() {
   mapCounter.textContent = `Luta ${arcade.index + 1} de ${arcade.opponents.length}`;
   mapRoute.innerHTML = "";
   arcade.opponents.forEach((opponent, index) => {
-    const passed = index < arcade.index || (gameOver && matchWinnerIndex === 0 && index === arcade.index);
+    const passed = index < arcade.index;
     const current = index === arcade.index && !passed;
     const node = document.createElement("div");
     node.className = `route-fight${passed ? " done" : ""}${current ? " current" : ""}${opponent.id === "chefe" ? " boss" : ""}`;
@@ -1054,12 +1599,36 @@ function showArcadeMap() {
 }
 
 function showHome() {
+  hideTurnTimer();
+  if (legalTimer) {
+    window.clearTimeout(legalTimer);
+    legalTimer = null;
+  }
   if (mode === "online") resetOnlineSession();
   mode = null;
   pendingP1 = null;
   versusDraw = null;
   pendingVs = null;
   showScreen("home");
+}
+
+function finishSplash() {
+  if (splashTimer) {
+    window.clearTimeout(splashTimer);
+    splashTimer = null;
+  }
+  if (!screens.splash.classList.contains("hidden")) {
+    showScreen("legal");
+    legalTimer = window.setTimeout(finishLegal, 5000);
+  }
+}
+
+function finishLegal() {
+  if (legalTimer) {
+    window.clearTimeout(legalTimer);
+    legalTimer = null;
+  }
+  if (!screens.legal.classList.contains("hidden")) showHome();
 }
 
 function showScreen(name) {
@@ -1089,9 +1658,13 @@ function wait(ms) {
 
 function preloadSprites() {
   characters.forEach((fighter) => {
-    [fighter.select, ...Object.values(fighter.sprites)].forEach((src) => {
+    [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)].forEach((src) => {
       const image = new Image();
       image.src = src;
     });
+  });
+  battleStages.forEach((src) => {
+    const image = new Image();
+    image.src = src;
   });
 }

@@ -8,13 +8,79 @@
   </head>
   <body>
     <main class="game-shell">
-      <section id="homeScreen" class="screen menu-screen">
+      <section id="splashScreen" class="screen splash-screen">
+        <img class="splash-logo" src="assets/cap-systems-logo.png" alt="Cap Systems Jogos Hibridos" />
+      </section>
+
+      <section id="legalScreen" class="screen legal-screen hidden">
+        <p>
+          Este &eacute; um projeto de f&atilde;, sem fins lucrativos, criado como homenagem &agrave; antiga revista Super GamePower.
+          Todos os direitos sobre nomes, personagens e marcas pertencem aos seus respectivos criadores e propriet&aacute;rios.
+        </p>
+      </section>
+
+      <section id="homeScreen" class="screen menu-screen hidden">
         <img class="game-logo" src="assets/sgp-logo.png" alt="Super Gamepower: Fighting Edition" />
         <nav class="main-menu" aria-label="Modos de jogo">
           <button data-mode="arcade" type="button">Arcade</button>
           <button data-mode="versus" type="button">Versus Local</button>
+          <button data-mode="tutorial" type="button">Tutorial</button>
           <button data-mode="online" type="button">Online</button>
           <button data-mode="newsstand" type="button">Banca de Revistas</button>
+        </nav>
+        <p class="creator-credit">Jogo criado por Christopher de Assis Pereira (CAP Systems)</p>
+      </section>
+
+      <section id="tutorialScreen" class="screen tutorial-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Tutorial</h1>
+            <p id="tutorialStepLabel">Passo 1 de 7</p>
+          </div>
+        </header>
+
+        <section class="tutorial-stage" aria-label="Tutorial interativo">
+          <article class="tutorial-coach">
+            <img id="tutorialCoachSprite" src="assets/chefe-idle.webp" alt="O Chefe" />
+            <div class="tutorial-bubble">
+              <strong>O Chefe explica</strong>
+              <p id="tutorialText"></p>
+            </div>
+          </article>
+
+          <section class="tutorial-board" aria-label="Exemplo de jogada">
+            <div class="tutorial-focus tutorial-roll">
+              <button id="tutorialRollButton" class="roll-button" type="button">Assoprar Cartuchos 0/3</button>
+              <small>Toque aqui para simular uma assoprada.</small>
+            </div>
+
+            <div id="tutorialDice" class="tutorial-dice" aria-label="Cartuchos do tutorial">
+              <button class="tutorial-cart empty" type="button" aria-label="Cartucho de exemplo 1"></button>
+              <button class="tutorial-cart empty" type="button" aria-label="Cartucho de exemplo 2"></button>
+              <button class="tutorial-cart empty" type="button" aria-label="Cartucho de exemplo 3"></button>
+              <button class="tutorial-cart empty" type="button" aria-label="Cartucho de exemplo 4"></button>
+              <button class="tutorial-cart empty" type="button" aria-label="Cartucho de exemplo 5"></button>
+            </div>
+
+            <div class="tutorial-actions" aria-label="Botoes de ataque do tutorial">
+              <button data-tutorial-action="soco" type="button"><span>SOCO</span><small>CORES IGUAIS</small></button>
+              <button data-tutorial-action="chute" type="button"><span>CHUTE</span><small>CORES IGUAIS</small></button>
+              <button data-tutorial-action="gancho" type="button"><span>SOCAO</span><small>CORES IGUAIS</small></button>
+              <button data-tutorial-action="voadora" type="button"><span>CHUTAO</span><small>CORES IGUAIS</small></button>
+              <button data-tutorial-action="especial" type="button"><span>ESPECIAL</span><small>5 CORES IGUAIS</small></button>
+              <button data-tutorial-action="magia1" type="button"><span>EVOCACAO</span><small>3 + 2 CORES IGUAIS</small></button>
+              <button data-tutorial-action="magia2" type="button"><span>PODER</span><small>3 CORES IGUAIS</small></button>
+              <button data-tutorial-action="magia3" type="button"><span>FEITICO</span><small>5 CORES DIFERENTES</small></button>
+              <button data-tutorial-action="magia4" type="button"><span>MAGIA</span><small>4 CORES IGUAIS</small></button>
+            </div>
+          </section>
+        </section>
+
+        <nav class="tutorial-controls" aria-label="Controles do tutorial">
+          <button id="tutorialPrevButton" type="button">Anterior</button>
+          <div id="tutorialDots" class="tutorial-dots" aria-hidden="true"></div>
+          <button id="tutorialNextButton" type="button">Proximo</button>
         </nav>
       </section>
 
@@ -79,6 +145,7 @@
             <p>Sua jornada ate a batalha final</p>
           </div>
         </header>
+        <button id="battleButton" class="battle-button" type="button">Ir para batalha</button>
         <section id="arcadeMap" class="arcade-map" aria-label="Progressao do modo Arcade">
           <div class="map-heading">
             <strong>Rota de luta</strong>
@@ -86,7 +153,6 @@
           </div>
           <div id="mapRoute" class="map-route"></div>
         </section>
-        <button id="battleButton" class="battle-button" type="button">Ir pra batalha</button>
       </section>
 
       <section id="vsScreen" class="screen vs-screen hidden">
@@ -108,31 +174,17 @@
       </section>
 
       <section id="gameScreen" class="game-view hidden">
-      <section class="dice-panel" aria-label="Area de rolagem de dados">
-        <div class="turn-board">
-          <span id="turnLabel">Turno de Marjorie</span>
-          <strong id="rollsLabel">Rolagens: 0/3</strong>
-        </div>
-        <button id="rollButton" class="roll-button" type="button">Rolar Dados</button>
-        <p id="roundMessage" class="round-message">Role os dados para iniciar o ataque.</p>
-      </section>
-
-      <section class="dice-slots" aria-label="Espacos dos dados">
-        <button class="die empty" type="button" aria-label="Dado 1"></button>
-        <button class="die empty" type="button" aria-label="Dado 2"></button>
-        <button class="die empty" type="button" aria-label="Dado 3"></button>
-        <button class="die empty" type="button" aria-label="Dado 4"></button>
-        <button class="die empty" type="button" aria-label="Dado 5"></button>
-      </section>
-
       <section class="arena" aria-label="Arena de combate">
         <article class="fighter fighter-left active">
           <div class="health-card">
-            <span>Marjorie</span>
+            <span class="fighter-label">
+              <span class="fighter-name">Marjorie</span>
+              <img class="fighter-cartridge" src="assets/cart-snes.png" alt="SNES" />
+            </span>
             <div class="health-track">
               <div id="p1Health" class="health-fill"></div>
+              <strong id="p1Hp" class="health-value">100</strong>
             </div>
-            <strong id="p1Hp">100</strong>
           </div>
           <div class="sprite-stage">
             <img src="assets/marjorie.png" alt="Marjorie" />
@@ -140,15 +192,16 @@
           </div>
         </article>
 
-        <div class="versus">VS</div>
-
         <article class="fighter fighter-right">
           <div class="health-card">
-            <span>Akira</span>
+            <span class="fighter-label">
+              <span class="fighter-name">Akira</span>
+              <img class="fighter-cartridge" src="assets/cart-pce.png" alt="PCE" />
+            </span>
             <div class="health-track">
               <div id="p2Health" class="health-fill"></div>
+              <strong id="p2Hp" class="health-value">100</strong>
             </div>
-            <strong id="p2Hp">100</strong>
           </div>
           <div class="sprite-stage">
             <img src="assets/akira.png" alt="Akira" />
@@ -157,27 +210,41 @@
         </article>
       </section>
 
+      <section class="dice-panel" aria-label="Area de assoprada de cartuchos">
+        <div class="turn-board">
+          <span id="turnLabel">Turno de Marjorie</span>
+          <span id="turnTimer" class="turn-timer timer-green" aria-label="Tempo restante do turno">
+            <span id="turnTimerValue">15</span>
+          </span>
+          <strong id="rollsLabel">Assopradas: 0/3</strong>
+        </div>
+        <section class="dice-slots" aria-label="Espacos dos cartuchos">
+          <button class="die empty" type="button" aria-label="Cartucho 1"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 2"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 3"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 4"></button>
+          <button class="die empty" type="button" aria-label="Cartucho 5"></button>
+        </section>
+        <button id="rollButton" class="roll-button" type="button">Assoprar Cartuchos</button>
+      </section>
+
       <section class="actions" aria-label="Golpes disponiveis">
         <div class="action-column">
           <button data-action="soco" type="button">
-            <span>SOCO</span>
+            <span class="action-title">SOCO <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="chute" type="button">
-            <span>CHUTE</span>
+            <span class="action-title">CHUTE <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="gancho" type="button">
-            <span>GANCHO</span>
+            <span class="action-title">SOC&Atilde;O <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
           <button data-action="voadora" type="button">
-            <span>VOADORA</span>
+            <span class="action-title">CHUT&Atilde;O <b class="use-counter">0/2</b></span>
             <small>CORES IGUAIS</small>
-            <b class="use-counter">0/2</b>
           </button>
         </div>
 
@@ -188,29 +255,49 @@
 
         <div class="action-column">
           <button data-action="magia1" type="button">
-            <span>MAGIA 1</span>
+            <span>EVOCA&Ccedil;&Atilde;O</span>
             <small>3 + 2 CORES IGUAIS</small>
           </button>
           <button data-action="magia2" type="button">
-            <span>MAGIA 2</span>
+            <span>PODER</span>
             <small>3 CORES IGUAIS</small>
           </button>
           <button data-action="magia3" type="button">
-            <span>MAGIA 3</span>
+            <span>FEITI&Ccedil;O</span>
             <small>5 CORES DIFERENTES</small>
           </button>
           <button data-action="magia4" type="button">
-            <span>MAGIA 4</span>
+            <span>MAGIA</span>
             <small>4 CORES IGUAIS</small>
           </button>
         </div>
       </section>
+
+      <p id="roundMessage" class="round-message">Assopre os cartuchos para iniciar o ataque.</p>
 
       <section id="koOverlay" class="ko-overlay" aria-live="assertive" aria-hidden="true">
         <div class="ko-text">K.O</div>
         <img id="winnerSprite" class="winner-sprite" src="" alt="" />
         <p id="winnerText"></p>
         <button id="koButton" type="button">Continuar</button>
+      </section>
+
+      <section id="specialOverlay" class="special-overlay" aria-live="assertive" aria-hidden="true">
+        <div class="special-challenge">
+          <img id="specialChallengeImage" src="" alt="" />
+          <div class="special-panel">
+            <strong id="specialChallengeTitle">Especial</strong>
+            <p id="specialChallengeText">Aperte POWER o mais rapido possivel!</p>
+            <div class="special-meter" aria-label="Carga do especial">
+              <div id="specialMeterFill"></div>
+            </div>
+            <div class="special-meta">
+              <span id="specialTimerText">5.0s</span>
+              <span id="specialPowerText">0%</span>
+            </div>
+            <button id="specialPowerButton" type="button">POWER</button>
+          </div>
+        </div>
       </section>
       </section>
     </main>

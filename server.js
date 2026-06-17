@@ -26,7 +26,7 @@ const actions = {
   magia4: { type: "fourKind", damage: 27, maxUses: 1 },
   especial: { type: "yacht", damage: 40, maxUses: 1 },
 };
-const rooms = Array.from({ length: 3 }, (_, index) => newRoom(index + 1));
+const rooms = Array.from({ length: 6 }, (_, index) => newRoom(index + 1));
 const roomTimeout = 30000;
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -187,6 +187,8 @@ function command(room, member, body) {
     if ((attacker.used[body.actionKey] || 0) >= action.maxUses) throw new Error("Esse poder ja foi utilizado.");
     const defenderIndex = member.playerIndex === 0 ? 1 : 0;
     const result = calculateDamage(body.actionKey, match.dice, match.characters[member.playerIndex]);
+    const specialBonus = body.actionKey === "especial" && result.damage > 0 ? Math.max(0, Math.min(3, Number(body.specialBonus) || 0)) : 0;
+    result.damage += specialBonus;
     attacker.used[body.actionKey] = (attacker.used[body.actionKey] || 0) + 1;
     match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - result.damage);
     const exhausted = match.players.every((player) =>
@@ -209,6 +211,7 @@ function command(room, member, body) {
       baseDamage: result.baseDamage,
       bonus: result.bonus,
       bonusColor: result.bonusColor,
+      specialBonus,
       gameOver: match.gameOver,
       winnerIndex: match.winnerIndex,
     });
