@@ -270,6 +270,7 @@ let pendingP1 = null;
 let splashTimer = null;
 let legalTimer = null;
 let tutorialStep = 0;
+let tutorialAutoPowerStep = -1;
 let arcade = { heroId: null, opponents: [], index: 0 };
 let versusDraw = null;
 let pendingVs = null;
@@ -487,6 +488,28 @@ const tutorialSteps = [
   },
 ];
 
+const tutorialStepTexts = [
+  "INÍCIO: primeiro, você assopra os cartuchos. Cada turno permite até 3 assopradas, e os cartuchos aparecem um por um.",
+  "CONTINUIDADE: depois da primeira assoprada, segure os cartuchos que parecem bons. Aqui, três da cor ROSA (ATARI) foram separados para o exemplo do Chefe.",
+  "SOCO: use quando tiver cores repetidas. Neste exemplo há 2 cartuchos ROSAS (ATARI); o dano vem da maior repetição. Esse golpe é normal, e pode ser usado até 2 vezes.",
+  "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe é normal, e pode ser usado até 2 vezes.",
+  "SOCÃO: use quando tiver cores repetidas. Neste exemplo há 4 cartuchos ROSAS (ATARI); quanto mais cores iguais, mais danos. Como o cartucho do Chefe é o ROSA (ATARI), neste exemplo também teria bônus de +7 de dano. Esse golpe é normal, e pode ser usado até 2 vezes.",
+  "CHUTÃO: use quando tiver cores repetidas. Neste exemplo há 5 cartuchos VERMELHOS (32X); lembrando que, quanto mais cores iguais, mais danos. Esse golpe é normal, e pode ser usado até 2 vezes.",
+  "EVOCAÇÃO: para ativá-lo, precisa de 3 cartuchos de uma cor e 2 cartuchos de outra cor. Este é um golpe de energia, e só pode ser usado uma vez.",
+  "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez.",
+  "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez.",
+  "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez.",
+  "ESPECIAL: precisa de 5 cores iguais. É devastador, basicamente o golpe que mais causa danos. E se forem do cartucho especial do lutador, acrescenta +7 de dano.",
+  "BOTÃO POWER: Ao ativar o especial, aperte este botão repetidas vezes de forma rápida para encher a barra de poder e causar ainda mais danos.",
+  "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
+  "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
+  "FIM: O lutador que esgotar sua barra de energia é derrotado, e o rival vence. Agora, você está pronto para a batalha!",
+];
+
+tutorialSteps.forEach((step, index) => {
+  step.text = tutorialStepTexts[index] || step.text;
+});
+
 screens.splash.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -525,10 +548,7 @@ tutorialActionButtons.forEach((button) => {
     window.setTimeout(() => button.classList.remove("tutorial-tapped"), 260);
     const step = tutorialSteps[tutorialStep];
     if (step.miniGame && button.dataset.tutorialAction === "especial") {
-      const bonus = await runSpecialMiniGame(getCharacter("chefe"), true);
-      tutorialText.textContent = bonus
-        ? "Perfeito! Voce encheu a barra POWER e ganharia +3 de dano no Especial."
-        : "Sem bonus de especial. Na luta real, o Especial continua acontecendo, so sem os +3 extras.";
+      await runTutorialPowerMiniGame(tutorialStep);
     }
   });
 });
@@ -562,6 +582,7 @@ function chooseMode(nextMode) {
 
 function startTutorial() {
   tutorialStep = 0;
+  tutorialAutoPowerStep = -1;
   renderTutorial();
   showScreen("tutorial");
 }
@@ -611,6 +632,23 @@ function renderTutorial() {
     dot.className = index === tutorialStep ? "active" : "";
     tutorialDots.appendChild(dot);
   });
+
+  if (step.miniGame && tutorialAutoPowerStep !== tutorialStep) {
+    tutorialAutoPowerStep = tutorialStep;
+    window.setTimeout(() => {
+      if (tutorialSteps[tutorialStep]?.miniGame) {
+        runTutorialPowerMiniGame(tutorialStep);
+      }
+    }, 420);
+  }
+}
+
+async function runTutorialPowerMiniGame(stepIndex) {
+  const bonus = await runSpecialMiniGame(getCharacter("chefe"), true);
+  if (tutorialStep !== stepIndex) return;
+  tutorialText.textContent = bonus
+    ? "Perfeito! Você encheu a barra POWER e ganharia +3 de dano no Especial."
+    : "Sem bônus de especial. Na luta real, o Especial continua acontecendo, só sem os +3 extras.";
 }
 
 function renderCharacterSelect() {
@@ -1118,10 +1156,12 @@ function toggleHold(index) {
 function runSpecialMiniGame(player, isTutorial = false) {
   return new Promise((resolve) => {
     const duration = 5000;
-    const step = isTutorial ? 14 : 11;
+    const step = isTutorial ? 9 : 8;
+    const drainPerSecond = isTutorial ? 18 : 22;
     let power = 0;
     let finished = false;
     const startedAt = performance.now();
+    let lastTickAt = startedAt;
     const titleName = player?.name || "Especial";
 
     specialChallengeImage.src = player?.specialScreen || "assets/chefe-especial-screen.png";
@@ -1137,7 +1177,7 @@ function runSpecialMiniGame(player, isTutorial = false) {
       if (finished) return;
       finished = true;
       window.clearInterval(timerId);
-      specialPowerButton.removeEventListener("click", pressPower);
+      specialPowerButton.removeEventListener("pointerdown", pressPower);
       specialPowerButton.disabled = true;
       specialChallengeText.textContent = bonus ? "Bonus de especial: +3!" : "Sem bonus de especial.";
       window.setTimeout(() => {
@@ -1155,12 +1195,16 @@ function runSpecialMiniGame(player, isTutorial = false) {
     };
 
     const timerId = window.setInterval(() => {
+      const now = performance.now();
+      const elapsed = Math.max(0, now - lastTickAt);
+      lastTickAt = now;
+      power = Math.max(0, power - (drainPerSecond * elapsed) / 1000);
       const remaining = Math.max(0, duration - (performance.now() - startedAt));
       updateSpecialChallenge(power, remaining);
       if (remaining <= 0) finish(0);
     }, 60);
 
-    specialPowerButton.addEventListener("click", pressPower);
+    specialPowerButton.addEventListener("pointerdown", pressPower);
   });
 }
 
