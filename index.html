@@ -25,6 +25,7 @@
           <button data-mode="arcade" type="button">Arcade</button>
           <button data-mode="versus" type="button">Versus Local</button>
           <button data-mode="tutorial" type="button">Tutorial</button>
+          <button data-mode="specialTest" type="button">Teste de Especiais</button>
           <button data-mode="online" type="button">Online</button>
           <button data-mode="newsstand" type="button">Banca de Revistas</button>
         </nav>
@@ -93,6 +94,17 @@
           </div>
         </header>
         <div id="characterGrid" class="character-grid" aria-label="Selecao de personagens"></div>
+      </section>
+
+      <section id="specialTestScreen" class="screen select-screen special-test-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Teste de Especiais</h1>
+            <p id="specialTestSubtitle">Escolha um lutador para abrir o minigame do Especial.</p>
+          </div>
+        </header>
+        <div id="specialTestGrid" class="character-grid" aria-label="Teste de especiais dos personagens"></div>
       </section>
 
       <section id="soonScreen" class="screen soon-screen hidden">

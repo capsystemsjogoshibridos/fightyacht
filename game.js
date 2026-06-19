@@ -243,6 +243,7 @@ const screens = {
   home: document.querySelector("#homeScreen"),
   tutorial: document.querySelector("#tutorialScreen"),
   select: document.querySelector("#selectScreen"),
+  specialTest: document.querySelector("#specialTestScreen"),
   soon: document.querySelector("#soonScreen"),
   draw: document.querySelector("#drawScreen"),
   online: document.querySelector("#onlineScreen"),
@@ -290,6 +291,8 @@ let online = {
 const characterGrid = document.querySelector("#characterGrid");
 const selectTitle = document.querySelector("#selectTitle");
 const selectSubtitle = document.querySelector("#selectSubtitle");
+const specialTestGrid = document.querySelector("#specialTestGrid");
+const specialTestSubtitle = document.querySelector("#specialTestSubtitle");
 const arcadeMap = document.querySelector("#arcadeMap");
 const mapCounter = document.querySelector("#mapCounter");
 const mapRoute = document.querySelector("#mapRoute");
@@ -567,6 +570,10 @@ function chooseMode(nextMode) {
     startTutorial();
     return;
   }
+  if (mode === "specialTest") {
+    showSpecialTest();
+    return;
+  }
   if (mode === "online") {
     showOnlineLobby();
     return;
@@ -649,6 +656,40 @@ async function runTutorialPowerMiniGame(stepIndex) {
   tutorialText.textContent = bonus
     ? "Perfeito! Você encheu a barra POWER e ganharia +3 de dano no Especial."
     : "Sem bônus de especial. Na luta real, o Especial continua acontecendo, só sem os +3 extras.";
+}
+
+function showSpecialTest() {
+  renderSpecialTestGrid();
+  showScreen("specialTest");
+}
+
+function renderSpecialTestGrid() {
+  specialTestSubtitle.textContent = "Escolha um lutador para abrir o minigame do Especial.";
+  specialTestGrid.innerHTML = "";
+
+  characters.forEach((fighter) => {
+    const cartridge = cartridgeByColor[fighter.specialColor];
+    const button = document.createElement("button");
+    button.className = "character-card";
+    button.type = "button";
+    button.innerHTML = `
+      <img class="character-portrait" src="${fighter.select}" alt="${fighter.name}">
+      <span>${fighter.name}</span>
+      <small class="character-cartridge">CARTUCHO: <img src="${cartridge.src}" alt="${cartridge.label}"></small>
+      <small>${["baby", "lord", "marjorie", "bill"].includes(fighter.id) ? "TESTAR ESPECIAL" : "EM BREVE"}</small>
+    `;
+    if (!["baby", "lord", "marjorie", "bill"].includes(fighter.id)) button.disabled = true;
+    button.addEventListener("click", () => runSpecialTest(fighter));
+    specialTestGrid.appendChild(button);
+  });
+}
+
+async function runSpecialTest(fighter) {
+  specialTestSubtitle.textContent = `${fighter.name}: teste em andamento...`;
+  const bonus = await runSpecialMiniGame(fighter);
+  specialTestSubtitle.textContent = bonus
+    ? `${fighter.name}: bônus conquistado! +${bonus} de dano.`
+    : `${fighter.name}: sem bônus de especial. Clique no lutador para testar novamente.`;
 }
 
 function renderCharacterSelect() {
@@ -1154,6 +1195,14 @@ function toggleHold(index) {
 }
 
 function runSpecialMiniGame(player, isTutorial = false) {
+  if (player?.id === "marjorie") return runPickCartridgeSpecialMiniGame(player, isTutorial);
+  if (player?.id === "bill") return runAimSpecialMiniGame(player, isTutorial);
+  if (player?.id === "chefe") return runNameCartridgeSpecialMiniGame(player, isTutorial);
+  if (player?.id === "lord") return runTimingSpecialMiniGame(player, isTutorial);
+  return runMashSpecialMiniGame(player, isTutorial);
+}
+
+function runMashSpecialMiniGame(player, isTutorial = false) {
   return new Promise((resolve) => {
     const duration = 5000;
     const step = isTutorial ? 9 : 8;
@@ -1168,7 +1217,9 @@ function runSpecialMiniGame(player, isTutorial = false) {
     specialChallengeImage.alt = `${titleName} especial`;
     specialChallengeTitle.textContent = `${titleName} Especial`;
     specialChallengeText.textContent = "Aperte POWER o mais rapido possivel!";
+    specialPowerButton.textContent = "POWER";
     specialPowerButton.disabled = false;
+    resetSpecialMeterMode();
     updateSpecialChallenge(0, duration);
     specialOverlay.classList.add("show");
     specialOverlay.setAttribute("aria-hidden", "false");
@@ -1206,6 +1257,307 @@ function runSpecialMiniGame(player, isTutorial = false) {
 
     specialPowerButton.addEventListener("pointerdown", pressPower);
   });
+}
+
+function runTimingSpecialMiniGame(player, isTutorial = false) {
+  return new Promise((resolve) => {
+    const duration = 5000;
+    const zoneStart = isTutorial ? 39 : 42;
+    const zoneEnd = isTutorial ? 61 : 58;
+    const cycleMs = isTutorial ? 1050 : 880;
+    let markerPosition = 0;
+    let finished = false;
+    const startedAt = performance.now();
+    const titleName = player?.name || "Lord Mathias";
+    const meter = specialMeterFill.parentElement;
+    const marker = document.createElement("span");
+
+    resetSpecialMeterMode();
+    meter.classList.add("timing-mode");
+    marker.className = "timing-marker";
+    meter.appendChild(marker);
+    specialMeterFill.style.left = `${zoneStart}%`;
+    specialMeterFill.style.width = `${zoneEnd - zoneStart}%`;
+    specialChallengeImage.src = player?.specialScreen || "assets/lord-especial-screen.png";
+    specialChallengeImage.alt = `${titleName} especial`;
+    specialChallengeTitle.textContent = `${titleName} Especial`;
+    specialChallengeText.textContent = "Aperte POWER quando o marcador passar na zona verde!";
+    specialPowerButton.textContent = "POWER";
+    specialPowerButton.disabled = false;
+    specialOverlay.classList.add("show");
+    specialOverlay.setAttribute("aria-hidden", "false");
+
+    const finish = (bonus) => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(timerId);
+      specialPowerButton.removeEventListener("pointerdown", pressPower);
+      specialPowerButton.disabled = true;
+      specialChallengeText.textContent = bonus ? "Timing perfeito: +3!" : "Sem bonus de especial.";
+      window.setTimeout(() => {
+        specialOverlay.classList.remove("show");
+        specialOverlay.setAttribute("aria-hidden", "true");
+        resetSpecialMeterMode();
+        resolve(bonus);
+      }, 720);
+    };
+
+    const pressPower = (event) => {
+      event.preventDefault();
+      finish(markerPosition >= zoneStart && markerPosition <= zoneEnd ? 3 : 0);
+    };
+
+    const timerId = window.setInterval(() => {
+      const now = performance.now();
+      const elapsed = now - startedAt;
+      const remaining = Math.max(0, duration - elapsed);
+      const phase = (elapsed % cycleMs) / cycleMs;
+      markerPosition = phase <= 0.5 ? phase * 200 : (1 - phase) * 200;
+      marker.style.left = `${markerPosition}%`;
+      specialTimerText.textContent = `${(remaining / 1000).toFixed(1)}s`;
+      specialPowerText.textContent = `${Math.round(markerPosition)}%`;
+      if (remaining <= 0) finish(0);
+    }, 30);
+
+    specialPowerButton.addEventListener("pointerdown", pressPower);
+  });
+}
+
+function runPickCartridgeSpecialMiniGame(player, isTutorial = false) {
+  return new Promise((resolve) => {
+    const duration = 5000;
+    const targetColor = player?.specialColor || "blue";
+    const targetHits = 1;
+    const spawnMs = isTutorial ? 460 : 380;
+    let hits = 0;
+    let finished = false;
+    const startedAt = performance.now();
+    const titleName = player?.name || "Marjorie Bros.";
+    const panel = specialPowerButton.parentElement;
+    const hunt = document.createElement("div");
+    const target = cartridgeByColor[targetColor];
+
+    resetSpecialMeterMode();
+    hunt.className = "special-cartridge-hunt";
+    panel.insertBefore(hunt, specialPowerButton);
+    specialPowerButton.textContent = "ACHE O AZUL";
+    specialPowerButton.disabled = true;
+    specialPowerButton.classList.add("special-power-muted");
+    specialChallengeImage.src = player?.specialScreen || "assets/marjorie-especial-screen.png";
+    specialChallengeImage.alt = `${titleName} especial`;
+    specialChallengeTitle.textContent = `${titleName} Especial`;
+    specialChallengeText.textContent = `Toque apenas nos cartuchos ${colorLabels[targetColor].toUpperCase()} (${target.label})!`;
+    updateSpecialChallenge(0, duration);
+    specialOverlay.classList.add("show");
+    specialOverlay.setAttribute("aria-hidden", "false");
+
+    const finish = (bonus) => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(spawnTimerId);
+      window.clearInterval(timerId);
+      specialPowerButton.disabled = true;
+      specialChallengeText.textContent = bonus ? "Cartucho certo: +3!" : "Sem bonus de especial.";
+      window.setTimeout(() => {
+        specialOverlay.classList.remove("show");
+        specialOverlay.setAttribute("aria-hidden", "true");
+        resetSpecialMeterMode();
+        resolve(bonus);
+      }, 720);
+    };
+
+    const spawnCartridge = () => {
+      if (finished) return;
+      hunt.innerHTML = "";
+      const color = Math.random() < 0.38 ? targetColor : colors.filter((item) => item !== targetColor)[Math.floor(Math.random() * (colors.length - 1))];
+      const cartridge = cartridgeByColor[color];
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "hunt-cartridge";
+      button.style.setProperty("--hunt-x", `${14 + Math.random() * 72}%`);
+      button.style.setProperty("--hunt-y", `${18 + Math.random() * 60}%`);
+      button.innerHTML = `<img src="${cartridge.src}" alt="${cartridge.label}">`;
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        if (color !== targetColor) {
+          finish(0);
+          return;
+        }
+        hits += 1;
+        specialPowerButton.textContent = "AZUL!";
+        updateSpecialChallenge((hits / targetHits) * 100, Math.max(0, duration - (performance.now() - startedAt)));
+        if (hits >= targetHits) finish(3);
+        else spawnCartridge();
+      });
+      hunt.appendChild(button);
+    };
+
+    const timerId = window.setInterval(() => {
+      const remaining = Math.max(0, duration - (performance.now() - startedAt));
+      specialTimerText.textContent = `${(remaining / 1000).toFixed(1)}s`;
+      if (remaining <= 0) finish(0);
+    }, 60);
+    const spawnTimerId = window.setInterval(spawnCartridge, spawnMs);
+    spawnCartridge();
+  });
+}
+
+function runAimSpecialMiniGame(player, isTutorial = false) {
+  return new Promise((resolve) => {
+    const duration = 5000;
+    const centerX = 50;
+    const centerY = 47;
+    const hitRadius = isTutorial ? 11 : 9;
+    const cycleMs = isTutorial ? 1600 : 1350;
+    let aimX = centerX;
+    let aimY = centerY;
+    let finished = false;
+    const startedAt = performance.now();
+    const titleName = player?.name || "Bill Games";
+    const challenge = specialChallengeImage.parentElement;
+    const target = document.createElement("span");
+    const centerZone = document.createElement("span");
+
+    resetSpecialMeterMode();
+    challenge.classList.add("aim-mode");
+    target.className = "aim-target";
+    centerZone.className = "aim-center-zone";
+    challenge.appendChild(centerZone);
+    challenge.appendChild(target);
+    specialChallengeImage.src = player?.specialScreen || "assets/bill-especial-screen.png";
+    specialChallengeImage.alt = `${titleName} especial`;
+    specialChallengeTitle.textContent = `${titleName} Especial`;
+    specialChallengeText.textContent = "Aperte POWER quando a mira estiver no centro!";
+    specialPowerButton.textContent = "POWER";
+    specialPowerButton.disabled = false;
+    updateSpecialChallenge(0, duration);
+    specialOverlay.classList.add("show");
+    specialOverlay.setAttribute("aria-hidden", "false");
+
+    const finish = (bonus) => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(timerId);
+      specialPowerButton.removeEventListener("pointerdown", pressPower);
+      specialPowerButton.disabled = true;
+      specialChallengeText.textContent = bonus ? "Mira certeira: +3!" : "Sem bonus de especial.";
+      window.setTimeout(() => {
+        specialOverlay.classList.remove("show");
+        specialOverlay.setAttribute("aria-hidden", "true");
+        resetSpecialMeterMode();
+        resolve(bonus);
+      }, 720);
+    };
+
+    const pressPower = (event) => {
+      event.preventDefault();
+      const distance = Math.hypot(aimX - centerX, aimY - centerY);
+      finish(distance <= hitRadius ? 3 : 0);
+    };
+
+    const timerId = window.setInterval(() => {
+      const elapsed = performance.now() - startedAt;
+      const remaining = Math.max(0, duration - elapsed);
+      const angle = ((elapsed % cycleMs) / cycleMs) * Math.PI * 2;
+      aimX = centerX + Math.sin(angle) * 34;
+      aimY = centerY + Math.sin(angle * 2) * 22;
+      target.style.left = `${aimX}%`;
+      target.style.top = `${aimY}%`;
+      const distance = Math.hypot(aimX - centerX, aimY - centerY);
+      const accuracy = Math.max(0, 100 - (distance / hitRadius) * 100);
+      specialPowerText.textContent = `${Math.round(accuracy)}%`;
+      specialTimerText.textContent = `${(remaining / 1000).toFixed(1)}s`;
+      if (remaining <= 0) finish(0);
+    }, 30);
+
+    specialPowerButton.addEventListener("pointerdown", pressPower);
+  });
+}
+
+function runNameCartridgeSpecialMiniGame(player, isTutorial = false) {
+  return new Promise((resolve) => {
+    const duration = 5000;
+    const cartridgeNames = {
+      blue: "SNES",
+      red: "32X",
+      yellow: "Nintendo 64",
+      green: "PC Engine",
+      pink: "Atari",
+    };
+    const targetColor = colors[Math.floor(Math.random() * colors.length)];
+    const targetName = cartridgeNames[targetColor];
+    const options = shuffle([
+      targetColor,
+      ...Array.from({ length: 14 }, () => {
+        const misses = colors.filter((color) => color !== targetColor);
+        return misses[Math.floor(Math.random() * misses.length)];
+      }),
+    ]);
+    let finished = false;
+    const startedAt = performance.now();
+    const titleName = player?.name || "O Chefe";
+    const panel = specialPowerButton.parentElement;
+    const grid = document.createElement("div");
+
+    resetSpecialMeterMode();
+    grid.className = "special-name-grid";
+    panel.insertBefore(grid, specialPowerButton);
+    specialChallengeImage.src = player?.specialScreen || "assets/chefe-especial-screen.png";
+    specialChallengeImage.alt = `${titleName} especial`;
+    specialChallengeTitle.textContent = `${titleName} Especial`;
+    specialChallengeText.textContent = `NOME CERTO: encontre ${targetName}!`;
+    specialPowerButton.textContent = targetName.toUpperCase();
+    specialPowerButton.disabled = true;
+    specialPowerButton.classList.add("special-power-muted");
+    updateSpecialChallenge(0, duration);
+    specialOverlay.classList.add("show");
+    specialOverlay.setAttribute("aria-hidden", "false");
+
+    const finish = (bonus) => {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(timerId);
+      specialPowerButton.disabled = true;
+      specialChallengeText.textContent = bonus ? "Nome certo: +3!" : "Sem bonus de especial.";
+      window.setTimeout(() => {
+        specialOverlay.classList.remove("show");
+        specialOverlay.setAttribute("aria-hidden", "true");
+        resetSpecialMeterMode();
+        resolve(bonus);
+      }, 720);
+    };
+
+    options.forEach((color) => {
+      const cartridge = cartridgeByColor[color];
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "name-cartridge";
+      button.innerHTML = `<img src="${cartridge.src}" alt="${cartridgeNames[color]}">`;
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        finish(color === targetColor ? 3 : 0);
+      });
+      grid.appendChild(button);
+    });
+
+    const timerId = window.setInterval(() => {
+      const remaining = Math.max(0, duration - (performance.now() - startedAt));
+      specialTimerText.textContent = `${(remaining / 1000).toFixed(1)}s`;
+      if (remaining <= 0) finish(0);
+    }, 60);
+  });
+}
+
+function resetSpecialMeterMode() {
+  const meter = specialMeterFill.parentElement;
+  meter.classList.remove("timing-mode");
+  meter.querySelectorAll(".timing-marker").forEach((node) => node.remove());
+  document.querySelectorAll(".special-cartridge-hunt").forEach((node) => node.remove());
+  document.querySelectorAll(".special-name-grid").forEach((node) => node.remove());
+  document.querySelectorAll(".aim-target, .aim-center-zone").forEach((node) => node.remove());
+  specialChallengeImage.parentElement.classList.remove("aim-mode");
+  specialMeterFill.style.left = "";
+  specialPowerButton.classList.remove("special-power-muted");
 }
 
 function updateSpecialChallenge(power, remainingMs) {
