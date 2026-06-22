@@ -909,6 +909,110 @@ button:disabled {
   color: var(--gold);
 }
 
+.map-route {
+  width: min(620px, 100%);
+  gap: clamp(10px, 1.8vh, 18px);
+}
+
+.route-fight,
+.route-fight:nth-child(even) {
+  justify-self: center;
+  display: block;
+  width: 100%;
+  color: #fff;
+  text-align: left;
+}
+
+.route-fight:nth-child(even) img,
+.route-fight:nth-child(even) span {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.route-fight:not(:last-child)::after {
+  display: none;
+}
+
+.route-fight img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 1;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  object-fit: cover;
+}
+
+.route-fight span {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  bottom: 10px;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: rgba(5, 8, 15, 0.76);
+  color: inherit;
+  line-height: 1.1;
+}
+
+.route-fight.done::before,
+.route-fight:nth-child(even).done::before {
+  left: 12px;
+  right: auto;
+  top: 8px;
+  color: #67ec83;
+}
+
+.ending-screen {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 4vw, 36px);
+  background: rgba(7, 11, 20, 0.96);
+}
+
+.ending-content {
+  width: min(680px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: clamp(12px, 2vw, 18px);
+  text-align: center;
+}
+
+.ending-kicker {
+  margin: 0;
+  color: var(--gold);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ending-content h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+  line-height: 1;
+}
+
+#endingImage {
+  width: min(100%, 620px);
+  max-height: min(58vh, 620px);
+  border: 2px solid rgba(246, 200, 76, 0.52);
+  border-radius: 8px;
+  object-fit: contain;
+  background: #0d121c;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.44);
+}
+
+.ending-text {
+  max-width: 62ch;
+  margin: 0;
+  color: #edf3ff;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.55;
+}
+
 .battle-button {
   justify-self: center;
   width: min(380px, 88vw);
@@ -2429,5 +2533,29 @@ button:disabled {
 
   .action-column:last-child {
     order: initial;
+  }
+}
+
+@media (max-width: 620px) {
+  .route-fight,
+  .route-fight:nth-child(even) {
+    width: 100%;
+  }
+
+  .route-fight img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 1;
+  }
+
+  .route-fight.done::before,
+  .route-fight:nth-child(even).done::before {
+    left: 10px;
+    right: auto;
+    top: 7px;
+  }
+
+  #endingImage {
+    max-height: min(50vh, 440px);
   }
 }

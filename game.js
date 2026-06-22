@@ -132,6 +132,37 @@ const characters = [
   }),
 ];
 
+const arcadeEndings = {
+  akira: {
+    image: "assets/final-akira.jpg",
+    text: "Nosso revisor nip\u00f4nico conseguiu sua promo\u00e7\u00e3o e colocou seu novo subordinado para analisar e corrigir todo o conte\u00fado das revistas. Akira viu que o Chefe foi o maior erro que ele j\u00e1 viu na vida.",
+  },
+  baby: {
+    image: "assets/final-baby.jpg",
+    text: "O brutamontes da SGP tomou o lugar do Chefe e colocou todo mundo para malhar dentro da reda\u00e7\u00e3o.",
+  },
+  bill: {
+    image: "assets/final-bill.jpg",
+    text: "Bill assumiu o cargo de Chefe, e ordenou seu novo lacaio para melhorar todos os computadores da reda\u00e7\u00e3o.",
+  },
+  chris: {
+    image: "assets/final-chris.jpg",
+    text: "Novata que tomou o lugar do Chefe, Chris n\u00e3o deixa seu novo empregado em paz com suas manobras radicais dentro da reda\u00e7\u00e3o.",
+  },
+  lord: {
+    image: "assets/final-lord.jpg",
+    text: "O novo esporte favorito do Chefe Lord Mathias \u00e9 justamente azucrinar o baixinho de cabelos roxos espetados.",
+  },
+  marcelo: {
+    image: "assets/final-marcelo.jpg",
+    text: "Marcelo conseguiu ocupar o lugar do Chefe e instalar um trono dourado dentro da reda\u00e7\u00e3o. Todos os dias ele cobra rever\u00eancias de seu novo servi\u00e7al.",
+  },
+  marjorie: {
+    image: "assets/final-marjorie.jpg",
+    text: "Al\u00e9m de musa dos gamers, Marjorie agora \u00e9 da alta c\u00fapula, e tornou a reda\u00e7\u00e3o um lugar muito mais humano e agrad\u00e1vel de se trabalhar. Ela \u00e9 amada por todos.",
+  },
+};
+
 const attackEmojis = {
   marjorie: {
     soco: "👊",
@@ -248,6 +279,7 @@ const screens = {
   draw: document.querySelector("#drawScreen"),
   online: document.querySelector("#onlineScreen"),
   map: document.querySelector("#mapScreen"),
+  ending: document.querySelector("#endingScreen"),
   vs: document.querySelector("#vsScreen"),
   game: document.querySelector("#gameScreen"),
 };
@@ -296,6 +328,10 @@ const arcadeMap = document.querySelector("#arcadeMap");
 const mapCounter = document.querySelector("#mapCounter");
 const mapRoute = document.querySelector("#mapRoute");
 const battleButton = document.querySelector("#battleButton");
+const endingTitle = document.querySelector("#endingTitle");
+const endingImage = document.querySelector("#endingImage");
+const endingText = document.querySelector("#endingText");
+const endingButton = document.querySelector("#endingButton");
 const drawBattleButton = document.querySelector("#drawBattleButton");
 const rouletteWheel = document.querySelector("#rouletteWheel");
 const rouletteP1 = document.querySelector("#rouletteP1");
@@ -517,6 +553,7 @@ document.querySelectorAll("[data-back]").forEach((button) => button.addEventList
 rollButton.addEventListener("click", () => rollDice());
 koButton.addEventListener("click", continueAfterKo);
 battleButton.addEventListener("click", startCurrentArcadeBattle);
+endingButton.addEventListener("click", showHome);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
 vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
@@ -1862,6 +1899,8 @@ function continueAfterKo() {
       showArcadeMap();
       return;
     }
+    showArcadeEnding(getCharacter(arcade.heroId));
+    return;
   }
   showHome();
 }
@@ -2099,7 +2138,9 @@ function showKo(winnerIndex) {
   }
   koOverlay.classList.add("show");
   koOverlay.setAttribute("aria-hidden", "false");
-  koButton.textContent = mode === "arcade" && winnerIndex === 0 && arcade.index < arcade.opponents.length - 1 ? "Proxima luta" : "Voltar ao menu";
+  const isArcadeWin = mode === "arcade" && winnerIndex === 0;
+  const isArcadeFinalWin = isArcadeWin && arcade.index === arcade.opponents.length - 1;
+  koButton.textContent = isArcadeFinalWin ? "Ver final" : isArcadeWin ? "Proxima luta" : "Voltar ao menu";
 }
 
 function getFinalResult() {
@@ -2196,10 +2237,26 @@ function showArcadeMap() {
     const current = index === arcade.index && !passed;
     const node = document.createElement("div");
     node.className = `route-fight${passed ? " done" : ""}${current ? " current" : ""}${opponent.id === "chefe" ? " boss" : ""}`;
-    node.innerHTML = `<img src="${opponent.select}" alt=""><span>${opponent.name}</span>`;
+    node.innerHTML = `<img src="assets/arcade-${opponent.id}.jpg" alt="${opponent.name}"><span>${opponent.name}</span>`;
     mapRoute.appendChild(node);
   });
   showScreen("map");
+}
+
+function showArcadeEnding(hero) {
+  const ending = arcadeEndings[hero?.id];
+  if (!hero || !ending) {
+    showHome();
+    return;
+  }
+
+  koOverlay.classList.remove("show");
+  koOverlay.setAttribute("aria-hidden", "true");
+  endingTitle.textContent = `${hero.name} venceu!`;
+  endingImage.src = ending.image;
+  endingImage.alt = `Final de ${hero.name}`;
+  endingText.textContent = ending.text;
+  showScreen("ending");
 }
 
 function showHome() {
