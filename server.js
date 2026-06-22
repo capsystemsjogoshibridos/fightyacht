@@ -103,6 +103,8 @@ function startMatchIfReady(room) {
     held: Array(5).fill(false),
     rolls: 0,
     players: [{ hp: 100, used: {} }, { hp: 100, used: {} }],
+    roundWins: [0, 0],
+    roundNumber: 1,
     gameOver: false,
     winnerIndex: null,
     message: "",
@@ -140,7 +142,7 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   if (actionType === "fullHouse") return specialCount === 2 || specialCount === 3;
   if (actionType === "threeKind") return specialCount >= 3;
   if (actionType === "fourKind") return specialCount >= 4;
-  if (actionType === "multicolor") return specialCount === 1 && Object.keys(countMap).length === 5;
+  if (actionType === "multicolor") return false;
   return specialCount === 5;
 }
 
@@ -194,10 +196,27 @@ function command(room, member, body) {
     const exhausted = match.players.every((player) =>
       Object.keys(actions).every((key) => (player.used[key] || 0) >= actions[key].maxUses),
     );
+    let roundOver = false;
+    let roundWinnerIndex = null;
     if (match.players[defenderIndex].hp <= 0 || exhausted) {
-      match.gameOver = true;
-      match.winnerIndex =
+      roundOver = true;
+      roundWinnerIndex =
         match.players[0].hp === match.players[1].hp ? null : match.players[0].hp > match.players[1].hp ? 0 : 1;
+      if (roundWinnerIndex !== null) match.roundWins[roundWinnerIndex] += 1;
+      if (roundWinnerIndex !== null && match.roundWins[roundWinnerIndex] >= 2) {
+        match.gameOver = true;
+        match.winnerIndex = roundWinnerIndex;
+      } else {
+        match.roundNumber += 1;
+        match.currentPlayer = roundWinnerIndex ?? member.playerIndex;
+        match.dice = Array(5).fill(null);
+        match.held = Array(5).fill(false);
+        match.rolls = 0;
+        match.players.forEach((player) => {
+          player.hp = 100;
+          player.used = {};
+        });
+      }
     } else {
       match.currentPlayer = defenderIndex;
       match.dice = Array(5).fill(null);
@@ -212,6 +231,10 @@ function command(room, member, body) {
       bonus: result.bonus,
       bonusColor: result.bonusColor,
       specialBonus,
+      roundOver,
+      roundWinnerIndex,
+      roundWins: [...match.roundWins],
+      roundNumber: match.roundNumber,
       gameOver: match.gameOver,
       winnerIndex: match.winnerIndex,
     });

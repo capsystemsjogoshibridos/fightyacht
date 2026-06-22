@@ -65,6 +65,8 @@ button:disabled {
   inset: 0;
   z-index: 20;
   min-height: 100vh;
+  align-content: center;
+  gap: 28px;
   background: #000;
 }
 
@@ -91,6 +93,41 @@ button:disabled {
   width: min(210px, 42vw);
   max-height: 30vh;
   object-fit: contain;
+}
+
+.loading-panel {
+  width: min(320px, 76vw);
+  display: grid;
+  gap: 8px;
+  color: #f6f1e8;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.loading-track {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#loadingFill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gold);
+  box-shadow: 0 0 14px rgba(246, 200, 76, 0.82);
+  transition: width 150ms ease;
+}
+
+#loadingPercent {
+  color: var(--gold);
+  font-size: 1rem;
 }
 
 .menu-screen {
@@ -782,9 +819,44 @@ button:disabled {
 
 .game-view {
   min-height: calc(100svh - 16px);
+  position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 8px;
+}
+
+.round-overlay {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: rgba(3, 5, 10, 0.78);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+  text-align: center;
+}
+
+.round-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.round-overlay strong {
+  color: var(--gold);
+  font-size: clamp(3rem, 12vw, 7rem);
+  line-height: 0.9;
+  text-shadow: 0 8px 22px rgba(0, 0, 0, 0.72);
+}
+
+.round-overlay span {
+  color: #fff;
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .arcade-map {
@@ -1250,6 +1322,10 @@ button:disabled {
   opacity: 1;
 }
 
+.arena.round-fade::before {
+  opacity: 1;
+}
+
 .fighter {
   position: relative;
   z-index: 1;
@@ -1396,6 +1472,27 @@ button:disabled {
   height: clamp(20px, 3vw, 30px);
   flex: 0 0 auto;
   object-fit: contain;
+}
+
+.round-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.round-stars span {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: clamp(0.85rem, 2.2vw, 1.15rem);
+  line-height: 1;
+  text-shadow: none;
+  transition: color 180ms ease, text-shadow 180ms ease, transform 180ms ease;
+}
+
+.round-stars span.won {
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(246, 200, 76, 0.8);
+  transform: scale(1.12);
 }
 
 .health-track {

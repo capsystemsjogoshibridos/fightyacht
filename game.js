@@ -293,7 +293,10 @@ let rolls = 0;
 let gameOver = false;
 let isRolling = false;
 let isAnimating = false;
+let isRoundTransition = false;
 let matchWinnerIndex = null;
+let roundWins = [0, 0];
+let roundNumber = 1;
 let turnTimerId = null;
 let turnTimerStartedAt = 0;
 let turnToken = 0;
@@ -301,6 +304,8 @@ let mode = null;
 let selectStep = null;
 let pendingP1 = null;
 let splashTimer = null;
+let splashReady = false;
+let splashStartedAt = 0;
 let legalTimer = null;
 let tutorialStep = 0;
 let arcade = { heroId: null, opponents: [], index: 0 };
@@ -359,11 +364,18 @@ const turnTimer = document.querySelector("#turnTimer");
 const turnTimerValue = document.querySelector("#turnTimerValue");
 const rollsLabel = document.querySelector("#rollsLabel");
 const roundMessage = document.querySelector("#roundMessage");
+const roundOverlay = document.querySelector("#roundOverlay");
+const roundBannerText = document.querySelector("#roundBannerText");
+const roundScoreText = document.querySelector("#roundScoreText");
 const fighters = [...document.querySelectorAll(".fighter")];
 const fighterImages = fighters.map((fighter) => fighter.querySelector(".sprite-stage img"));
 const fighterNames = fighters.map((fighter) => fighter.querySelector(".fighter-name"));
 const fighterCartridges = fighters.map((fighter) => fighter.querySelector(".fighter-cartridge"));
+const fighterRoundStars = fighters.map((fighter) => fighter.querySelector(".round-stars"));
 const arena = document.querySelector(".arena");
+const loadingText = document.querySelector("#loadingText");
+const loadingFill = document.querySelector("#loadingFill");
+const loadingPercent = document.querySelector("#loadingPercent");
 const koOverlay = document.querySelector("#koOverlay");
 const koText = document.querySelector(".ko-text");
 const winnerSprite = document.querySelector("#winnerSprite");
@@ -539,6 +551,7 @@ tutorialSteps.forEach((step, index) => {
 screens.splash.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
+  if (!splashReady) return;
   finishSplash();
 });
 screens.legal.addEventListener("click", (event) => {
@@ -576,9 +589,8 @@ tutorialActionButtons.forEach((button) => {
   });
 });
 
-preloadSprites();
 showScreen("splash");
-splashTimer = window.setTimeout(finishSplash, 5000);
+preloadGameAssets();
 
 function character(id, name, select, specialColor, sprites) {
   return { id, name, select, specialColor, sprites, specialScreen: `assets/${id}-especial-screen.png` };
@@ -959,6 +971,8 @@ function applyOnlineSnapshot(match) {
   dice = [...match.dice];
   held = [...match.held];
   rolls = match.rolls;
+  roundWins = [...(match.roundWins || [0, 0])];
+  roundNumber = match.roundNumber || 1;
   match.players.forEach((player, index) => {
     players[index].hp = player.hp;
     players[index].used = { ...player.used };
@@ -1038,13 +1052,12 @@ function getClientId() {
 
 function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
-  currentPlayer = starter;
-  dice = Array(5).fill(null);
-  held = Array(5).fill(false);
-  rolls = 0;
   gameOver = false;
   isRolling = false;
+  isRoundTransition = false;
   matchWinnerIndex = null;
+  roundWins = [0, 0];
+  roundNumber = 1;
   koOverlay.classList.remove("show");
   koOverlay.setAttribute("aria-hidden", "true");
   winnerSprite.src = "";
@@ -1057,15 +1070,63 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assop
   fighterImages[0].src = players[0].sprites.idle;
   fighterImages[1].src = players[1].sprites.idle;
   spriteStates = ["idle", "idle"];
-  roundMessage.textContent = message;
   showScreen("game");
+  startRound(starter, message);
+}
+
+function makePlayer(fighter) {
+  return { ...fighter, hp: 100, used: {} };
+}
+
+async function startRound(starter, message) {
+  currentPlayer = starter;
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  isRolling = false;
+  isRoundTransition = true;
+  players.forEach((player) => {
+    player.hp = 100;
+    player.used = {};
+  });
+  roundMessage.textContent = message;
+  render();
+  roundBannerText.textContent = `ROUND ${roundNumber}`;
+  roundScoreText.textContent = `${players[0].name} ${roundWins[0]} x ${roundWins[1]} ${players[1].name}`;
+  roundOverlay.classList.add("show");
+  roundOverlay.setAttribute("aria-hidden", "false");
+  arena.classList.add("round-fade");
+  await wait(1400);
+  roundOverlay.classList.remove("show");
+  roundOverlay.setAttribute("aria-hidden", "true");
+  arena.classList.remove("round-fade");
+  isRoundTransition = false;
   render();
   beginTurn();
   maybeCpuTurn();
 }
 
-function makePlayer(fighter) {
-  return { ...fighter, hp: 100, used: {} };
+async function finishRound(winnerIndex, message, outcome = null) {
+  hideTurnTimer();
+  isRoundTransition = true;
+  if (outcome) {
+    roundWins = [...outcome.roundWins];
+    roundNumber = outcome.roundNumber;
+  } else {
+    if (winnerIndex !== null) roundWins[winnerIndex] += 1;
+  }
+
+  const matchFinished = outcome ? outcome.gameOver : winnerIndex !== null && roundWins[winnerIndex] >= 2;
+  if (matchFinished) {
+    isRoundTransition = false;
+    finishMatch(winnerIndex, `${message} ${players[winnerIndex].name} venceu a luta!`);
+    return;
+  }
+
+  const nextStarter = outcome?.nextStarter ?? winnerIndex ?? currentPlayer;
+  if (!outcome) roundNumber += 1;
+  const roundResult = winnerIndex === null ? "Round empatado." : `${players[winnerIndex].name} venceu o round.`;
+  await startRound(nextStarter, `${message} ${roundResult}`);
 }
 
 function setRandomBattleStage() {
@@ -1074,7 +1135,7 @@ function setRandomBattleStage() {
 }
 
 function shouldUseTurnTimer() {
-  return mode !== "online" && players.length === 2 && !gameOver;
+  return mode !== "online" && players.length === 2 && !gameOver && !isRoundTransition;
 }
 
 function beginTurn() {
@@ -1151,7 +1212,7 @@ async function rollDice(syncedDice = null) {
     requestOnlineCommand("roll");
     return;
   }
-  if (gameOver || isRolling || rolls >= 3) return;
+  if (gameOver || isRoundTransition || isRolling || rolls >= 3) return;
   const rollingToken = turnToken;
   isRolling = true;
   rollButton.disabled = true;
@@ -1188,7 +1249,7 @@ async function rollDice(syncedDice = null) {
 }
 
 function toggleHold(index) {
-  if (!dice[index] || gameOver || isRolling || isCpuTurn() || isOnlineOpponentTurn()) return;
+  if (!dice[index] || gameOver || isRoundTransition || isRolling || isCpuTurn() || isOnlineOpponentTurn()) return;
   if (mode === "online") {
     requestOnlineCommand("hold", { index });
     return;
@@ -1824,7 +1885,7 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
     requestOnlineCommand("attack", { actionKey, specialBonus });
     return;
   }
-  if (gameOver || isRolling || isAnimating || rolls === 0) {
+  if (gameOver || isRoundTransition || isRolling || isAnimating || rolls === 0) {
     roundMessage.textContent = "Assopre os cartuchos antes de atacar.";
     return;
   }
@@ -1863,11 +1924,20 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
   await playCombatAnimation(actionKey, currentPlayer, opponentIndex, result.damage);
   isAnimating = false;
 
-  if (opponent.hp <= 0) {
-    finishMatch(currentPlayer, `${hitText} ${player.name} venceu!`);
-  } else if (players.every((contestant) => !hasActionsLeft(contestant))) {
-    const finalResult = getFinalResult();
-    finishMatch(finalResult.winnerIndex, `${hitText} ${finalResult.message}`);
+  const exhausted = players.every((contestant) => !hasActionsLeft(contestant));
+  const roundOver = fromServer ? Boolean(serverEvent?.roundOver) : opponent.hp <= 0 || exhausted;
+  if (roundOver) {
+    const roundWinnerIndex = fromServer
+      ? serverEvent.roundWinnerIndex
+      : opponent.hp <= 0
+        ? currentPlayer
+        : getFinalResult().winnerIndex;
+    await finishRound(roundWinnerIndex, hitText, fromServer ? {
+      roundWins: serverEvent.roundWins,
+      roundNumber: serverEvent.roundNumber,
+      nextStarter: serverEvent.roundWinnerIndex ?? currentPlayer,
+      gameOver: serverEvent.gameOver,
+    } : null);
   } else {
     currentPlayer = opponentIndex;
     dice = Array(5).fill(null);
@@ -1906,7 +1976,7 @@ function continueAfterKo() {
 }
 
 async function maybeCpuTurn() {
-  if (!isCpuTurn()) return;
+  if (!isCpuTurn() || isRoundTransition) return;
   await wait(650);
   if (!isCpuTurn()) return;
   for (let index = 0; index < 3 && isCpuTurn(); index += 1) {
@@ -1934,7 +2004,7 @@ async function maybeCpuTurn() {
 }
 
 function isCpuTurn() {
-  return mode === "arcade" && currentPlayer === 1 && !gameOver;
+  return mode === "arcade" && currentPlayer === 1 && !gameOver && !isRoundTransition;
 }
 
 function isOnlineOpponentTurn() {
@@ -2047,7 +2117,7 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   if (actionType === "fullHouse") return specialCount === 2 || specialCount === 3;
   if (actionType === "threeKind") return specialCount >= 3;
   if (actionType === "fourKind") return specialCount >= 4;
-  if (actionType === "multicolor") return specialCount === 1 && Object.keys(countMap).length === 5;
+  if (actionType === "multicolor") return false;
   return specialCount === 5;
 }
 
@@ -2192,6 +2262,7 @@ function renderPlayers() {
     document.querySelector(`#p${index + 1}Health`).style.width = `${player.hp}%`;
     fighters[index].classList.toggle("active", index === currentPlayer && !gameOver);
     updateFighterMirror(index);
+    updateRoundStars(index);
   });
 }
 
@@ -2199,6 +2270,15 @@ function updateFighterCartridge(playerIndex) {
   const cartridge = cartridgeByColor[players[playerIndex].specialColor];
   fighterCartridges[playerIndex].src = cartridge.src;
   fighterCartridges[playerIndex].alt = cartridge.label;
+}
+
+function updateRoundStars(playerIndex) {
+  const stars = fighterRoundStars[playerIndex];
+  const wins = roundWins[playerIndex] || 0;
+  stars.setAttribute("aria-label", `${wins} ${wins === 1 ? "round vencido" : "rounds vencidos"}`);
+  [...stars.children].forEach((star, index) => {
+    star.classList.toggle("won", index < wins);
+  });
 }
 
 function shouldMirror(playerIndex) {
@@ -2217,13 +2297,13 @@ function renderActions() {
     const isUsed = usedCount >= action.maxUses;
     const counter = button.querySelector(".use-counter");
     if (counter) counter.textContent = `${usedCount}/${action.maxUses}`;
-    button.disabled = gameOver || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
+    button.disabled = gameOver || isRoundTransition || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
 }
 
 function renderRollButton() {
-  rollButton.disabled = gameOver || isRolling || isAnimating || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
+  rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
   if (rolls > 0) rollButton.classList.add(`roll-${rolls}`);
   rollButton.textContent = isRolling ? "Assoprando..." : `Assoprar Cartuchos ${rolls}/3`;
@@ -2274,6 +2354,7 @@ function showHome() {
 }
 
 function finishSplash() {
+  if (!splashReady) return;
   if (splashTimer) {
     window.clearTimeout(splashTimer);
     splashTimer = null;
@@ -2317,15 +2398,48 @@ function wait(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function preloadSprites() {
-  characters.forEach((fighter) => {
-    [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)].forEach((src) => {
-      const image = new Image();
-      image.src = src;
-    });
-  });
-  battleStages.forEach((src) => {
+async function preloadGameAssets() {
+  splashStartedAt = performance.now();
+  const assetSources = new Set([
+    "assets/cap-systems-logo.png",
+    "assets/sgp-logo.png",
+    "assets/title-screen.jpeg",
+    ...battleStages,
+    ...Object.values(cartridgeByColor).map((cartridge) => cartridge.src),
+    ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
+    ...characters.map((fighter) => `assets/arcade-${fighter.id}.jpg`),
+    ...Object.values(arcadeEndings).map((ending) => ending.image),
+  ]);
+  document.querySelectorAll("img[src]").forEach((image) => assetSources.add(image.getAttribute("src")));
+
+  const assets = [...assetSources].filter(Boolean);
+  let completed = 0;
+  const updateProgress = () => {
+    const progress = assets.length ? Math.round((completed / assets.length) * 100) : 100;
+    loadingFill.style.width = `${progress}%`;
+    loadingPercent.textContent = `${progress}%`;
+    loadingText.textContent = `Carregando recursos ${completed}/${assets.length}`;
+  };
+  updateProgress();
+
+  await Promise.all(assets.map((src) => new Promise((resolve) => {
     const image = new Image();
+    let settled = false;
+    const complete = () => {
+      if (settled) return;
+      settled = true;
+      completed += 1;
+      updateProgress();
+      resolve();
+    };
+    image.onload = complete;
+    image.onerror = complete;
     image.src = src;
-  });
+    if (image.complete) complete();
+  })));
+
+  splashReady = true;
+  loadingText.textContent = "Tudo pronto. Toque para continuar.";
+  const remainingIntro = Math.max(0, 1200 - (performance.now() - splashStartedAt));
+  splashTimer = window.setTimeout(finishSplash, remainingIntro);
 }

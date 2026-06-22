@@ -10,6 +10,11 @@
     <main class="game-shell">
       <section id="splashScreen" class="screen splash-screen">
         <img class="splash-logo" src="assets/cap-systems-logo.png" alt="Cap Systems Jogos Hibridos" />
+        <div class="loading-panel" role="status" aria-live="polite">
+          <span id="loadingText">Carregando recursos...</span>
+          <div class="loading-track"><span id="loadingFill"></span></div>
+          <strong id="loadingPercent">0%</strong>
+        </div>
       </section>
 
       <section id="legalScreen" class="screen legal-screen hidden">
@@ -196,12 +201,17 @@
       </section>
 
       <section id="gameScreen" class="game-view hidden">
+      <section id="roundOverlay" class="round-overlay" aria-live="assertive" aria-hidden="true">
+        <strong id="roundBannerText">ROUND 1</strong>
+        <span id="roundScoreText">0 x 0</span>
+      </section>
       <section class="arena" aria-label="Arena de combate">
         <article class="fighter fighter-left active">
           <div class="health-card">
             <span class="fighter-label">
               <span class="fighter-name">Marjorie</span>
               <img class="fighter-cartridge" src="assets/cart-snes.png" alt="SNES" />
+              <span class="round-stars" aria-label="0 rounds vencidos"><span aria-hidden="true">&#9733;</span><span aria-hidden="true">&#9733;</span></span>
             </span>
             <div class="health-track">
               <div id="p1Health" class="health-fill"></div>
@@ -219,6 +229,7 @@
             <span class="fighter-label">
               <span class="fighter-name">Akira</span>
               <img class="fighter-cartridge" src="assets/cart-pce.png" alt="PCE" />
+              <span class="round-stars" aria-label="0 rounds vencidos"><span aria-hidden="true">&#9733;</span><span aria-hidden="true">&#9733;</span></span>
             </span>
             <div class="health-track">
               <div id="p2Health" class="health-fill"></div>
