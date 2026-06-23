@@ -27,40 +27,44 @@ const battleStages = [
 
 const audioSources = {
   sfx: {
-    error: "assets/sound-botao-erro.mp3",
-    action: "assets/sound-botao-poder.ogg",
-    blue: "assets/sound-botao-snes.mp3",
-    red: "assets/sound-botao-32x.mp3",
-    yellow: "assets/sound-botao-n64.mp3",
-    green: "assets/sound-botao-pce.mp3",
-    pink: "assets/sound-botao-atari.mp3",
-    menu: "assets/sound-botao-menu.ogg",
-    blow: "assets/sound-botao-assoprar.ogg",
-    punch: "assets/sound-soco.ogg",
-    kick: "assets/sound-chute.ogg",
-    round1: "assets/sound-narrador-round-1.ogg",
-    round2: "assets/sound-narrador-round-2.ogg",
-    round3: "assets/sound-narrador-round-3.ogg",
-    ko: "assets/sound-narrador-ko.ogg",
-    gameOver: "assets/sound-narrador-game-over.ogg",
+    error: "assets/sound_botao_erro.m4a",
+    action: "assets/sound_botao_poder.m4a",
+    blue: "assets/sound_botao_snes.m4a",
+    red: "assets/sound_botao_32x.m4a",
+    yellow: "assets/sound_botao_n64.m4a",
+    green: "assets/sound_botao_PCE.m4a",
+    pink: "assets/sound_botao_atari.m4a",
+    menu: "assets/sound_botao_menu.m4a",
+    blow: "assets/sound_botao_assoprar.m4a",
+    punch: "assets/sound_soco.m4a",
+    kick: "assets/sound_chute.m4a",
+    round1: "assets/sound_narrador_round_1.m4a",
+    round2: "assets/sound_narrador_round_2.m4a",
+    round3: "assets/sound_narrador_round_3.m4a",
+    ko: "assets/sound_narrador_ko.m4a",
+    gameOver: "assets/sound_narrador_game_over.m4a",
   },
   music: {
-    title: "assets/music-title.ogg",
-    select: "assets/music-select.ogg",
-    marjorie: "assets/music-marjorie.ogg",
-    baby: "assets/music-baby.ogg",
-    marcelo: "assets/music-marcelo.ogg",
-    bill: "assets/music-bill.ogg",
-    lord: "assets/music-lord.ogg",
-    chris: "assets/music-chris.ogg",
-    akira: "assets/music-akira.ogg",
-    chefe: "assets/music-chefe.ogg",
+    title: "assets/music-title-sgp-theme.m4a",
+    select: "assets/music-select-versus-screen.m4a",
+    marjorie: "assets/music-marjorie-virtua-fighter.m4a",
+    baby: "assets/music-baby-gunbound.m4a",
+    marcelo: "assets/music-marcelo-starman.m4a",
+    bill: "assets/music-bill-puzzle-fighter.m4a",
+    lord: "assets/music-lord-hyper-vball.m4a",
+    chris: "assets/music-chris-xtreme.m4a",
+    akira: "assets/music-akira-one-must-fall.m4a",
+    chefe: "assets/music-chefe-fight-history.m4a",
   },
 };
 const musicPlayer = new Audio();
 musicPlayer.loop = true;
 musicPlayer.preload = "auto";
 musicPlayer.volume = 0.126;
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioContext = AudioContextClass ? new AudioContextClass() : null;
+const decodedAudioBuffers = new Map();
+let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
 
@@ -674,6 +678,7 @@ screens.game.addEventListener("pointerdown", (event) => {
 }, true);
 
 document.addEventListener("pointerdown", () => {
+  unlockAudio();
   if (requestedMusicKey) playMusic(requestedMusicKey);
 }, { capture: true });
 
@@ -1152,6 +1157,7 @@ function getClientId() {
 function playSfx(key) {
   const source = audioSources.sfx[key];
   if (!source) return;
+  if (playDecodedAudio(source, 0.72)) return;
   const effect = new Audio(source);
   effect.preload = "auto";
   effect.volume = 0.72;
@@ -1160,10 +1166,42 @@ function playSfx(key) {
 
 function playVoice(fighterId, cue) {
   if (!voicedFighters.has(fighterId) || !voiceCues.includes(cue)) return;
-  const voice = new Audio(`assets/voice-${fighterId}-${cue}.ogg`);
+  const source = `assets/voice-${fighterId}-${cue}.m4a`;
+  if (playDecodedAudio(source, 0.8)) return;
+  const voice = new Audio(source);
   voice.preload = "auto";
   voice.volume = 0.8;
   voice.play().catch(() => {});
+}
+
+function unlockAudio() {
+  audioUnlocked = true;
+  if (audioContext?.state !== "running") audioContext.resume().catch(() => {});
+}
+
+function playDecodedAudio(source, volume) {
+  const buffer = decodedAudioBuffers.get(source);
+  if (!audioUnlocked || !audioContext || audioContext.state !== "running" || !buffer) return false;
+  const node = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
+  node.buffer = buffer;
+  gain.gain.value = volume;
+  node.connect(gain).connect(audioContext.destination);
+  node.start();
+  return true;
+}
+
+async function decodeAudioSource(source) {
+  if (!audioContext || decodedAudioBuffers.has(source)) return;
+  try {
+    const response = await fetch(source);
+    if (!response.ok) return;
+    const rawAudio = await response.arrayBuffer();
+    const buffer = await audioContext.decodeAudioData(rawAudio);
+    decodedAudioBuffers.set(source, buffer);
+  } catch {
+    // The HTMLAudioElement fallback remains available for an unsupported codec.
+  }
 }
 
 function playMusic(key) {
@@ -2569,7 +2607,7 @@ async function preloadGameAssets() {
     ...Object.values(arcadeEndings).map((ending) => ending.image),
     ...Object.values(audioSources.sfx),
     ...Object.values(audioSources.music),
-    ...[...voicedFighters].flatMap((fighterId) => voiceCues.map((cue) => `assets/voice-${fighterId}-${cue}.ogg`)),
+    ...[...voicedFighters].flatMap((fighterId) => voiceCues.map((cue) => `assets/voice-${fighterId}-${cue}.m4a`)),
   ]);
   document.querySelectorAll("img[src]").forEach((image) => assetSources.add(image.getAttribute("src")));
 
@@ -2584,7 +2622,7 @@ async function preloadGameAssets() {
   updateProgress();
 
   await Promise.all(assets.map((src) => new Promise((resolve) => {
-    const isAudio = /\.(mp3|ogg|wav)$/i.test(src);
+    const isAudio = /\.(mp3|m4a|ogg|wav)$/i.test(src);
     const resource = isAudio ? new Audio() : new Image();
     let settled = false;
     const complete = () => {
@@ -2596,7 +2634,9 @@ async function preloadGameAssets() {
     };
     if (isAudio) {
       resource.preload = "auto";
-      resource.onloadeddata = complete;
+      resource.onloadeddata = () => {
+        decodeAudioSource(src).finally(complete);
+      };
       resource.onerror = complete;
       resource.src = src;
       resource.load();

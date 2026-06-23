@@ -38,6 +38,7 @@ const mimeTypes = {
   ".webp": "image/webp",
   ".mp3": "audio/mpeg",
   ".ogg": "audio/ogg",
+  ".m4a": "audio/mp4",
 };
 
 function newRoom(id) {
