@@ -25,6 +25,59 @@ const battleStages = [
   "assets/cenario-ruas.jpg",
 ];
 
+const audioSources = {
+  sfx: {
+    error: "assets/sound-botao-erro.mp3",
+    action: "assets/sound-botao-poder.ogg",
+    blue: "assets/sound-botao-snes.mp3",
+    red: "assets/sound-botao-32x.mp3",
+    yellow: "assets/sound-botao-n64.mp3",
+    green: "assets/sound-botao-pce.mp3",
+    pink: "assets/sound-botao-atari.mp3",
+    menu: "assets/sound-botao-menu.ogg",
+    blow: "assets/sound-botao-assoprar.ogg",
+    punch: "assets/sound-soco.ogg",
+    kick: "assets/sound-chute.ogg",
+    round1: "assets/sound-narrador-round-1.ogg",
+    round2: "assets/sound-narrador-round-2.ogg",
+    round3: "assets/sound-narrador-round-3.ogg",
+    ko: "assets/sound-narrador-ko.ogg",
+    gameOver: "assets/sound-narrador-game-over.ogg",
+  },
+  music: {
+    title: "assets/music-title.ogg",
+    select: "assets/music-select.ogg",
+    marjorie: "assets/music-marjorie.ogg",
+    baby: "assets/music-baby.ogg",
+    marcelo: "assets/music-marcelo.ogg",
+    bill: "assets/music-bill.ogg",
+    lord: "assets/music-lord.ogg",
+    chris: "assets/music-chris.ogg",
+    akira: "assets/music-akira.ogg",
+    chefe: "assets/music-chefe.ogg",
+  },
+};
+const musicPlayer = new Audio();
+musicPlayer.loop = true;
+musicPlayer.preload = "auto";
+musicPlayer.volume = 0.126;
+let currentMusicKey = null;
+let requestedMusicKey = null;
+
+const voicedFighters = new Set(["akira", "baby", "chris", "marcelo"]);
+const voiceCueByAction = {
+  soco: "soco",
+  gancho: "socao",
+  chute: "chute",
+  voadora: "chutao",
+  magia1: "poder_1",
+  magia2: "poder_2",
+  magia3: "poder_3",
+  magia4: "poder_4",
+  especial: "especial",
+};
+const voiceCues = [...new Set([...Object.values(voiceCueByAction), "pancada", "select_screen", "vitoria"])];
+
 const characters = [
   character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
     idle: "assets/marjorie-idle.webp",
@@ -269,6 +322,7 @@ const actions = {
 const actionKeys = Object.keys(actions);
 const turnDuration = 20;
 const screens = {
+  loading: document.querySelector("#loadingScreen"),
   splash: document.querySelector("#splashScreen"),
   legal: document.querySelector("#legalScreen"),
   home: document.querySelector("#homeScreen"),
@@ -560,10 +614,20 @@ screens.legal.addEventListener("click", (event) => {
   finishLegal();
 });
 document.querySelectorAll("[data-mode]").forEach((button) => {
-  button.addEventListener("click", () => chooseMode(button.dataset.mode));
+  button.addEventListener("click", () => {
+    playSfx("menu");
+    chooseMode(button.dataset.mode);
+  });
 });
-document.querySelectorAll("[data-back]").forEach((button) => button.addEventListener("click", showHome));
-rollButton.addEventListener("click", () => rollDice());
+document.querySelectorAll("[data-back]").forEach((button) => button.addEventListener("click", () => {
+  playSfx("menu");
+  showHome();
+}));
+rollButton.addEventListener("click", () => {
+  if (mode === "online" && isOnlineOpponentTurn()) return;
+  playSfx("blow");
+  rollDice();
+});
 koButton.addEventListener("click", continueAfterKo);
 battleButton.addEventListener("click", startCurrentArcadeBattle);
 endingButton.addEventListener("click", showHome);
@@ -581,7 +645,11 @@ tutorialDiceButtons.forEach((button) => {
     if (!button.classList.contains("empty")) button.classList.toggle("held");
   });
 });
-actionButtons.forEach((button) => button.addEventListener("click", () => useAction(button.dataset.action)));
+actionButtons.forEach((button) => button.addEventListener("click", () => {
+  if (mode === "online" && isOnlineOpponentTurn()) return;
+  playSfx("action");
+  useAction(button.dataset.action);
+}));
 tutorialActionButtons.forEach((button) => {
   button.addEventListener("click", () => {
     button.classList.add("tutorial-tapped");
@@ -589,7 +657,16 @@ tutorialActionButtons.forEach((button) => {
   });
 });
 
-showScreen("splash");
+screens.game.addEventListener("pointerdown", (event) => {
+  if (mode !== "online" || !isOnlineOpponentTurn()) return;
+  if (event.target.closest(".dice-panel, .actions")) playSfx("error");
+}, true);
+
+document.addEventListener("pointerdown", () => {
+  if (requestedMusicKey) playMusic(requestedMusicKey);
+}, { capture: true });
+
+showScreen("loading");
 preloadGameAssets();
 
 function character(id, name, select, specialColor, sprites) {
@@ -739,9 +816,20 @@ function renderCharacterSelect() {
     `;
     if (selectStep === "arcadeHero" && fighter.id === "chefe") button.disabled = true;
     if (isSecondPlayer && pendingP1?.id === fighter.id) button.disabled = true;
-    button.addEventListener("click", () => selectCharacter(fighter.id));
+    button.addEventListener("click", () => {
+      playSfx("menu");
+      playVoice(fighter.id, "select_screen");
+      selectCharacter(fighter.id);
+    });
     characterGrid.appendChild(button);
   });
+
+  const mysteryButton = document.createElement("button");
+  mysteryButton.className = "character-card mystery-character";
+  mysteryButton.type = "button";
+  mysteryButton.setAttribute("aria-label", "Personagem misterioso");
+  mysteryButton.textContent = "?";
+  characterGrid.appendChild(mysteryButton);
 }
 
 function selectCharacter(id) {
@@ -1050,6 +1138,46 @@ function getClientId() {
   return generated;
 }
 
+function playSfx(key) {
+  const source = audioSources.sfx[key];
+  if (!source) return;
+  const effect = new Audio(source);
+  effect.preload = "auto";
+  effect.volume = 0.72;
+  effect.play().catch(() => {});
+}
+
+function playVoice(fighterId, cue) {
+  if (!voicedFighters.has(fighterId) || !voiceCues.includes(cue)) return;
+  const voice = new Audio(`assets/voice-${fighterId}-${cue}.ogg`);
+  voice.preload = "auto";
+  voice.volume = 0.8;
+  voice.play().catch(() => {});
+}
+
+function playMusic(key) {
+  const source = audioSources.music[key];
+  if (!source) return;
+  requestedMusicKey = key;
+  if (currentMusicKey !== key) {
+    musicPlayer.pause();
+    musicPlayer.currentTime = 0;
+    musicPlayer.src = source;
+    currentMusicKey = key;
+  }
+  musicPlayer.play().catch(() => {});
+}
+
+function updateMusicForScreen(screenName) {
+  if (screenName === "loading" || screenName === "legal") {
+    playMusic("title");
+  } else if (screenName === "select") {
+    playMusic("select");
+  } else if (screenName === "game" && players[1]) {
+    playMusic(players[1].id);
+  }
+}
+
 function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
   gameOver = false;
@@ -1096,6 +1224,7 @@ async function startRound(starter, message) {
   roundOverlay.classList.add("show");
   roundOverlay.setAttribute("aria-hidden", "false");
   arena.classList.add("round-fade");
+  playSfx(`round${Math.min(roundNumber, 3)}`);
   await wait(1400);
   roundOverlay.classList.remove("show");
   roundOverlay.setAttribute("aria-hidden", "true");
@@ -1250,6 +1379,7 @@ async function rollDice(syncedDice = null) {
 
 function toggleHold(index) {
   if (!dice[index] || gameOver || isRoundTransition || isRolling || isCpuTurn() || isOnlineOpponentTurn()) return;
+  playSfx(dice[index]);
   if (mode === "online") {
     requestOnlineCommand("hold", { index });
     return;
@@ -2126,6 +2256,7 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
   const failedPower = action.type !== "repeat" && damage === 0;
   arena.classList.add("attack-dim");
   if (failedPower) {
+    playVoice(players[attackerIndex].id, "pancada");
     setTemporarySprite(attackerIndex, "damage", false);
     restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
     await wait(spriteDuration);
@@ -2135,9 +2266,13 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
   }
 
   setTemporarySprite(attackerIndex, getActionSpriteState(actionKey), false);
+  playVoice(players[attackerIndex].id, voiceCueByAction[actionKey]);
+  if (actionKey === "soco" || actionKey === "gancho") playSfx("punch");
+  if (actionKey === "chute" || actionKey === "voadora") playSfx("kick");
   if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[attackerIndex], "attack-glow", spriteDuration);
   if (damage > 0) {
     await wait(spriteDuration / 2);
+    playVoice(players[defenderIndex].id, "pancada");
     setTemporarySprite(defenderIndex, "damage", false);
     restartAnimation(fighters[defenderIndex], "fx-hit", spriteDuration);
     await wait(spriteDuration / 2);
@@ -2199,9 +2334,11 @@ function showKo(winnerIndex) {
   const isArcadeGameOver = mode === "arcade" && winnerIndex === 1;
   koOverlay.classList.toggle("game-over", isArcadeGameOver);
   koText.textContent = isArcadeGameOver ? "GAME OVER" : "K.O";
+  playSfx(isArcadeGameOver ? "gameOver" : "ko");
   winnerText.textContent = winner ? `${winner.name} venceu!` : "Empate!";
   winnerSprite.classList.toggle("hidden", !winner);
   if (winner) {
+    playVoice(winner.id, "vitoria");
     winnerSprite.src = winner.sprites.win;
     winnerSprite.alt = `${winner.name} venceu`;
     winnerSprite.classList.remove("mirror");
@@ -2376,6 +2513,7 @@ function finishLegal() {
 function showScreen(name) {
   Object.values(screens).forEach((screen) => screen.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+  updateMusicForScreen(name);
 }
 
 function getCharacter(id) {
@@ -2409,6 +2547,9 @@ async function preloadGameAssets() {
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
     ...characters.map((fighter) => `assets/arcade-${fighter.id}.jpg`),
     ...Object.values(arcadeEndings).map((ending) => ending.image),
+    ...Object.values(audioSources.sfx),
+    ...Object.values(audioSources.music),
+    ...[...voicedFighters].flatMap((fighterId) => voiceCues.map((cue) => `assets/voice-${fighterId}-${cue}.ogg`)),
   ]);
   document.querySelectorAll("img[src]").forEach((image) => assetSources.add(image.getAttribute("src")));
 
@@ -2423,7 +2564,8 @@ async function preloadGameAssets() {
   updateProgress();
 
   await Promise.all(assets.map((src) => new Promise((resolve) => {
-    const image = new Image();
+    const isAudio = /\.(mp3|ogg|wav)$/i.test(src);
+    const resource = isAudio ? new Audio() : new Image();
     let settled = false;
     const complete = () => {
       if (settled) return;
@@ -2432,14 +2574,22 @@ async function preloadGameAssets() {
       updateProgress();
       resolve();
     };
-    image.onload = complete;
-    image.onerror = complete;
-    image.src = src;
-    if (image.complete) complete();
+    if (isAudio) {
+      resource.preload = "auto";
+      resource.onloadeddata = complete;
+      resource.onerror = complete;
+      resource.src = src;
+      resource.load();
+    } else {
+      resource.onload = complete;
+      resource.onerror = complete;
+      resource.src = src;
+      if (resource.complete) complete();
+    }
   })));
 
   splashReady = true;
-  loadingText.textContent = "Tudo pronto. Toque para continuar.";
-  const remainingIntro = Math.max(0, 1200 - (performance.now() - splashStartedAt));
-  splashTimer = window.setTimeout(finishSplash, remainingIntro);
+  loadingText.textContent = "";
+  showScreen("splash");
+  splashTimer = window.setTimeout(finishSplash, 5000);
 }

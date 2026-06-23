@@ -60,14 +60,22 @@ button:disabled {
   place-items: center;
 }
 
-.splash-screen {
+.splash-screen,
+.loading-screen {
   position: fixed;
   inset: 0;
   z-index: 20;
   min-height: 100vh;
+  background: #000;
+}
+
+.splash-screen {
   align-content: center;
   gap: 28px;
-  background: #000;
+}
+
+.loading-screen {
+  z-index: 21;
 }
 
 .legal-screen {
@@ -264,6 +272,21 @@ button:disabled {
 .character-card small {
   color: var(--gold);
   font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+}
+
+.mystery-character {
+  min-height: 100%;
+  place-items: center;
+  border-style: dashed;
+  border-color: rgba(246, 200, 76, 0.46);
+  background: rgba(246, 200, 76, 0.08);
+  color: var(--gold);
+  font-size: clamp(3rem, 9vw, 6rem);
+  line-height: 1;
+}
+
+.mystery-character:active {
+  transform: scale(0.97);
 }
 
 .character-cartridge {

@@ -36,6 +36,8 @@ const mimeTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
+  ".mp3": "audio/mpeg",
+  ".ogg": "audio/ogg",
 };
 
 function newRoom(id) {
