@@ -78,6 +78,17 @@ const voiceCueByAction = {
 };
 const voiceCues = [...new Set([...Object.values(voiceCueByAction), "pancada", "select_screen", "vitoria"])];
 
+const actionSpriteDurations = {
+  akira: { punch: 1280, kick: 1280, poder1: 770, poder2: 880, poder3: 1170, poder4: 990, especial: 1080, damage: 810 },
+  baby: { punch: 960, kick: 960, poder1: 640, poder2: 1440, poder3: 1350, poder4: 720, especial: 1080, damage: 810 },
+  bill: { punch: 1350, kick: 1080, poder1: 990, poder2: 630, poder3: 1440, poder4: 900, especial: 1440, damage: 810 },
+  chefe: { punch: 810, kick: 810, poder1: 990, poder2: 990, poder3: 900, poder4: 1080, especial: 1080, damage: 720 },
+  chris: { punch: 1440, kick: 1080, poder1: 1080, poder2: 1500, poder3: 1080, poder4: 1080, especial: 1080, damage: 720 },
+  lord: { punch: 810, kick: 1080, poder1: 1440, poder2: 990, poder3: 1080, poder4: 1080, especial: 1080, damage: 990 },
+  marcelo: { punch: 900, kick: 1080, poder1: 990, poder2: 990, poder3: 720, poder4: 990, especial: 630, damage: 1170 },
+  marjorie: { punch: 1350, kick: 1080, poder1: 1260, poder2: 900, poder3: 1440, poder4: 1440, especial: 1080, damage: 720 },
+};
+
 const characters = [
   character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
     idle: "assets/marjorie-idle.webp",
@@ -2256,35 +2267,44 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
   const failedPower = action.type !== "repeat" && damage === 0;
   arena.classList.add("attack-dim");
   if (failedPower) {
+    const failDuration = getSpriteDuration(attackerIndex, "damage");
     playVoice(players[attackerIndex].id, "pancada");
     setTemporarySprite(attackerIndex, "damage", false);
-    restartAnimation(fighters[attackerIndex], "fx-fail", spriteDuration);
-    await wait(spriteDuration);
+    restartAnimation(fighters[attackerIndex], "fx-fail", failDuration);
+    await wait(failDuration);
     restoreIdleSprite(attackerIndex);
     arena.classList.remove("attack-dim");
     return;
   }
 
-  setTemporarySprite(attackerIndex, getActionSpriteState(actionKey), false);
+  const attackerState = getActionSpriteState(actionKey);
+  const attackerDuration = getSpriteDuration(attackerIndex, attackerState);
+  setTemporarySprite(attackerIndex, attackerState, false);
   playVoice(players[attackerIndex].id, voiceCueByAction[actionKey]);
   if (actionKey === "soco" || actionKey === "gancho") playSfx("punch");
   if (actionKey === "chute" || actionKey === "voadora") playSfx("kick");
-  if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[attackerIndex], "attack-glow", spriteDuration);
+  if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[attackerIndex], "attack-glow", attackerDuration);
   if (damage > 0) {
-    await wait(spriteDuration / 2);
+    const hitDelay = Math.round(attackerDuration / 2);
+    await wait(hitDelay);
+    const defenderDuration = getSpriteDuration(defenderIndex, "damage");
     playVoice(players[defenderIndex].id, "pancada");
     setTemporarySprite(defenderIndex, "damage", false);
-    restartAnimation(fighters[defenderIndex], "fx-hit", spriteDuration);
-    await wait(spriteDuration / 2);
-    restoreIdleSprite(attackerIndex);
-    await wait(spriteDuration / 2);
-    restoreIdleSprite(defenderIndex);
+    restartAnimation(fighters[defenderIndex], "fx-hit", defenderDuration);
+    await Promise.all([
+      wait(attackerDuration - hitDelay).then(() => restoreIdleSprite(attackerIndex)),
+      wait(defenderDuration).then(() => restoreIdleSprite(defenderIndex)),
+    ]);
     arena.classList.remove("attack-dim");
     return;
   }
-  await wait(spriteDuration);
+  await wait(attackerDuration);
   restoreIdleSprite(attackerIndex);
   arena.classList.remove("attack-dim");
+}
+
+function getSpriteDuration(playerIndex, state) {
+  return actionSpriteDurations[players[playerIndex]?.id]?.[state] || spriteDuration;
 }
 
 function getActionSpriteState(actionKey) {
