@@ -60,7 +60,7 @@ const audioSources = {
 const musicPlayer = new Audio();
 musicPlayer.loop = true;
 musicPlayer.preload = "auto";
-musicPlayer.volume = 0.126;
+musicPlayer.volume = 0.25;
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 const audioContext = AudioContextClass ? new AudioContextClass() : null;
 const decodedAudioBuffers = new Map();
@@ -68,7 +68,7 @@ let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
 
-const voicedFighters = new Set(["akira", "baby", "chris", "marcelo"]);
+const voicedFighters = new Set(["akira", "baby", "bill", "chris", "marcelo"]);
 const voiceCueByAction = {
   soco: "soco",
   gancho: "socao",
@@ -377,7 +377,7 @@ let splashReady = false;
 let splashStartedAt = 0;
 let legalTimer = null;
 let tutorialStep = 0;
-let arcade = { heroId: null, opponents: [], index: 0 };
+let arcade = { heroId: null, opponents: [], index: 0, continues: 3 };
 let versusDraw = null;
 let pendingVs = null;
 let online = {
@@ -445,11 +445,16 @@ const arena = document.querySelector(".arena");
 const loadingText = document.querySelector("#loadingText");
 const loadingFill = document.querySelector("#loadingFill");
 const loadingPercent = document.querySelector("#loadingPercent");
+const loadingContinueButton = document.querySelector("#loadingContinueButton");
 const koOverlay = document.querySelector("#koOverlay");
 const koText = document.querySelector(".ko-text");
 const winnerSprite = document.querySelector("#winnerSprite");
 const winnerText = document.querySelector("#winnerText");
 const koButton = document.querySelector("#koButton");
+const arcadeContinueChoice = document.querySelector("#arcadeContinueChoice");
+const arcadeContinueText = document.querySelector("#arcadeContinueText");
+const arcadeContinueYes = document.querySelector("#arcadeContinueYes");
+const arcadeContinueNo = document.querySelector("#arcadeContinueNo");
 const specialOverlay = document.querySelector("#specialOverlay");
 const specialChallengeImage = document.querySelector("#specialChallengeImage");
 const specialChallengeTitle = document.querySelector("#specialChallengeTitle");
@@ -644,6 +649,13 @@ rollButton.addEventListener("click", () => {
   rollDice();
 });
 koButton.addEventListener("click", continueAfterKo);
+arcadeContinueYes.addEventListener("click", continueArcade);
+arcadeContinueNo.addEventListener("click", showHome);
+loadingContinueButton.addEventListener("click", () => {
+  if (!splashReady) return;
+  showScreen("splash");
+  splashTimer = window.setTimeout(finishSplash, 5000);
+});
 battleButton.addEventListener("click", startCurrentArcadeBattle);
 endingButton.addEventListener("click", showHome);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
@@ -869,7 +881,7 @@ function selectCharacter(id) {
 
 function startArcade(hero) {
   const pool = shuffle(characters.filter((fighter) => fighter.id !== hero.id && fighter.id !== "chefe"));
-  arcade = { heroId: hero.id, opponents: [...pool, getCharacter("chefe")], index: 0 };
+  arcade = { heroId: hero.id, opponents: [...pool, getCharacter("chefe")], index: 0, continues: 3 };
   showArcadeMap();
 }
 
@@ -1156,22 +1168,46 @@ function getClientId() {
 
 function playSfx(key) {
   const source = audioSources.sfx[key];
-  if (!source) return;
-  if (playDecodedAudio(source, 0.72)) return;
+  if (!source) return Promise.resolve();
+  const bufferedDuration = playDecodedAudio(source, 0.72);
+  if (bufferedDuration) return wait(bufferedDuration);
   const effect = new Audio(source);
   effect.preload = "auto";
   effect.volume = 0.72;
-  effect.play().catch(() => {});
+  return new Promise((resolve) => {
+    let finished = false;
+    const complete = () => {
+      if (finished) return;
+      finished = true;
+      resolve();
+    };
+    effect.addEventListener("ended", complete, { once: true });
+    effect.addEventListener("error", complete, { once: true });
+    effect.play().catch(complete);
+    window.setTimeout(complete, 5000);
+  });
 }
 
 function playVoice(fighterId, cue) {
-  if (!voicedFighters.has(fighterId) || !voiceCues.includes(cue)) return;
+  if (!voicedFighters.has(fighterId) || !voiceCues.includes(cue)) return Promise.resolve();
   const source = `assets/voice-${fighterId}-${cue}.m4a`;
-  if (playDecodedAudio(source, 0.8)) return;
+  const bufferedDuration = playDecodedAudio(source, 0.8);
+  if (bufferedDuration) return wait(bufferedDuration);
   const voice = new Audio(source);
   voice.preload = "auto";
   voice.volume = 0.8;
-  voice.play().catch(() => {});
+  return new Promise((resolve) => {
+    let finished = false;
+    const complete = () => {
+      if (finished) return;
+      finished = true;
+      resolve();
+    };
+    voice.addEventListener("ended", complete, { once: true });
+    voice.addEventListener("error", complete, { once: true });
+    voice.play().catch(complete);
+    window.setTimeout(complete, 5000);
+  });
 }
 
 function unlockAudio() {
@@ -1181,14 +1217,14 @@ function unlockAudio() {
 
 function playDecodedAudio(source, volume) {
   const buffer = decodedAudioBuffers.get(source);
-  if (!audioUnlocked || !audioContext || audioContext.state !== "running" || !buffer) return false;
+  if (!audioUnlocked || !audioContext || audioContext.state !== "running" || !buffer) return 0;
   const node = audioContext.createBufferSource();
   const gain = audioContext.createGain();
   node.buffer = buffer;
   gain.gain.value = volume;
   node.connect(gain).connect(audioContext.destination);
   node.start();
-  return true;
+  return buffer.duration * 1000;
 }
 
 async function decodeAudioSource(source) {
@@ -2154,6 +2190,16 @@ function continueAfterKo() {
   showHome();
 }
 
+function continueArcade() {
+  if (mode !== "arcade" || matchWinnerIndex !== 1 || arcade.continues <= 0) return;
+  arcade.continues -= 1;
+  koOverlay.classList.remove("show");
+  koOverlay.setAttribute("aria-hidden", "true");
+  const hero = getCharacter(arcade.heroId);
+  const opponent = arcade.opponents[arcade.index];
+  showVsScreen(hero, opponent, 0, `Continue! Restam ${arcade.continues} chance${arcade.continues === 1 ? "" : "s"}.`);
+}
+
 async function maybeCpuTurn() {
   if (!isCpuTurn() || isRoundTransition) return;
   await wait(650);
@@ -2390,17 +2436,34 @@ function setTemporarySprite(playerIndex, state, shouldRestore = true) {
 function showKo(winnerIndex) {
   const winner = winnerIndex === null ? null : players[winnerIndex];
   const isArcadeGameOver = mode === "arcade" && winnerIndex === 1;
+  const canContinue = isArcadeGameOver && arcade.continues > 0;
   koOverlay.classList.toggle("game-over", isArcadeGameOver);
+  koOverlay.classList.toggle("has-continue-choice", canContinue);
   koText.textContent = isArcadeGameOver ? "GAME OVER" : "K.O";
-  playSfx(isArcadeGameOver ? "gameOver" : "ko");
-  winnerText.textContent = winner ? `${winner.name} venceu!` : "Empate!";
+  if (isArcadeGameOver) {
+    void playSfx("gameOver").finally(() => {
+      if (winner) void playVoice(winner.id, "vitoria");
+    });
+  } else {
+    playSfx("ko");
+  }
+  winnerText.textContent = canContinue
+    ? "Deseja continuar a campanha?"
+    : winner
+      ? `${winner.name} venceu!`
+      : "Empate!";
   winnerSprite.classList.toggle("hidden", !winner);
   if (winner) {
-    playVoice(winner.id, "vitoria");
+    if (!isArcadeGameOver) void playVoice(winner.id, "vitoria");
     winnerSprite.src = winner.sprites.win;
     winnerSprite.alt = `${winner.name} venceu`;
     winnerSprite.classList.remove("mirror");
   }
+  arcadeContinueChoice.classList.toggle("hidden", !canContinue);
+  if (canContinue) {
+    arcadeContinueText.textContent = `Restam ${arcade.continues} continue${arcade.continues === 1 ? "" : "s"}.`;
+  }
+  koButton.classList.toggle("hidden", canContinue);
   koOverlay.classList.add("show");
   koOverlay.setAttribute("aria-hidden", "false");
   const isArcadeWin = mode === "arcade" && winnerIndex === 0;
@@ -2505,7 +2568,7 @@ function renderRollButton() {
 }
 
 function showArcadeMap() {
-  mapCounter.textContent = `Luta ${arcade.index + 1} de ${arcade.opponents.length}`;
+  mapCounter.textContent = `Luta ${arcade.index + 1} de ${arcade.opponents.length} | Continues: ${arcade.continues}`;
   mapRoute.innerHTML = "";
   arcade.opponents.forEach((opponent, index) => {
     const passed = index < arcade.index;
@@ -2536,6 +2599,10 @@ function showArcadeEnding(hero) {
 
 function showHome() {
   hideTurnTimer();
+  koOverlay.classList.remove("show", "has-continue-choice");
+  koOverlay.setAttribute("aria-hidden", "true");
+  koButton.classList.remove("hidden");
+  arcadeContinueChoice.classList.add("hidden");
   if (legalTimer) {
     window.clearTimeout(legalTimer);
     legalTimer = null;
@@ -2650,6 +2717,6 @@ async function preloadGameAssets() {
 
   splashReady = true;
   loadingText.textContent = "";
-  showScreen("splash");
-  splashTimer = window.setTimeout(finishSplash, 5000);
+  loadingContinueButton.disabled = false;
+  loadingContinueButton.classList.remove("hidden");
 }

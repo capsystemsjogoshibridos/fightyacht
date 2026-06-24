@@ -138,6 +138,56 @@ button:disabled {
   font-size: 1rem;
 }
 
+.loading-continue {
+  min-height: 42px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--gold);
+  color: #1d1704;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.arcade-continue-choice {
+  display: grid;
+  gap: 10px;
+  width: min(300px, 82vw);
+  text-align: center;
+}
+
+.arcade-continue-choice p {
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(0.95rem, 3vw, 1.2rem);
+  font-weight: 900;
+}
+
+.ko-overlay.has-continue-choice .winner-sprite {
+  width: min(82vw, 540px);
+  height: min(58vh, 540px);
+}
+
+.arcade-continue-choice > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.arcade-continue-choice button {
+  min-height: 46px;
+  border: 0;
+  border-radius: 6px;
+  background: #3a4354;
+  color: #fff;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.arcade-continue-choice button:first-child {
+  background: var(--gold);
+  color: #1d1704;
+}
+
 .menu-screen {
   position: relative;
   width: 100vw;
