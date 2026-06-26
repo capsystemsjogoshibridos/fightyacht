@@ -2552,8 +2552,6 @@ function renderActions() {
     const action = actions[actionKey];
     const usedCount = players[currentPlayer] ? getUseCount(players[currentPlayer], actionKey) : 0;
     const isUsed = usedCount >= action.maxUses;
-    const counter = button.querySelector(".use-counter");
-    if (counter) counter.textContent = `${usedCount}/${formatMaxUses(action.maxUses)}`;
     button.disabled = gameOver || isRoundTransition || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
@@ -2646,10 +2644,6 @@ function getCharacter(id) {
 
 function getUseCount(player, actionKey) {
   return player.used[actionKey] || 0;
-}
-
-function formatMaxUses(maxUses) {
-  return maxUses === Infinity ? "\u221e" : maxUses;
 }
 
 function hasActionsLeft(player) {
