@@ -60,7 +60,7 @@ const audioSources = {
 const musicPlayer = new Audio();
 musicPlayer.loop = true;
 musicPlayer.preload = "auto";
-musicPlayer.volume = 0.2;
+musicPlayer.volume = 1;
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 const audioContext = AudioContextClass ? new AudioContextClass() : null;
 const decodedAudioBuffers = new Map();
@@ -323,15 +323,15 @@ const attackEmojis = {
 };
 
 const actions = {
-  soco: { label: "Soco", type: "repeat", maxDamage: 5, maxUses: 2 },
-  chute: { label: "Chute", type: "repeat", maxDamage: 7, maxUses: 2 },
-  gancho: { label: "Soc\u00e3o", type: "repeat", maxDamage: 10, maxUses: 2 },
-  voadora: { label: "Chut\u00e3o", type: "repeat", maxDamage: 15, maxUses: 2 },
-  magia1: { label: "Evoca\u00e7\u00e3o", type: "fullHouse", damage: 20, maxUses: 1 },
-  magia2: { label: "Poder", type: "threeKind", damage: 23, maxUses: 1 },
-  magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 25, maxUses: 1 },
-  magia4: { label: "Magia", type: "fourKind", damage: 27, maxUses: 1 },
-  especial: { label: "Poder Especial", type: "yacht", damage: 40, maxUses: 1 },
+  soco: { label: "Soco", type: "repeat", maxDamage: 5, maxUses: Infinity },
+  chute: { label: "Chute", type: "repeat", maxDamage: 8, maxUses: Infinity },
+  gancho: { label: "Soc\u00e3o", type: "repeat", maxDamage: 12, maxUses: 1 },
+  voadora: { label: "Chut\u00e3o", type: "repeat", maxDamage: 16, maxUses: 1 },
+  magia1: { label: "Evoca\u00e7\u00e3o", type: "fullHouse", damage: 18, maxUses: 1 },
+  magia2: { label: "Poder", type: "threeKind", damage: 20, maxUses: 1 },
+  magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 22, maxUses: 1 },
+  magia4: { label: "Magia", type: "fourKind", damage: 24, maxUses: 1 },
+  especial: { label: "Poder Especial", type: "yacht", damage: 35, maxUses: 1 },
 };
 
 const actionKeys = Object.keys(actions);
@@ -518,7 +518,7 @@ const tutorialSteps = [
     glow: true,
   },
   {
-    text: "CHUTAO: com 5 cores iguais, voce chega no melhor resultado dos golpes normais. Cada golpe normal pode ser usado 2 vezes.",
+    text: "CHUTAO: com 5 cores iguais, voce chega no melhor resultado dos golpes normais. Socao e Chutao podem ser usados 1 vez por round.",
     dice: ["red", "red", "red", "red", "red"],
     held: [0, 1, 2, 3, 4],
     rollText: "Assoprar Cartuchos 3/3",
@@ -604,14 +604,14 @@ const tutorialSteps = [
 const tutorialStepTexts = [
   "INÍCIO: primeiro, você assopra os cartuchos. Cada turno permite até 3 assopradas, e os cartuchos aparecem um por um.",
   "CONTINUIDADE: depois da primeira assoprada, segure os cartuchos que parecem bons. Aqui, três da cor ROSA (ATARI) foram separados para o exemplo do Chefe.",
-  "SOCO: use quando tiver cores repetidas. Neste exemplo há 2 cartuchos ROSAS (ATARI); o dano vem da maior repetição. Esse golpe é normal, e pode ser usado até 2 vezes.",
-  "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe é normal, e pode ser usado até 2 vezes.",
-  "SOCÃO: use quando tiver cores repetidas. Neste exemplo há 4 cartuchos ROSAS (ATARI); quanto mais cores iguais, mais danos. Como o cartucho do Chefe é o ROSA (ATARI), neste exemplo também teria bônus de +7 de dano. Esse golpe é normal, e pode ser usado até 2 vezes.",
-  "CHUTÃO: use quando tiver cores repetidas. Neste exemplo há 5 cartuchos VERMELHOS (32X); lembrando que, quanto mais cores iguais, mais danos. Esse golpe é normal, e pode ser usado até 2 vezes.",
-  "EVOCAÇÃO: para ativá-lo, precisa de 3 cartuchos de uma cor e 2 cartuchos de outra cor. Este é um golpe de energia, e só pode ser usado uma vez.",
-  "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez.",
-  "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez.",
-  "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez.",
+  "SOCO: use quando tiver cores repetidas. Neste exemplo há 2 cartuchos ROSAS (ATARI); o dano vem da maior repetição. Esse golpe normal não tem limite de uso no round.",
+  "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe normal não tem limite de uso no round.",
+  "SOCÃO: use quando tiver cores repetidas. Neste exemplo há 4 cartuchos ROSAS (ATARI); quanto mais cores iguais, mais danos. Como o cartucho do Chefe é o ROSA (ATARI), neste exemplo também teria bônus de +7 de dano. Esse golpe normal pode ser usado 1 vez por round.",
+  "CHUTÃO: use quando tiver cores repetidas. Neste exemplo há 5 cartuchos VERMELHOS (32X); lembrando que, quanto mais cores iguais, mais danos. Esse golpe normal pode ser usado 1 vez por round.",
+  "EVOCAÇÃO: para ativá-lo, precisa de 3 cartuchos de uma cor e 2 cartuchos de outra cor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
+  "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez por round.",
+  "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
+  "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "ESPECIAL: precisa de 5 cores iguais. É devastador, basicamente o golpe que mais causa danos. E se forem do cartucho especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um mini game específico para cada personagem, e pode acrescentar mais danos. Você pode testar no botão \"Teste de Especiais\", na tela inicial.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
@@ -2516,7 +2516,6 @@ function renderDice() {
 
 function renderPlayers() {
   players.forEach((player, index) => {
-    document.querySelector(`#p${index + 1}Hp`).textContent = player.hp;
     document.querySelector(`#p${index + 1}Health`).style.width = `${player.hp}%`;
     fighters[index].classList.toggle("active", index === currentPlayer && !gameOver);
     updateFighterMirror(index);
@@ -2554,7 +2553,7 @@ function renderActions() {
     const usedCount = players[currentPlayer] ? getUseCount(players[currentPlayer], actionKey) : 0;
     const isUsed = usedCount >= action.maxUses;
     const counter = button.querySelector(".use-counter");
-    if (counter) counter.textContent = `${usedCount}/${action.maxUses}`;
+    if (counter) counter.textContent = `${usedCount}/${formatMaxUses(action.maxUses)}`;
     button.disabled = gameOver || isRoundTransition || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
@@ -2647,6 +2646,10 @@ function getCharacter(id) {
 
 function getUseCount(player, actionKey) {
   return player.used[actionKey] || 0;
+}
+
+function formatMaxUses(maxUses) {
+  return maxUses === Infinity ? "\u221e" : maxUses;
 }
 
 function hasActionsLeft(player) {

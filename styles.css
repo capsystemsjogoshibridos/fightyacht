@@ -1521,8 +1521,7 @@ button:disabled {
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
-.health-card .fighter-name,
-.health-value {
+.health-card .fighter-name {
   font-weight: 900;
 }
 
@@ -1581,18 +1580,6 @@ button:disabled {
   height: 100%;
   background: linear-gradient(90deg, var(--ok), #c8f04c);
   transition: width 220ms ease;
-}
-
-.health-value {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 0.76rem;
-  line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.65);
-  pointer-events: none;
 }
 
 .actions {

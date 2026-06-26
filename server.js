@@ -16,15 +16,15 @@ const specialColors = {
   chefe: "pink",
 };
 const actions = {
-  soco: { type: "repeat", maxDamage: 5, maxUses: 2 },
-  chute: { type: "repeat", maxDamage: 7, maxUses: 2 },
-  gancho: { type: "repeat", maxDamage: 10, maxUses: 2 },
-  voadora: { type: "repeat", maxDamage: 15, maxUses: 2 },
-  magia1: { type: "fullHouse", damage: 20, maxUses: 1 },
-  magia2: { type: "threeKind", damage: 23, maxUses: 1 },
-  magia3: { type: "multicolor", damage: 25, maxUses: 1 },
-  magia4: { type: "fourKind", damage: 27, maxUses: 1 },
-  especial: { type: "yacht", damage: 40, maxUses: 1 },
+  soco: { type: "repeat", maxDamage: 5, maxUses: Infinity },
+  chute: { type: "repeat", maxDamage: 8, maxUses: Infinity },
+  gancho: { type: "repeat", maxDamage: 12, maxUses: 1 },
+  voadora: { type: "repeat", maxDamage: 16, maxUses: 1 },
+  magia1: { type: "fullHouse", damage: 18, maxUses: 1 },
+  magia2: { type: "threeKind", damage: 20, maxUses: 1 },
+  magia3: { type: "multicolor", damage: 22, maxUses: 1 },
+  magia4: { type: "fourKind", damage: 24, maxUses: 1 },
+  especial: { type: "yacht", damage: 35, maxUses: 1 },
 };
 const rooms = Array.from({ length: 6 }, (_, index) => newRoom(index + 1));
 const roomTimeout = 30000;
