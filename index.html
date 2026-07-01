@@ -28,6 +28,13 @@
         </p>
       </section>
 
+      <section id="openingScreen" class="screen opening-screen hidden" aria-label="Abertura do jogo">
+        <video id="openingVideo" preload="auto" playsinline>
+          <source src="assets/abertura-completa.mp4" type="video/mp4" />
+        </video>
+        <button id="skipOpeningButton" class="skip-opening hidden" type="button">Pular abertura</button>
+      </section>
+
       <section id="homeScreen" class="screen menu-screen hidden">
         <img class="game-logo" src="assets/sgp-logo.png" alt="Super Gamepower: Fighting Edition" />
         <nav class="main-menu" aria-label="Modos de jogo">
@@ -266,11 +273,11 @@
       <section class="actions" aria-label="Golpes disponiveis">
         <div class="action-column">
           <button data-action="soco" type="button">
-            <span class="action-title">SOCO</span>
+            <span class="action-title">SOCO <b class="action-use-count" data-use-count="soco">&infin;</b></span>
             <small>CORES IGUAIS</small>
           </button>
           <button data-action="chute" type="button">
-            <span class="action-title">CHUTE</span>
+            <span class="action-title">CHUTE <b class="action-use-count" data-use-count="chute">2/2</b></span>
             <small>CORES IGUAIS</small>
           </button>
           <button data-action="gancho" type="button">

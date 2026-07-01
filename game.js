@@ -68,7 +68,7 @@ let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
 
-const voicedFighters = new Set(["akira", "baby", "bill", "chris", "marcelo"]);
+const voicedFighters = new Set(["akira", "baby", "bill", "chris", "lord", "marcelo"]);
 const voiceCueByAction = {
   soco: "soco",
   gancho: "socao",
@@ -324,7 +324,7 @@ const attackEmojis = {
 
 const actions = {
   soco: { label: "Soco", type: "repeat", maxDamage: 5, maxUses: Infinity },
-  chute: { label: "Chute", type: "repeat", maxDamage: 8, maxUses: Infinity },
+  chute: { label: "Chute", type: "repeat", maxDamage: 8, maxUses: 2 },
   gancho: { label: "Soc\u00e3o", type: "repeat", maxDamage: 12, maxUses: 1 },
   voadora: { label: "Chut\u00e3o", type: "repeat", maxDamage: 16, maxUses: 1 },
   magia1: { label: "Evoca\u00e7\u00e3o", type: "fullHouse", damage: 18, maxUses: 1 },
@@ -340,6 +340,7 @@ const screens = {
   loading: document.querySelector("#loadingScreen"),
   splash: document.querySelector("#splashScreen"),
   legal: document.querySelector("#legalScreen"),
+  opening: document.querySelector("#openingScreen"),
   home: document.querySelector("#homeScreen"),
   tutorial: document.querySelector("#tutorialScreen"),
   select: document.querySelector("#selectScreen"),
@@ -376,6 +377,7 @@ let splashTimer = null;
 let splashReady = false;
 let splashStartedAt = 0;
 let legalTimer = null;
+let openingSkipTimer = null;
 let tutorialStep = 0;
 let arcade = { heroId: null, opponents: [], index: 0, continues: 3 };
 let versusDraw = null;
@@ -446,6 +448,8 @@ const loadingText = document.querySelector("#loadingText");
 const loadingFill = document.querySelector("#loadingFill");
 const loadingPercent = document.querySelector("#loadingPercent");
 const loadingContinueButton = document.querySelector("#loadingContinueButton");
+const openingVideo = document.querySelector("#openingVideo");
+const skipOpeningButton = document.querySelector("#skipOpeningButton");
 const koOverlay = document.querySelector("#koOverlay");
 const koText = document.querySelector(".ko-text");
 const winnerSprite = document.querySelector("#winnerSprite");
@@ -605,7 +609,7 @@ const tutorialStepTexts = [
   "INÍCIO: primeiro, você assopra os cartuchos. Cada turno permite até 3 assopradas, e os cartuchos aparecem um por um.",
   "CONTINUIDADE: depois da primeira assoprada, segure os cartuchos que parecem bons. Aqui, três da cor ROSA (ATARI) foram separados para o exemplo do Chefe.",
   "SOCO: use quando tiver cores repetidas. Neste exemplo há 2 cartuchos ROSAS (ATARI); o dano vem da maior repetição. Esse golpe normal não tem limite de uso no round.",
-  "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe normal não tem limite de uso no round.",
+  "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe normal pode ser usado até 2 vezes por round.",
   "SOCÃO: use quando tiver cores repetidas. Neste exemplo há 4 cartuchos ROSAS (ATARI); quanto mais cores iguais, mais danos. Como o cartucho do Chefe é o ROSA (ATARI), neste exemplo também teria bônus de +7 de dano. Esse golpe normal pode ser usado 1 vez por round.",
   "CHUTÃO: use quando tiver cores repetidas. Neste exemplo há 5 cartuchos VERMELHOS (32X); lembrando que, quanto mais cores iguais, mais danos. Esse golpe normal pode ser usado 1 vez por round.",
   "EVOCAÇÃO: para ativá-lo, precisa de 3 cartuchos de uma cor e 2 cartuchos de outra cor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
@@ -632,6 +636,12 @@ screens.legal.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
   finishLegal();
+});
+openingVideo.addEventListener("ended", finishOpening);
+openingVideo.addEventListener("error", () => skipOpeningButton.classList.remove("hidden"));
+skipOpeningButton.addEventListener("click", () => {
+  playSfx("menu");
+  finishOpening();
 });
 document.querySelectorAll("[data-mode]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -1254,12 +1264,17 @@ function playMusic(key) {
 }
 
 function updateMusicForScreen(screenName) {
-  if (screenName === "loading" || screenName === "legal") {
+  if (screenName === "home") {
     playMusic("title");
   } else if (screenName === "select") {
     playMusic("select");
   } else if (screenName === "game" && players[1]) {
     playMusic(players[1].id);
+  } else if (["loading", "splash", "legal", "opening"].includes(screenName)) {
+    requestedMusicKey = null;
+    musicPlayer.pause();
+    musicPlayer.currentTime = 0;
+    currentMusicKey = null;
   }
 }
 
@@ -2552,6 +2567,12 @@ function renderActions() {
     const action = actions[actionKey];
     const usedCount = players[currentPlayer] ? getUseCount(players[currentPlayer], actionKey) : 0;
     const isUsed = usedCount >= action.maxUses;
+    const useCount = button.querySelector("[data-use-count]");
+    if (useCount) {
+      useCount.textContent = Number.isFinite(action.maxUses)
+        ? `${Math.max(0, action.maxUses - usedCount)}/${action.maxUses}`
+        : "∞";
+    }
     button.disabled = gameOver || isRoundTransition || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
     button.classList.toggle("used", isUsed);
   });
@@ -2629,7 +2650,31 @@ function finishLegal() {
     window.clearTimeout(legalTimer);
     legalTimer = null;
   }
-  if (!screens.legal.classList.contains("hidden")) showHome();
+  if (!screens.legal.classList.contains("hidden")) showOpening();
+}
+
+function showOpening() {
+  showScreen("opening");
+  skipOpeningButton.classList.add("hidden");
+  openingVideo.currentTime = 0;
+  openingVideo.play().catch(() => {
+    skipOpeningButton.classList.remove("hidden");
+  });
+  if (openingSkipTimer) window.clearTimeout(openingSkipTimer);
+  openingSkipTimer = window.setTimeout(() => {
+    skipOpeningButton.classList.remove("hidden");
+    openingSkipTimer = null;
+  }, 2000);
+}
+
+function finishOpening() {
+  if (openingSkipTimer) {
+    window.clearTimeout(openingSkipTimer);
+    openingSkipTimer = null;
+  }
+  openingVideo.pause();
+  skipOpeningButton.classList.add("hidden");
+  showHome();
 }
 
 function showScreen(name) {
@@ -2664,6 +2709,7 @@ async function preloadGameAssets() {
     "assets/cap-systems-logo.png",
     "assets/sgp-logo.png",
     "assets/title-screen.jpeg",
+    "assets/abertura-completa.mp4",
     ...battleStages,
     ...Object.values(cartridgeByColor).map((cartridge) => cartridge.src),
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
@@ -2687,7 +2733,8 @@ async function preloadGameAssets() {
 
   await Promise.all(assets.map((src) => new Promise((resolve) => {
     const isAudio = /\.(mp3|m4a|ogg|wav)$/i.test(src);
-    const resource = isAudio ? new Audio() : new Image();
+    const isVideo = /\.(mp4|webm|mov)$/i.test(src);
+    const resource = isAudio ? new Audio() : isVideo ? document.createElement("video") : new Image();
     let settled = false;
     const complete = () => {
       if (settled) return;
@@ -2696,11 +2743,9 @@ async function preloadGameAssets() {
       updateProgress();
       resolve();
     };
-    if (isAudio) {
+    if (isAudio || isVideo) {
       resource.preload = "auto";
-      resource.onloadeddata = () => {
-        decodeAudioSource(src).finally(complete);
-      };
+      resource.onloadeddata = () => isAudio ? decodeAudioSource(src).finally(complete) : complete();
       resource.onerror = complete;
       resource.src = src;
       resource.load();

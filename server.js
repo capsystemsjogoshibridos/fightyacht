@@ -17,7 +17,7 @@ const specialColors = {
 };
 const actions = {
   soco: { type: "repeat", maxDamage: 5, maxUses: Infinity },
-  chute: { type: "repeat", maxDamage: 8, maxUses: Infinity },
+  chute: { type: "repeat", maxDamage: 8, maxUses: 2 },
   gancho: { type: "repeat", maxDamage: 12, maxUses: 1 },
   voadora: { type: "repeat", maxDamage: 16, maxUses: 1 },
   magia1: { type: "fullHouse", damage: 18, maxUses: 1 },
@@ -39,6 +39,7 @@ const mimeTypes = {
   ".mp3": "audio/mpeg",
   ".ogg": "audio/ogg",
   ".m4a": "audio/mp4",
+  ".mp4": "video/mp4",
 };
 
 function newRoom(id) {
@@ -326,12 +327,49 @@ async function handleApi(request, response, url) {
   return false;
 }
 
-function serveStatic(response, url) {
+function serveStatic(request, response, url) {
   const requested = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
   const filePath = path.resolve(root, requested);
   if (!filePath.startsWith(root + path.sep) && filePath !== path.join(root, "index.html")) {
     response.writeHead(403);
     response.end("Forbidden");
+    return;
+  }
+  if (path.extname(filePath).toLowerCase() === ".mp4") {
+    fs.stat(filePath, (error, stats) => {
+      if (error || !stats.isFile()) {
+        response.writeHead(404);
+        response.end("Not found");
+        return;
+      }
+      const range = request.headers.range;
+      if (range) {
+        const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+        const start = match?.[1] ? Number(match[1]) : 0;
+        const end = match?.[2] ? Math.min(Number(match[2]), stats.size - 1) : stats.size - 1;
+        if (!match || start > end || start >= stats.size) {
+          response.writeHead(416, { "Content-Range": `bytes */${stats.size}` });
+          response.end();
+          return;
+        }
+        response.writeHead(206, {
+          "Accept-Ranges": "bytes",
+          "Content-Range": `bytes ${start}-${end}/${stats.size}`,
+          "Content-Length": end - start + 1,
+          "Content-Type": "video/mp4",
+          "Cache-Control": "no-store",
+        });
+        fs.createReadStream(filePath, { start, end }).pipe(response);
+        return;
+      }
+      response.writeHead(200, {
+        "Accept-Ranges": "bytes",
+        "Content-Length": stats.size,
+        "Content-Type": "video/mp4",
+        "Cache-Control": "no-store",
+      });
+      fs.createReadStream(filePath).pipe(response);
+    });
     return;
   }
   fs.readFile(filePath, (error, data) => {
@@ -350,7 +388,7 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   cleanupRooms();
   if (url.pathname.startsWith("/api/") && (await handleApi(request, response, url))) return;
-  serveStatic(response, url);
+  serveStatic(request, response, url);
 });
 
 server.listen(port, "0.0.0.0", () => {
