@@ -24,6 +24,13 @@ const battleStages = [
   "assets/cenario-predios.jpg",
   "assets/cenario-ruas.jpg",
 ];
+const bonusOpponent = { id: "bonus", name: "BONUS STAGE", isBonus: true };
+const bonusCarSprites = Object.fromEntries(
+  [1, 2, 3, 4].map((level) => [level, {
+    animated: `assets/celta-nivel-${level}.webp`,
+    still: `assets/celta-nivel-${level}-still.png`,
+  }]),
+);
 
 const audioSources = {
   sfx: {
@@ -47,6 +54,8 @@ const audioSources = {
   music: {
     title: "assets/music-title-sgp-theme.m4a",
     select: "assets/music-select-versus-screen.m4a",
+    final: "assets/music-final.m4a",
+    bonus: "assets/music-bonus-stage.m4a",
     marjorie: "assets/music-marjorie-virtua-fighter.m4a",
     baby: "assets/music-baby-gunbound.m4a",
     marcelo: "assets/music-marcelo-starman.m4a",
@@ -68,7 +77,7 @@ let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
 
-const voicedFighters = new Set(["akira", "baby", "bill", "chris", "lord", "marcelo"]);
+const voicedFighters = new Set(["akira", "baby", "bill", "chris", "lord", "marcelo", "marjorie"]);
 const voiceCueByAction = {
   soco: "soco",
   gancho: "socao",
@@ -342,6 +351,7 @@ const screens = {
   legal: document.querySelector("#legalScreen"),
   opening: document.querySelector("#openingScreen"),
   home: document.querySelector("#homeScreen"),
+  credits: document.querySelector("#creditsScreen"),
   tutorial: document.querySelector("#tutorialScreen"),
   select: document.querySelector("#selectScreen"),
   specialTest: document.querySelector("#specialTestScreen"),
@@ -377,9 +387,9 @@ let splashTimer = null;
 let splashReady = false;
 let splashStartedAt = 0;
 let legalTimer = null;
-let openingSkipTimer = null;
 let tutorialStep = 0;
 let arcade = { heroId: null, opponents: [], index: 0, continues: 3 };
+let bonusStage = { active: false, fromArcade: false, deadline: 0, timerId: null, finishing: false };
 let versusDraw = null;
 let pendingVs = null;
 let online = {
@@ -408,6 +418,7 @@ const endingTitle = document.querySelector("#endingTitle");
 const endingImage = document.querySelector("#endingImage");
 const endingText = document.querySelector("#endingText");
 const endingButton = document.querySelector("#endingButton");
+const fullscreenButton = document.querySelector("#fullscreenButton");
 const drawBattleButton = document.querySelector("#drawBattleButton");
 const rouletteWheel = document.querySelector("#rouletteWheel");
 const rouletteP1 = document.querySelector("#rouletteP1");
@@ -438,6 +449,8 @@ const roundMessage = document.querySelector("#roundMessage");
 const roundOverlay = document.querySelector("#roundOverlay");
 const roundBannerText = document.querySelector("#roundBannerText");
 const roundScoreText = document.querySelector("#roundScoreText");
+const bonusResultOverlay = document.querySelector("#bonusResultOverlay");
+const bonusResultText = document.querySelector("#bonusResultText");
 const fighters = [...document.querySelectorAll(".fighter")];
 const fighterImages = fighters.map((fighter) => fighter.querySelector(".sprite-stage img"));
 const fighterNames = fighters.map((fighter) => fighter.querySelector(".fighter-name"));
@@ -596,6 +609,14 @@ const tutorialSteps = [
     sprite: "punch",
   },
   {
+    text: "ATENCAO: ao separar os cartuchos, eles nao precisam estar lado a lado para ter efeito. O que importa e fazer a combinacao, independentemente da posicao.",
+    dice: ["pink", "blue", "pink", "yellow", "pink"],
+    held: [0, 2, 4],
+    rollText: "Cartuchos separados",
+    focus: "dice",
+    sprite: "idle",
+  },
+  {
     text: "Vence quem derrubar o adversario ou quem ainda tiver botoes quando o outro nao puder mais atacar. Agora voce esta pronto para a batalha.",
     dice: ["blue", "green", "yellow", "pink", "red"],
     held: [],
@@ -619,6 +640,7 @@ const tutorialStepTexts = [
   "ESPECIAL: precisa de 5 cores iguais. É devastador, basicamente o golpe que mais causa danos. E se forem do cartucho especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um mini game específico para cada personagem, e pode acrescentar mais danos. Você pode testar no botão \"Teste de Especiais\", na tela inicial.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
+  "ATENÇÃO: Ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição.",
   "FIM: O lutador que esgotar sua barra de energia é derrotado, e o rival vence. Agora, você está pronto para a batalha!",
 ];
 
@@ -638,7 +660,11 @@ screens.legal.addEventListener("click", (event) => {
   finishLegal();
 });
 openingVideo.addEventListener("ended", finishOpening);
-openingVideo.addEventListener("error", () => skipOpeningButton.classList.remove("hidden"));
+screens.opening.addEventListener("pointerdown", (event) => {
+  if (event.target === skipOpeningButton) return;
+  skipOpeningButton.classList.remove("hidden");
+  if (openingVideo.paused && !openingVideo.ended) openingVideo.play().catch(() => {});
+});
 skipOpeningButton.addEventListener("click", () => {
   playSfx("menu");
   finishOpening();
@@ -668,6 +694,9 @@ loadingContinueButton.addEventListener("click", () => {
 });
 battleButton.addEventListener("click", startCurrentArcadeBattle);
 endingButton.addEventListener("click", showHome);
+fullscreenButton.addEventListener("click", toggleFullscreen);
+document.addEventListener("fullscreenchange", updateFullscreenButton);
+document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
 vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
@@ -729,7 +758,11 @@ function chooseMode(nextMode) {
     showScreen("soon");
     return;
   }
-  selectStep = mode === "arcade" ? "arcadeHero" : "versusP1";
+  if (mode === "credits") {
+    showScreen("credits");
+    return;
+  }
+  selectStep = mode === "arcade" ? "arcadeHero" : mode === "bonusTest" ? "bonusHero" : "versusP1";
   renderCharacterSelect();
   showScreen("select");
 }
@@ -827,6 +860,8 @@ function renderCharacterSelect() {
   selectTitle.textContent =
     selectStep === "arcadeHero"
       ? "Arcade: escolha seu lutador"
+      : selectStep === "bonusHero"
+        ? "Bonus Stage: escolha seu lutador"
       : selectStep === "onlinePick"
         ? `Sala ${online.roomId}: escolha seu lutador`
         : isSecondPlayer
@@ -835,6 +870,8 @@ function renderCharacterSelect() {
   selectSubtitle.textContent =
     selectStep === "arcadeHero"
       ? "Voce enfrentara uma sequencia aleatoria. O Chefe fica para o final."
+      : selectStep === "bonusHero"
+        ? "Escolha quem tentara destruir o Celtinha em 60 segundos."
       : selectStep === "onlinePick"
         ? `Voce joga como Jogador ${online.playerIndex + 1}.`
       : isSecondPlayer
@@ -872,6 +909,10 @@ function renderCharacterSelect() {
 
 function selectCharacter(id) {
   const picked = getCharacter(id);
+  if (selectStep === "bonusHero") {
+    startBonusStage(picked, false);
+    return;
+  }
   if (selectStep === "onlinePick") {
     chooseOnlineCharacter(picked);
     return;
@@ -891,13 +932,22 @@ function selectCharacter(id) {
 
 function startArcade(hero) {
   const pool = shuffle(characters.filter((fighter) => fighter.id !== hero.id && fighter.id !== "chefe"));
-  arcade = { heroId: hero.id, opponents: [...pool, getCharacter("chefe")], index: 0, continues: 3 };
+  arcade = {
+    heroId: hero.id,
+    opponents: [...pool.slice(0, 4), bonusOpponent, ...pool.slice(4), getCharacter("chefe")],
+    index: 0,
+    continues: 3,
+  };
   showArcadeMap();
 }
 
 function startCurrentArcadeBattle() {
   const hero = getCharacter(arcade.heroId);
   const opponent = arcade.opponents[arcade.index];
+  if (opponent?.isBonus) {
+    startBonusStage(hero, true);
+    return;
+  }
   showVsScreen(hero, opponent, 0, `Arcade ${arcade.index + 1}/${arcade.opponents.length}: ${hero.name} contra ${opponent.name}`);
 }
 
@@ -1268,8 +1318,12 @@ function updateMusicForScreen(screenName) {
     playMusic("title");
   } else if (screenName === "select") {
     playMusic("select");
+  } else if (screenName === "game" && bonusStage.active) {
+    playMusic("bonus");
   } else if (screenName === "game" && players[1]) {
     playMusic(players[1].id);
+  } else if (screenName === "ending") {
+    playMusic("final");
   } else if (["loading", "splash", "legal", "opening"].includes(screenName)) {
     requestedMusicKey = null;
     musicPlayer.pause();
@@ -1278,7 +1332,140 @@ function updateMusicForScreen(screenName) {
   }
 }
 
+function toggleFullscreen() {
+  playSfx("menu");
+  const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fullscreenElement) {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+    return;
+  }
+  const root = document.documentElement;
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  if (request) Promise.resolve(request.call(root)).catch(() => {});
+}
+
+function updateFullscreenButton() {
+  const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  fullscreenButton.textContent = active ? "Sair da tela cheia" : "Tela cheia";
+}
+
+function makeBonusCar() {
+  return {
+    id: "celtinha",
+    name: "Celtinha",
+    hp: 100,
+    used: {},
+    specialColor: null,
+    isBonusCar: true,
+    sprites: { idle: bonusCarSprites[1].still, damage: bonusCarSprites[1].animated },
+  };
+}
+
+function startBonusStage(hero, fromArcade) {
+  stopBonusTimer();
+  mode = fromArcade ? "arcade" : "bonus";
+  bonusStage = { active: true, fromArcade, deadline: 0, timerId: null, finishing: false };
+  players = [makePlayer(hero), makeBonusCar()];
+  currentPlayer = 0;
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  gameOver = false;
+  isRolling = false;
+  isAnimating = false;
+  isRoundTransition = false;
+  roundWins = [0, 0];
+  spriteStates = ["idle", "idle"];
+  screens.game.classList.add("bonus-stage");
+  bonusResultOverlay.classList.remove("show");
+  bonusResultOverlay.setAttribute("aria-hidden", "true");
+  koOverlay.classList.remove("show");
+  koOverlay.setAttribute("aria-hidden", "true");
+  arena.style.setProperty("--battle-stage", 'url("assets/cenario-bonus.jpg")');
+  fighterNames[0].textContent = players[0].name;
+  fighterNames[1].textContent = players[1].name;
+  updateFighterCartridge(0);
+  fighterImages[0].src = players[0].sprites.idle;
+  fighterImages[0].alt = players[0].name;
+  fighterImages[1].src = bonusCarSprites[1].still;
+  fighterImages[1].alt = "Celtinha inteiro";
+  roundMessage.textContent = "Destrua o Celtinha do Chefe antes que o tempo acabe!";
+  showScreen("game");
+  render();
+  startBonusTimer();
+}
+
+function startBonusTimer() {
+  stopBonusTimer();
+  bonusStage.deadline = performance.now() + 60000;
+  turnTimer.classList.remove("hidden");
+  turnTimer.setAttribute("aria-label", "Tempo restante do Bonus Stage");
+  updateBonusTimer();
+  bonusStage.timerId = window.setInterval(updateBonusTimer, 100);
+}
+
+function stopBonusTimer() {
+  if (bonusStage?.timerId) window.clearInterval(bonusStage.timerId);
+  if (bonusStage) bonusStage.timerId = null;
+}
+
+function updateBonusTimer() {
+  if (!bonusStage.active || bonusStage.finishing) return;
+  const remaining = Math.max(0, (bonusStage.deadline - performance.now()) / 1000);
+  const progress = (remaining / 60) * 100;
+  turnTimer.style.setProperty("--timer-progress", `${progress}%`);
+  turnTimerValue.textContent = Math.ceil(remaining).toString();
+  turnTimer.classList.toggle("timer-green", remaining > 30);
+  turnTimer.classList.toggle("timer-yellow", remaining <= 30 && remaining > 10);
+  turnTimer.classList.toggle("timer-red", remaining <= 10);
+  if (remaining <= 0) finishBonusStage(false);
+}
+
+function getBonusCarLevel() {
+  const hp = players[1]?.hp ?? 100;
+  if (hp <= 0) return 4;
+  if (hp <= 33) return 3;
+  if (hp <= 66) return 2;
+  return 1;
+}
+
+function setBonusCarSprite(animated = false) {
+  const level = getBonusCarLevel();
+  fighterImages[1].src = `${animated ? bonusCarSprites[level].animated : bonusCarSprites[level].still}${animated ? `?hit=${Date.now()}` : ""}`;
+  fighterImages[1].alt = level === 4 ? "Celtinha destruido" : `Celtinha nivel ${level}`;
+}
+
+async function finishBonusStage(success) {
+  if (!bonusStage.active || bonusStage.finishing) return;
+  bonusStage.finishing = true;
+  stopBonusTimer();
+  gameOver = true;
+  render();
+  bonusResultText.textContent = success
+    ? "PARABENS! VOCE DESTRUIU O CELTINHA DO CHEFE!"
+    : "VOCE E MUITO FRACO!";
+  bonusResultOverlay.classList.add("show");
+  bonusResultOverlay.setAttribute("aria-hidden", "false");
+  await wait(3200);
+  const returnToArcade = bonusStage.fromArcade;
+  bonusResultOverlay.classList.remove("show");
+  bonusResultOverlay.setAttribute("aria-hidden", "true");
+  bonusStage.active = false;
+  bonusStage.finishing = false;
+  screens.game.classList.remove("bonus-stage");
+  if (returnToArcade) {
+    arcade.index += 1;
+    showArcadeMap();
+  } else {
+    showHome();
+  }
+}
+
 function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
+  stopBonusTimer();
+  bonusStage.active = false;
+  screens.game.classList.remove("bonus-stage");
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
   gameOver = false;
   isRolling = false;
@@ -1364,7 +1551,7 @@ function setRandomBattleStage() {
 }
 
 function shouldUseTurnTimer() {
-  return mode !== "online" && players.length === 2 && !gameOver && !isRoundTransition;
+  return mode !== "online" && !bonusStage.active && players.length === 2 && !gameOver && !isRoundTransition;
 }
 
 function beginTurn() {
@@ -1441,7 +1628,7 @@ async function rollDice(syncedDice = null) {
     requestOnlineCommand("roll");
     return;
   }
-  if (gameOver || isRoundTransition || isRolling || rolls >= 3) return;
+  if (gameOver || isRoundTransition || isRolling || (!bonusStage.active && rolls >= 3)) return;
   const rollingToken = turnToken;
   isRolling = true;
   rollButton.disabled = true;
@@ -1472,8 +1659,11 @@ async function rollDice(syncedDice = null) {
 
   rolls += 1;
   clearRollingState();
-  roundMessage.textContent =
-    rolls === 3 ? "Ultima assoprada. Escolha um golpe." : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
+  roundMessage.textContent = bonusStage.active
+    ? "Separe os cartuchos desejados, assopre novamente ou use um golpe."
+    : rolls === 3
+      ? "Ultima assoprada. Escolha um golpe."
+      : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
   render();
 }
 
@@ -2103,6 +2293,10 @@ function updateSpecialChallenge(power, remainingMs) {
 }
 
 async function useAction(actionKey, fromServer = false, serverEvent = null) {
+  if (bonusStage.active) {
+    await useBonusAction(actionKey);
+    return;
+  }
   if (mode === "online" && !fromServer) {
     let specialBonus = 0;
     const player = players[currentPlayer];
@@ -2178,6 +2372,79 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
     beginTurn();
     maybeCpuTurn();
   }
+}
+
+async function useBonusAction(actionKey) {
+  if (gameOver || bonusStage.finishing || isRolling || isAnimating || rolls === 0) {
+    if (rolls === 0) roundMessage.textContent = "Assopre os cartuchos antes de atacar.";
+    return;
+  }
+  const player = players[0];
+  const action = actions[actionKey];
+  if (!action || getUseCount(player, actionKey) >= action.maxUses) return;
+
+  const result = calculateDamage(actionKey, dice, player);
+  if (actionKey === "especial" && result.damage > 0) {
+    result.specialBonus = await runSpecialMiniGame(player);
+    if (bonusStage.finishing) return;
+    result.damage += result.specialBonus;
+  }
+  player.used[actionKey] = getUseCount(player, actionKey) + 1;
+  players[1].hp = Math.max(0, players[1].hp - result.damage);
+  isAnimating = true;
+  render();
+
+  const bonusText = result.bonus ? ` Bonus de cor ${colorLabels[result.bonusColor]}: +${result.bonus}.` : "";
+  const specialBonusText = result.specialBonus
+    ? ` Bonus do especial: +${result.specialBonus}.`
+    : actionKey === "especial" && result.damage > 0
+      ? " Sem bonus de especial."
+      : "";
+  const hitText = result.damage > 0
+    ? `${player.name} usou ${action.label} e causou ${result.damage} de dano ao Celtinha.${bonusText}${specialBonusText}`
+    : `${player.name} tentou ${action.label}, mas a combinacao nao fechou.`;
+
+  await playBonusCombatAnimation(actionKey, result.damage);
+  isAnimating = false;
+  if (players[1].hp <= 0) {
+    roundMessage.textContent = hitText;
+    await finishBonusStage(true);
+    return;
+  }
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  roundMessage.textContent = `${hitText} Continue atacando!`;
+  render();
+}
+
+async function playBonusCombatAnimation(actionKey, damage) {
+  const action = actions[actionKey];
+  if (action.type !== "repeat" && damage === 0) {
+    await playCombatAnimation(actionKey, 0, 1, 0);
+    return;
+  }
+
+  arena.classList.add("attack-dim");
+  const attackerState = getActionSpriteState(actionKey);
+  const attackerDuration = getSpriteDuration(0, attackerState);
+  setTemporarySprite(0, attackerState, false);
+  playVoice(players[0].id, voiceCueByAction[actionKey]);
+  if (actionKey === "soco" || actionKey === "gancho") playSfx("punch");
+  if (actionKey === "chute" || actionKey === "voadora") playSfx("kick");
+  if (actionKey === "gancho" || actionKey === "voadora") restartAnimation(fighters[0], "attack-glow", attackerDuration);
+
+  const hitDelay = Math.round(attackerDuration / 2);
+  await wait(hitDelay);
+  setBonusCarSprite(true);
+  restartAnimation(fighters[1], "fx-hit", getBonusCarLevel() === 4 ? 700 : 1300);
+  await Promise.all([
+    wait(Math.max(0, attackerDuration - hitDelay)),
+    wait(getBonusCarLevel() === 4 ? 700 : 1300),
+  ]);
+  restoreIdleSprite(0);
+  setBonusCarSprite(false);
+  arena.classList.remove("attack-dim");
 }
 
 function finishMatch(winnerIndex, message) {
@@ -2508,8 +2775,10 @@ function render() {
   renderPlayers();
   renderActions();
   renderRollButton();
-  turnLabel.textContent = gameOver ? "Fim de luta" : `Turno de ${players[currentPlayer].name}`;
-  rollsLabel.textContent = `Assopradas: ${rolls}/3`;
+  turnLabel.textContent = bonusStage.active
+    ? gameOver ? "Bonus Stage encerrado" : "Destrua o Celtinha!"
+    : gameOver ? "Fim de luta" : `Turno de ${players[currentPlayer].name}`;
+  rollsLabel.textContent = bonusStage.active ? `Assopradas: ${rolls} / ∞` : `Assopradas: ${rolls}/3`;
 }
 
 function renderDice() {
@@ -2558,7 +2827,10 @@ function shouldMirror(playerIndex) {
 }
 
 function updateFighterMirror(playerIndex) {
-  fighters[playerIndex].classList.toggle("mirror", spriteStates[playerIndex] !== "win" && shouldMirror(playerIndex));
+  fighters[playerIndex].classList.toggle(
+    "mirror",
+    !bonusStage.active && spriteStates[playerIndex] !== "win" && shouldMirror(playerIndex),
+  );
 }
 
 function renderActions() {
@@ -2579,23 +2851,30 @@ function renderActions() {
 }
 
 function renderRollButton() {
-  rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || rolls >= 3 || isCpuTurn() || isOnlineOpponentTurn();
+  rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || (!bonusStage.active && rolls >= 3) || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
-  if (rolls > 0) rollButton.classList.add(`roll-${rolls}`);
-  rollButton.textContent = isRolling ? "Assoprando..." : `Assoprar Cartuchos ${rolls}/3`;
+  if (!bonusStage.active && rolls > 0) rollButton.classList.add(`roll-${rolls}`);
+  rollButton.textContent = isRolling
+    ? "Assoprando..."
+    : bonusStage.active
+      ? `Assoprar Cartuchos ${rolls} / ∞`
+      : `Assoprar Cartuchos ${rolls}/3`;
 }
 
 function showArcadeMap() {
-  mapCounter.textContent = `Luta ${arcade.index + 1} de ${arcade.opponents.length} | Continues: ${arcade.continues}`;
+  mapCounter.textContent = `Etapa ${arcade.index + 1} de ${arcade.opponents.length} | Continues: ${arcade.continues}`;
   mapRoute.innerHTML = "";
   arcade.opponents.forEach((opponent, index) => {
     const passed = index < arcade.index;
     const current = index === arcade.index && !passed;
     const node = document.createElement("div");
-    node.className = `route-fight${passed ? " done" : ""}${current ? " current" : ""}${opponent.id === "chefe" ? " boss" : ""}`;
-    node.innerHTML = `<img src="assets/arcade-${opponent.id}.jpg" alt="${opponent.name}"><span>${opponent.name}</span>`;
+    node.className = `route-fight${passed ? " done" : ""}${current ? " current" : ""}${opponent.id === "chefe" ? " boss" : ""}${opponent.isBonus ? " bonus-route" : ""}`;
+    node.innerHTML = opponent.isBonus
+      ? `<div class="bonus-route-card"><strong>BONUS STAGE</strong><small>DESTRUA O CELTINHA</small></div>`
+      : `<img src="assets/arcade-${opponent.id}.jpg" alt="${opponent.name}"><span>${opponent.name}</span>`;
     mapRoute.appendChild(node);
   });
+  battleButton.textContent = arcade.opponents[arcade.index]?.isBonus ? "Ir para o Bonus Stage" : "Ir para batalha";
   showScreen("map");
 }
 
@@ -2616,6 +2895,12 @@ function showArcadeEnding(hero) {
 }
 
 function showHome() {
+  stopBonusTimer();
+  bonusStage.active = false;
+  bonusStage.finishing = false;
+  screens.game.classList.remove("bonus-stage");
+  bonusResultOverlay.classList.remove("show");
+  bonusResultOverlay.setAttribute("aria-hidden", "true");
   hideTurnTimer();
   koOverlay.classList.remove("show", "has-continue-choice");
   koOverlay.setAttribute("aria-hidden", "true");
@@ -2657,21 +2942,10 @@ function showOpening() {
   showScreen("opening");
   skipOpeningButton.classList.add("hidden");
   openingVideo.currentTime = 0;
-  openingVideo.play().catch(() => {
-    skipOpeningButton.classList.remove("hidden");
-  });
-  if (openingSkipTimer) window.clearTimeout(openingSkipTimer);
-  openingSkipTimer = window.setTimeout(() => {
-    skipOpeningButton.classList.remove("hidden");
-    openingSkipTimer = null;
-  }, 2000);
+  openingVideo.play().catch(() => {});
 }
 
 function finishOpening() {
-  if (openingSkipTimer) {
-    window.clearTimeout(openingSkipTimer);
-    openingSkipTimer = null;
-  }
   openingVideo.pause();
   skipOpeningButton.classList.add("hidden");
   showHome();
@@ -2710,6 +2984,8 @@ async function preloadGameAssets() {
     "assets/sgp-logo.png",
     "assets/title-screen.jpeg",
     "assets/abertura-completa.mp4",
+    "assets/cenario-bonus.jpg",
+    ...Object.values(bonusCarSprites).flatMap((sprite) => [sprite.animated, sprite.still]),
     ...battleStages,
     ...Object.values(cartridgeByColor).map((cartridge) => cartridge.src),
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),

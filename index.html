@@ -36,16 +36,62 @@
       </section>
 
       <section id="homeScreen" class="screen menu-screen hidden">
+        <button id="fullscreenButton" class="fullscreen-button" type="button">Tela cheia</button>
         <img class="game-logo" src="assets/sgp-logo.png" alt="Super Gamepower: Fighting Edition" />
         <nav class="main-menu" aria-label="Modos de jogo">
           <button data-mode="arcade" type="button">Arcade</button>
           <button data-mode="versus" type="button">Versus Local</button>
           <button data-mode="tutorial" type="button">Tutorial</button>
           <button data-mode="specialTest" type="button">Teste de Especiais</button>
+          <button data-mode="bonusTest" type="button">Bonus Stage</button>
           <button data-mode="online" type="button">Online</button>
           <button data-mode="newsstand" type="button">Banca de Revistas</button>
+          <button data-mode="credits" type="button">Créditos</button>
         </nav>
         <p class="creator-credit">Jogo criado por Christopher de Assis Pereira (CAP Systems)</p>
+      </section>
+
+      <section id="creditsScreen" class="screen credits-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Créditos</h1>
+            <p>Super GamePower: Fighting Edition</p>
+          </div>
+        </header>
+        <div class="credits-content">
+          <section>
+            <h2>Produção</h2>
+            <p><strong>Personagens</strong><span>Revista Super GamePower</span></p>
+            <p><strong>Character Design</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Interface</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Assets</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Programação</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Cenários</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Músicas</strong><span>SunoAI</span></p>
+          </section>
+          <section>
+            <h2>Dublagem</h2>
+            <p><strong>Chris Combo</strong><span>Akemì Ozahata</span></p>
+            <p><strong>Marjorie Bros.</strong><span>Tukinha</span></p>
+            <p><strong>Bill Games</strong><span>Fred Viebig</span></p>
+            <p><strong>Marcelo Kamikaze</strong><span>Wagner Moreira</span></p>
+            <p><strong>Baby Betinho</strong><span>Richard (R1TZXL)</span></p>
+            <p><strong>Akira e Agora</strong><span>Brunninho (Costeludo)</span></p>
+            <p><strong>Lord Mathias</strong><span>Borgon</span></p>
+            <p><strong>O Chefe</strong><span>Cleber Leite</span></p>
+            <p><strong>Narrador</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+          </section>
+          <section>
+            <h2>Beta Testers</h2>
+            <p><span>Eliza Maria</span></p>
+            <p><span>Vinycius Soares</span></p>
+            <p><span>Brunninho (Costeludo)</span></p>
+            <p><span>Wagner Moreira</span></p>
+            <p><span>Reb</span></p>
+            <p><span>Willbert</span></p>
+          </section>
+        </div>
       </section>
 
       <section id="tutorialScreen" class="screen tutorial-screen hidden">
@@ -53,7 +99,7 @@
           <button class="back-button" data-back type="button">Voltar</button>
           <div>
             <h1>Tutorial</h1>
-            <p id="tutorialStepLabel">Passo 1 de 7</p>
+            <p id="tutorialStepLabel">Passo 1 de 15</p>
           </div>
         </header>
 
@@ -215,6 +261,9 @@
       <section id="roundOverlay" class="round-overlay" aria-live="assertive" aria-hidden="true">
         <strong id="roundBannerText">ROUND 1</strong>
         <span id="roundScoreText">0 x 0</span>
+      </section>
+      <section id="bonusResultOverlay" class="bonus-result-overlay" aria-live="assertive" aria-hidden="true">
+        <strong id="bonusResultText"></strong>
       </section>
       <section class="arena" aria-label="Arena de combate">
         <article class="fighter fighter-left active">
