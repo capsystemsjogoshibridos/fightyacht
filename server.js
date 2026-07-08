@@ -15,6 +15,16 @@ const specialColors = {
   akira: "green",
   chefe: "pink",
 };
+const specialMiniGameBonuses = {
+  marjorie: 3,
+  baby: 5,
+  marcelo: 2,
+  bill: 5,
+  lord: 5,
+  chris: 2,
+  akira: 2,
+  chefe: 2,
+};
 const actions = {
   soco: { type: "repeat", maxDamage: 5, maxUses: Infinity },
   chute: { type: "repeat", maxDamage: 8, maxUses: 2 },
@@ -43,7 +53,7 @@ const mimeTypes = {
 };
 
 function newRoom(id) {
-  return { id, members: [], match: null, events: [], eventId: 0 };
+  return { id, members: [], spectators: [], match: null, events: [], eventId: 0 };
 }
 
 function roomStatus(room) {
@@ -54,7 +64,7 @@ function roomStatus(room) {
 
 function roomSummary(room) {
   const status = room.members.length >= 2 ? "playing" : roomStatus(room);
-  return { id: room.id, status, players: room.members.length };
+  return { id: room.id, status, players: room.members.length, spectators: room.spectators.length };
 }
 
 function findRoom(id) {
@@ -65,9 +75,14 @@ function findMember(room, clientId) {
   return room.members.find((member) => member.clientId === clientId);
 }
 
+function findSpectator(room, clientId) {
+  return room.spectators.find((spectator) => spectator.clientId === clientId);
+}
+
 function cleanupRooms() {
   const now = Date.now();
   rooms.forEach((room) => {
+    room.spectators = room.spectators.filter((spectator) => now - spectator.lastSeen <= roomTimeout);
     if (room.members.length && room.members.every((member) => now - member.lastSeen > roomTimeout)) {
       Object.assign(room, newRoom(room.id));
     }
@@ -83,12 +98,16 @@ function event(room, type, payload = {}) {
 
 function publicRoom(room, clientId, after = 0) {
   const member = findMember(room, clientId);
+  const spectator = findSpectator(room, clientId);
   return {
     id: room.id,
     status: roomStatus(room),
+    role: spectator ? "spectator" : "player",
     playerIndex: member?.playerIndex ?? null,
     members: room.members.map(({ playerIndex, characterId }) => ({ playerIndex, characterId })),
+    spectatorCount: room.spectators.length,
     match: room.match,
+    latestEventId: room.eventId,
     events: room.events.filter((item) => item.id > Number(after)),
   };
 }
@@ -193,7 +212,11 @@ function command(room, member, body) {
     if ((attacker.used[body.actionKey] || 0) >= action.maxUses) throw new Error("Esse poder ja foi utilizado.");
     const defenderIndex = member.playerIndex === 0 ? 1 : 0;
     const result = calculateDamage(body.actionKey, match.dice, match.characters[member.playerIndex]);
-    const specialBonus = body.actionKey === "especial" && result.damage > 0 ? Math.max(0, Math.min(3, Number(body.specialBonus) || 0)) : 0;
+    const characterId = match.characters[member.playerIndex];
+    const maxSpecialBonus = specialMiniGameBonuses[characterId] || 0;
+    const specialBonus = body.actionKey === "especial" && result.damage > 0
+      ? Math.max(0, Math.min(maxSpecialBonus, Number(body.specialBonus) || 0))
+      : 0;
     result.damage += specialBonus;
     attacker.used[body.actionKey] = (attacker.used[body.actionKey] || 0) + 1;
     match.players[defenderIndex].hp = Math.max(0, match.players[defenderIndex].hp - result.damage);
@@ -294,10 +317,24 @@ async function handleApi(request, response, url) {
       sendJson(response, 200, publicRoom(room, body.clientId));
       return true;
     }
+    if (request.method === "POST" && parts[3] === "spectate") {
+      const body = await readBody(request);
+      if (!room.match || room.members.length < 2) throw new Error("Ainda nao ha uma partida para assistir.");
+      if (findMember(room, body.clientId)) throw new Error("Voce ja esta jogando nesta sala.");
+      let spectator = findSpectator(room, body.clientId);
+      if (!spectator) {
+        spectator = { clientId: body.clientId, lastSeen: Date.now() };
+        room.spectators.push(spectator);
+      }
+      spectator.lastSeen = Date.now();
+      sendJson(response, 200, publicRoom(room, body.clientId, room.eventId));
+      return true;
+    }
     if (request.method === "POST" && parts[3] === "leave") {
       const body = await readBody(request);
       room.members = room.members.filter((member) => member.clientId !== body.clientId);
-      if (room.members.length === 0 || room.match) {
+      room.spectators = room.spectators.filter((spectator) => spectator.clientId !== body.clientId);
+      if (room.members.length === 0 || (room.match && room.members.length < 2)) {
         const cleared = newRoom(room.id);
         Object.assign(room, cleared);
       }
@@ -305,10 +342,11 @@ async function handleApi(request, response, url) {
       return true;
     }
     if (request.method === "GET" && parts[3] === "state") {
-      const member = findMember(room, url.searchParams.get("clientId"));
-      if (!member) throw new Error("Voce nao esta nesta sala.");
-      member.lastSeen = Date.now();
-      sendJson(response, 200, publicRoom(room, member.clientId, url.searchParams.get("after") || 0));
+      const clientId = url.searchParams.get("clientId");
+      const participant = findMember(room, clientId) || findSpectator(room, clientId);
+      if (!participant) throw new Error("Voce nao esta nesta sala.");
+      participant.lastSeen = Date.now();
+      sendJson(response, 200, publicRoom(room, clientId, url.searchParams.get("after") || 0));
       return true;
     }
     if (request.method === "POST" && parts[3] === "command") {

@@ -343,6 +343,17 @@ const actions = {
   especial: { label: "Poder Especial", type: "yacht", damage: 35, maxUses: 1 },
 };
 
+const specialMiniGameBonuses = {
+  marjorie: 3,
+  baby: 5,
+  marcelo: 2,
+  bill: 5,
+  lord: 5,
+  chris: 2,
+  akira: 2,
+  chefe: 2,
+};
+
 const actionKeys = Object.keys(actions);
 const turnDuration = 20;
 const screens = {
@@ -403,6 +414,8 @@ let online = {
   characterId: null,
   roomsSignature: "",
   showingVs: false,
+  isSpectator: false,
+  spectatorCount: 0,
 };
 
 const characterGrid = document.querySelector("#characterGrid");
@@ -430,6 +443,9 @@ const onlineWaitingTitle = document.querySelector("#onlineWaitingTitle");
 const onlineStatus = document.querySelector("#onlineStatus");
 const onlineSubtitle = document.querySelector("#onlineSubtitle");
 const onlineBackButton = document.querySelector("#onlineBackButton");
+const spectatorBar = document.querySelector("#spectatorBar");
+const spectatorCount = document.querySelector("#spectatorCount");
+const spectatorLeaveButton = document.querySelector("#spectatorLeaveButton");
 const vsP1Icon = document.querySelector("#vsP1Icon");
 const vsP2Icon = document.querySelector("#vsP2Icon");
 const vsP1Name = document.querySelector("#vsP1Name");
@@ -441,6 +457,64 @@ const vsBattleButton = document.querySelector("#vsBattleButton");
 const rollButton = document.querySelector("#rollButton");
 const diceButtons = [...document.querySelectorAll("#gameScreen .die")];
 const actionButtons = [...document.querySelectorAll("#gameScreen [data-action]")];
+const keyboardBattleControls = {
+  Digit1: "hold:0",
+  Numpad1: "hold:0",
+  Digit2: "hold:1",
+  Numpad2: "hold:1",
+  Digit3: "hold:2",
+  Numpad3: "hold:2",
+  Digit4: "hold:3",
+  Numpad4: "hold:3",
+  Digit5: "hold:4",
+  Numpad5: "hold:4",
+  KeyQ: "soco",
+  KeyW: "chute",
+  KeyE: "gancho",
+  KeyR: "voadora",
+  KeyA: "magia1",
+  KeyS: "magia2",
+  KeyD: "magia3",
+  KeyF: "magia4",
+  KeyZ: "especial",
+  Space: "roll",
+};
+const gamepadBattleControls = {
+  2: "hold:4",
+  4: "hold:0",
+  5: "hold:1",
+  6: "hold:2",
+  7: "hold:3",
+  10: "roll",
+  11: "especial",
+  12: "soco",
+  13: "gancho",
+  14: "chute",
+  15: "voadora",
+};
+const gamepadButtonStates = new Map();
+const keyboardShortcutByAction = {
+  soco: "Q",
+  chute: "W",
+  gancho: "E",
+  voadora: "R",
+  magia1: "A",
+  magia2: "S",
+  magia3: "D",
+  magia4: "F",
+  especial: "Z",
+};
+actionButtons.forEach((button) => {
+  const shortcut = keyboardShortcutByAction[button.dataset.action];
+  button.title = `Teclado: ${shortcut}`;
+  button.setAttribute("aria-keyshortcuts", shortcut);
+});
+rollButton.title = "Teclado: Barra de espaço";
+rollButton.setAttribute("aria-keyshortcuts", "Space");
+diceButtons.forEach((button, index) => {
+  button.title = `Teclado: ${index + 1}`;
+  button.setAttribute("aria-keyshortcuts", String(index + 1));
+});
 const turnLabel = document.querySelector("#turnLabel");
 const turnTimer = document.querySelector("#turnTimer");
 const turnTimerValue = document.querySelector("#turnTimerValue");
@@ -637,7 +711,7 @@ const tutorialStepTexts = [
   "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez por round.",
-  "ESPECIAL: precisa de 5 cores iguais. É devastador, basicamente o golpe que mais causa danos. E se forem do cartucho especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um mini game específico para cada personagem, e pode acrescentar mais danos. Você pode testar no botão \"Teste de Especiais\", na tela inicial.",
+  "ESPECIAL: precisa de 5 cores iguais. É o golpe mais devastador. Se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico: vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
   "ATENÇÃO: Ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição.",
@@ -700,6 +774,7 @@ document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
 vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
+spectatorLeaveButton.addEventListener("click", leaveOnlineRoom);
 tutorialPrevButton.addEventListener("click", () => changeTutorialStep(-1));
 tutorialNextButton.addEventListener("click", () => changeTutorialStep(1));
 tutorialRollButton.addEventListener("click", () => {
@@ -716,6 +791,12 @@ actionButtons.forEach((button) => button.addEventListener("click", () => {
   playSfx("action");
   useAction(button.dataset.action);
 }));
+document.addEventListener("keydown", (event) => {
+  const control = keyboardBattleControls[event.code];
+  if (!control || event.repeat || !canUseBattleControls()) return;
+  event.preventDefault();
+  triggerBattleControl(control);
+});
 tutorialActionButtons.forEach((button) => {
   button.addEventListener("click", () => {
     button.classList.add("tutorial-tapped");
@@ -735,6 +816,71 @@ document.addEventListener("pointerdown", () => {
 
 showScreen("loading");
 preloadGameAssets();
+window.requestAnimationFrame(pollGamepads);
+
+function canUseBattleControls() {
+  return !screens.game.classList.contains("hidden")
+    && !specialOverlay.classList.contains("show")
+    && !koOverlay.classList.contains("show")
+    && !roundOverlay.classList.contains("show")
+    && !bonusResultOverlay.classList.contains("show");
+}
+
+function triggerBattleControl(control) {
+  if (!canUseBattleControls()) return;
+  unlockAudio();
+  if (control.startsWith("hold:")) {
+    toggleHold(Number(control.split(":")[1]));
+    return;
+  }
+  if (control === "roll") {
+    if (rollButton.disabled) return;
+    playSfx("blow");
+    rollDice();
+    return;
+  }
+  const button = actionButtons.find((item) => item.dataset.action === control);
+  if (!button || button.disabled) return;
+  playSfx("action");
+  useAction(control);
+}
+
+function pollGamepads() {
+  const connected = typeof navigator.getGamepads === "function" ? [...navigator.getGamepads()].filter(Boolean) : [];
+  const activeKeys = new Set();
+  connected.forEach((gamepad) => {
+    Object.entries(gamepadBattleControls).forEach(([buttonIndex, control]) => {
+      const key = `${gamepad.index}:${buttonIndex}`;
+      const pressed = Boolean(gamepad.buttons[Number(buttonIndex)]?.pressed);
+      activeKeys.add(key);
+      if (pressed && !gamepadButtonStates.get(key)) triggerBattleControl(control);
+      gamepadButtonStates.set(key, pressed);
+    });
+    const leftHorizontal = gamepad.axes[0] || 0;
+    const leftVertical = gamepad.axes[1] || 0;
+    const rightHorizontal = gamepad.axes[2] || 0;
+    const rightVertical = gamepad.axes[3] || 0;
+    [
+      ["left-up", leftVertical < -0.65, "soco"],
+      ["left-down", leftVertical > 0.65, "gancho"],
+      ["left-left", leftHorizontal < -0.65, "chute"],
+      ["left-right", leftHorizontal > 0.65, "voadora"],
+      ["right-up", rightVertical < -0.65, "magia1"],
+      ["right-down", rightVertical > 0.65, "magia2"],
+      ["right-left", rightHorizontal < -0.65, "magia3"],
+      ["right-right", rightHorizontal > 0.65, "magia4"],
+    ].forEach(([axisName, pressed, control]) => {
+      const key = `${gamepad.index}:${axisName}`;
+      activeKeys.add(key);
+      if (pressed && !gamepadButtonStates.get(key)) triggerBattleControl(control);
+      gamepadButtonStates.set(key, pressed);
+    });
+  });
+  [...gamepadButtonStates.keys()].forEach((key) => {
+    if (!activeKeys.has(key)) gamepadButtonStates.delete(key);
+  });
+  window.requestAnimationFrame(pollGamepads);
+}
 
 function character(id, name, select, specialColor, sprites) {
   return { id, name, select, specialColor, sprites, specialScreen: `assets/${id}-especial-screen.png` };
@@ -1036,14 +1182,13 @@ async function refreshOnlineRooms() {
       const labels = {
         available: ["Disponivel", "Criar partida"],
         waiting: ["Aguardando", "Entrar na partida"],
-        playing: ["Em jogo", "Sala ocupada"],
+        playing: ["Em jogo", `Assistir${room.spectators ? ` (${room.spectators})` : ""}`],
       };
       button.type = "button";
       button.className = "room-button";
       button.dataset.status = room.status;
-      button.disabled = room.status === "playing";
       button.innerHTML = `<strong>Sala ${room.id}</strong><small>${labels[room.status][1]}</small><span class="room-state">${labels[room.status][0]}</span>`;
-      button.addEventListener("click", () => joinOnlineRoom(room.id));
+      button.addEventListener("click", () => joinOnlineRoom(room.id, room.status === "playing"));
       roomList.appendChild(button);
     });
     scheduleOnlinePoll(refreshOnlineRooms, 900);
@@ -1052,18 +1197,30 @@ async function refreshOnlineRooms() {
   }
 }
 
-async function joinOnlineRoom(roomId) {
+async function joinOnlineRoom(roomId, asSpectator = false) {
   try {
-    const state = await onlineApi(`/api/rooms/${roomId}/join`, {
+    const state = await onlineApi(`/api/rooms/${roomId}/${asSpectator ? "spectate" : "join"}`, {
       method: "POST",
       body: JSON.stringify({ clientId: online.clientId }),
     });
     online.roomId = roomId;
     online.playerIndex = state.playerIndex;
+    online.isSpectator = state.role === "spectator";
+    online.spectatorCount = state.spectatorCount || 0;
     online.revision = -1;
-    online.lastEventId = 0;
+    online.lastEventId = online.isSpectator ? state.latestEventId : 0;
     online.matchStarted = false;
     online.showingVs = false;
+    if (online.isSpectator) {
+      roomList.classList.add("hidden");
+      onlineWaiting.classList.remove("hidden");
+      onlineWaitingTitle.textContent = `Sala ${roomId}`;
+      onlineStatus.textContent = "Entrando como espectador...";
+      onlineSubtitle.textContent = "Voce assistira a partida ao vivo.";
+      showScreen("online");
+      pollOnlineRoom();
+      return;
+    }
     selectStep = "onlinePick";
     renderCharacterSelect();
     showScreen("select");
@@ -1109,6 +1266,8 @@ async function pollOnlineRoom() {
 
 async function syncOnlineMatch(state) {
   const match = state.match;
+  online.spectatorCount = state.spectatorCount || 0;
+  updateSpectatorBar();
   if (!online.matchStarted) {
     const left = getCharacter(match.characters[0]);
     const right = getCharacter(match.characters[1]);
@@ -1121,7 +1280,7 @@ async function syncOnlineMatch(state) {
     if (pendingVs) return;
     online.matchStarted = true;
     applyOnlineSnapshot(match);
-    online.lastEventId = match.startEventId;
+    online.lastEventId = online.isSpectator ? state.latestEventId : match.startEventId;
   }
 
   for (const event of state.events) {
@@ -1201,6 +1360,15 @@ function resetOnlineSession(notify = true) {
   online.matchStarted = false;
   online.characterId = null;
   online.showingVs = false;
+  online.isSpectator = false;
+  online.spectatorCount = 0;
+  updateSpectatorBar();
+}
+
+function updateSpectatorBar() {
+  const isWatching = mode === "online" && online.isSpectator;
+  spectatorBar.classList.toggle("hidden", !isWatching);
+  spectatorCount.textContent = `${Math.max(1, online.spectatorCount)} assistindo`;
 }
 
 function scheduleOnlinePoll(callback, duration) {
@@ -1442,13 +1610,17 @@ async function finishBonusStage(success) {
   stopBonusTimer();
   gameOver = true;
   render();
+  const returnToArcade = bonusStage.fromArcade;
+  const earnedContinue = success && returnToArcade;
+  if (earnedContinue) arcade.continues += 1;
   bonusResultText.textContent = success
-    ? "PARABENS! VOCE DESTRUIU O CELTINHA DO CHEFE!"
+    ? earnedContinue
+      ? "PARABÉNS! CELTINHA DESTRUÍDO! GANHOU +1 CONTINUE"
+      : "PARABÉNS! CELTINHA DESTRUÍDO!"
     : "VOCE E MUITO FRACO!";
   bonusResultOverlay.classList.add("show");
   bonusResultOverlay.setAttribute("aria-hidden", "false");
   await wait(3200);
-  const returnToArcade = bonusStage.fromArcade;
   bonusResultOverlay.classList.remove("show");
   bonusResultOverlay.setAttribute("aria-hidden", "true");
   bonusStage.active = false;
@@ -1485,6 +1657,7 @@ function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assop
   fighterImages[0].src = players[0].sprites.idle;
   fighterImages[1].src = players[1].sprites.idle;
   spriteStates = ["idle", "idle"];
+  updateSpectatorBar();
   showScreen("game");
   startRound(starter, message);
 }
@@ -1689,6 +1862,10 @@ function runSpecialMiniGame(player, isTutorial = false) {
   return runMashSpecialMiniGame(player, isTutorial);
 }
 
+function getSpecialMiniGameBonus(player) {
+  return specialMiniGameBonuses[player?.id] || 0;
+}
+
 function runMashSpecialMiniGame(player, isTutorial = false) {
   return new Promise((resolve) => {
     const duration = 5000;
@@ -1717,7 +1894,7 @@ function runMashSpecialMiniGame(player, isTutorial = false) {
       window.clearInterval(timerId);
       specialPowerButton.removeEventListener("pointerdown", pressPower);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Bonus de especial: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Bonus de especial: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -1729,7 +1906,7 @@ function runMashSpecialMiniGame(player, isTutorial = false) {
       event.preventDefault();
       power = Math.min(100, power + step);
       updateSpecialChallenge(power, Math.max(0, duration - (performance.now() - startedAt)));
-      if (power >= 100) finish(3);
+      if (power >= 100) finish(getSpecialMiniGameBonus(player));
     };
 
     const timerId = window.setInterval(() => {
@@ -1780,7 +1957,7 @@ function runTimingSpecialMiniGame(player, isTutorial = false) {
       window.clearInterval(timerId);
       specialPowerButton.removeEventListener("pointerdown", pressPower);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Timing perfeito: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Timing perfeito: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -1791,7 +1968,7 @@ function runTimingSpecialMiniGame(player, isTutorial = false) {
 
     const pressPower = (event) => {
       event.preventDefault();
-      finish(markerPosition >= zoneStart && markerPosition <= zoneEnd ? 3 : 0);
+      finish(markerPosition >= zoneStart && markerPosition <= zoneEnd ? getSpecialMiniGameBonus(player) : 0);
     };
 
     const timerId = window.setInterval(() => {
@@ -1844,7 +2021,7 @@ function runPickCartridgeSpecialMiniGame(player, isTutorial = false) {
       window.clearInterval(spawnTimerId);
       window.clearInterval(timerId);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Cartucho certo: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Cartucho certo: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -1873,7 +2050,7 @@ function runPickCartridgeSpecialMiniGame(player, isTutorial = false) {
         hits += 1;
         specialPowerButton.textContent = "AZUL!";
         updateSpecialChallenge((hits / targetHits) * 100, Math.max(0, duration - (performance.now() - startedAt)));
-        if (hits >= targetHits) finish(3);
+        if (hits >= targetHits) finish(getSpecialMiniGameBonus(player));
         else spawnCartridge();
       });
       hunt.appendChild(button);
@@ -1923,7 +2100,7 @@ function runCleanCartridgeSpecialMiniGame(player, isTutorial = false) {
       finished = true;
       window.clearInterval(timerId);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Tela limpa: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Tela limpa: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -1946,7 +2123,7 @@ function runCleanCartridgeSpecialMiniGame(player, isTutorial = false) {
         cleared += 1;
         updateSpecialChallenge((cleared / totalCartridges) * 100, Math.max(0, duration - (performance.now() - startedAt)));
         window.setTimeout(() => button.remove(), 120);
-        if (cleared === totalCartridges) finish(3);
+        if (cleared === totalCartridges) finish(getSpecialMiniGameBonus(player));
       });
       grid.appendChild(button);
     });
@@ -1997,7 +2174,7 @@ function runAimSpecialMiniGame(player, isTutorial = false) {
       window.clearInterval(timerId);
       specialPowerButton.removeEventListener("pointerdown", pressPower);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Mira certeira: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Mira certeira: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -2009,7 +2186,7 @@ function runAimSpecialMiniGame(player, isTutorial = false) {
     const pressPower = (event) => {
       event.preventDefault();
       const distance = Math.hypot(aimX - centerX, aimY - centerY);
-      finish(distance <= hitRadius ? 3 : 0);
+      finish(distance <= hitRadius ? getSpecialMiniGameBonus(player) : 0);
     };
 
     const timerId = window.setInterval(() => {
@@ -2075,7 +2252,7 @@ function runNameCartridgeSpecialMiniGame(player, isTutorial = false) {
       finished = true;
       window.clearInterval(timerId);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Nome certo: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Nome certo: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -2092,7 +2269,7 @@ function runNameCartridgeSpecialMiniGame(player, isTutorial = false) {
       button.innerHTML = `<img src="${cartridge.src}" alt="${cartridgeNames[color]}">`;
       button.addEventListener("pointerdown", (event) => {
         event.preventDefault();
-        finish(color === targetColor ? 3 : 0);
+        finish(color === targetColor ? getSpecialMiniGameBonus(player) : 0);
       });
       grid.appendChild(button);
     });
@@ -2110,7 +2287,10 @@ function runRouletteSpecialMiniGame(player, isTutorial = false) {
     const duration = 6000;
     const spinMs = isTutorial ? 650 : 500;
     const targetColor = player?.specialColor || "green";
+    const totalSpins = Math.floor(duration / spinMs);
+    const guaranteedTargetSpin = 2 + Math.floor(Math.random() * Math.max(1, totalSpins - 4));
     let currentColor = targetColor;
+    let spinCount = 0;
     let finished = false;
     const startedAt = performance.now();
     const titleName = player?.name || "Marcelo Kamikaze";
@@ -2135,7 +2315,10 @@ function runRouletteSpecialMiniGame(player, isTutorial = false) {
     specialOverlay.setAttribute("aria-hidden", "false");
 
     const showNextCartridge = () => {
-      currentColor = colors[Math.floor(Math.random() * colors.length)];
+      currentColor = spinCount === guaranteedTargetSpin
+        ? targetColor
+        : colors[Math.floor(Math.random() * colors.length)];
+      spinCount += 1;
       const cartridge = cartridgeByColor[currentColor];
       cartridgeImage.src = cartridge.src;
       cartridgeImage.alt = cartridge.label;
@@ -2149,7 +2332,7 @@ function runRouletteSpecialMiniGame(player, isTutorial = false) {
       window.clearInterval(timerId);
       specialPowerButton.removeEventListener("pointerdown", pressPower);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Roleta certeira: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Roleta certeira: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -2160,7 +2343,7 @@ function runRouletteSpecialMiniGame(player, isTutorial = false) {
 
     const pressPower = (event) => {
       event.preventDefault();
-      finish(currentColor === targetColor ? 3 : 0);
+      finish(currentColor === targetColor ? getSpecialMiniGameBonus(player) : 0);
     };
 
     showNextCartridge();
@@ -2230,7 +2413,7 @@ function runColorHeroSpecialMiniGame(player, isTutorial = false) {
       finished = true;
       window.clearInterval(timerId);
       specialPowerButton.disabled = true;
-      specialChallengeText.textContent = bonus ? "Sequência perfeita: +3!" : "Sem bonus de especial.";
+      specialChallengeText.textContent = bonus ? `Sequência perfeita: +${bonus}!` : "Sem bonus de especial.";
       window.setTimeout(() => {
         specialOverlay.classList.remove("show");
         specialOverlay.setAttribute("aria-hidden", "true");
@@ -2258,7 +2441,7 @@ function runColorHeroSpecialMiniGame(player, isTutorial = false) {
         sequenceRow.children[selected].classList.add("is-complete");
         selected += 1;
         updateSpecialChallenge((selected / sequenceLength) * 100, Math.max(0, duration - (performance.now() - startedAt)));
-        if (selected === sequenceLength) finish(3);
+        if (selected === sequenceLength) finish(getSpecialMiniGameBonus(player));
       });
       grid.appendChild(button);
     });
@@ -2427,8 +2610,10 @@ async function playBonusCombatAnimation(actionKey, damage) {
 
   arena.classList.add("attack-dim");
   const attackerState = getActionSpriteState(actionKey);
-  const attackerDuration = getSpriteDuration(0, attackerState);
+  const spriteAttackDuration = getSpriteDuration(0, attackerState);
   setTemporarySprite(0, attackerState, false);
+  const attackerDuration = startAttackLunge(0, actionKey, spriteAttackDuration);
+  if (actionKey === "especial") restartAnimation(arena, "special-psychedelic", attackerDuration);
   playVoice(players[0].id, voiceCueByAction[actionKey]);
   if (actionKey === "soco" || actionKey === "gancho") playSfx("punch");
   if (actionKey === "chute" || actionKey === "voadora") playSfx("kick");
@@ -2515,7 +2700,7 @@ function isCpuTurn() {
 }
 
 function isOnlineOpponentTurn() {
-  return mode === "online" && online.matchStarted && currentPlayer !== online.playerIndex && !gameOver;
+  return mode === "online" && online.matchStarted && (online.isSpectator || currentPlayer !== online.playerIndex) && !gameOver;
 }
 
 function pickCpuAction() {
@@ -2628,6 +2813,38 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   return specialCount === 5;
 }
 
+function startAttackLunge(attackerIndex, actionKey, duration) {
+  const fighter = fighters[attackerIndex];
+  const stage = fighter.querySelector(".sprite-stage");
+  const source = fighterImages[attackerIndex];
+  const hasTrail = actionKey !== "soco" && actionKey !== "chute";
+  const direction = fighter.classList.contains("fighter-right") ? -1 : 1;
+  const lungeDuration = Math.max(1100, Math.round(duration * 1.15));
+
+  stage.querySelectorAll(".attack-afterimage").forEach((image) => image.remove());
+  fighter.style.setProperty("--lunge-duration", `${lungeDuration}ms`);
+
+  if (hasTrail) {
+    for (let index = 1; index <= 3; index += 1) {
+      const afterimage = source.cloneNode(false);
+      afterimage.removeAttribute("id");
+      afterimage.alt = "";
+      afterimage.setAttribute("aria-hidden", "true");
+      afterimage.className = "attack-afterimage";
+      const trailDistance = 11 + (index - 1) * 18;
+      afterimage.style.setProperty("--trail-offset", `${-direction * trailDistance}px`);
+      afterimage.style.setProperty("--trail-opacity", `${0.32 - index * 0.055}`);
+      stage.insertBefore(afterimage, source);
+    }
+  }
+
+  restartAnimation(fighter, "attack-lunge", lungeDuration);
+  window.setTimeout(() => {
+    stage.querySelectorAll(".attack-afterimage").forEach((image) => image.remove());
+  }, Math.round(lungeDuration * 0.59));
+  return lungeDuration;
+}
+
 async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, damage) {
   const action = actions[actionKey];
   const failedPower = action.type !== "repeat" && damage === 0;
@@ -2644,8 +2861,10 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
   }
 
   const attackerState = getActionSpriteState(actionKey);
-  const attackerDuration = getSpriteDuration(attackerIndex, attackerState);
+  const spriteAttackDuration = getSpriteDuration(attackerIndex, attackerState);
   setTemporarySprite(attackerIndex, attackerState, false);
+  const attackerDuration = startAttackLunge(attackerIndex, actionKey, spriteAttackDuration);
+  if (actionKey === "especial") restartAnimation(arena, "special-psychedelic", attackerDuration);
   playVoice(players[attackerIndex].id, voiceCueByAction[actionKey]);
   if (actionKey === "soco" || actionKey === "gancho") playSfx("punch");
   if (actionKey === "chute" || actionKey === "voadora") playSfx("kick");
@@ -2750,7 +2969,7 @@ function showKo(winnerIndex) {
   koOverlay.setAttribute("aria-hidden", "false");
   const isArcadeWin = mode === "arcade" && winnerIndex === 0;
   const isArcadeFinalWin = isArcadeWin && arcade.index === arcade.opponents.length - 1;
-  koButton.textContent = isArcadeFinalWin ? "Ver final" : isArcadeWin ? "Proxima luta" : "Voltar ao menu";
+  koButton.textContent = online.isSpectator ? "Sair da sala" : isArcadeFinalWin ? "Ver final" : isArcadeWin ? "Proxima luta" : "Voltar ao menu";
 }
 
 function getFinalResult() {
@@ -2802,6 +3021,7 @@ function renderPlayers() {
   players.forEach((player, index) => {
     document.querySelector(`#p${index + 1}Health`).style.width = `${player.hp}%`;
     fighters[index].classList.toggle("active", index === currentPlayer && !gameOver);
+    fighters[index].classList.toggle("fighter-chefe", player.id === "chefe");
     updateFighterMirror(index);
     updateRoundStars(index);
   });

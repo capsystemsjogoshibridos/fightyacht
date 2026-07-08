@@ -511,7 +511,7 @@ button:disabled {
   width: min(100%, 240px);
   align-self: end;
   justify-self: center;
-  transform: scale(2);
+  transform: scale(1);
   transform-origin: center bottom;
 }
 
@@ -1005,6 +1005,44 @@ button:disabled {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto auto;
   gap: 8px;
+}
+
+.spectator-bar {
+  position: absolute;
+  z-index: 29;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px 7px 12px;
+  border: 1px solid rgba(246, 200, 76, 0.45);
+  border-radius: 999px;
+  background: rgba(9, 11, 16, 0.9);
+  color: var(--text);
+  font-size: 0.72rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.spectator-bar strong {
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.spectator-bar button {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #313746;
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.spectator-bar.hidden {
+  display: none;
 }
 
 .round-overlay {
@@ -1565,6 +1603,25 @@ button:disabled {
   transition: opacity 160ms ease;
 }
 
+.arena::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -18%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    conic-gradient(from 30deg at 30% 45%, #ff1677, #7b2cff, #00e5ff, #65ff5b, #ffe53b, #ff5b21, #ff1677),
+    radial-gradient(circle at 72% 36%, #00f5ff 0 12%, transparent 38%),
+    radial-gradient(circle at 22% 72%, #ff00c8 0 14%, transparent 42%);
+  background-blend-mode: screen;
+  mix-blend-mode: color;
+}
+
+.arena.special-psychedelic::after {
+  animation: psychedelicArenaFlash 240ms steps(2, end) infinite;
+}
+
 .arena.attack-dim::before {
   opacity: 1;
 }
@@ -1623,6 +1680,36 @@ button:disabled {
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.42));
+}
+
+.fighter.attack-lunge .sprite-stage {
+  animation: attackLunge var(--lunge-duration, 900ms) cubic-bezier(0.2, 0.78, 0.28, 1) both;
+}
+
+.sprite-stage img.attack-afterimage {
+  position: absolute;
+  right: auto;
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  margin-left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  filter: sepia(1) saturate(3.4) hue-rotate(165deg) brightness(1.35) drop-shadow(0 0 12px rgba(80, 175, 255, 0.72));
+  animation: attackTrailFade var(--lunge-duration, 900ms) linear both;
+}
+
+.fighter.mirror .sprite-stage img.attack-afterimage {
+  transform: translateX(-50%) scaleX(-1);
+}
+
+.sprite-stage > img:not(.attack-afterimage) {
+  z-index: 2;
+}
+
+.fighter-chefe .sprite-stage img {
+  width: min(92%, 330px);
 }
 
 .fighter.mirror .sprite-stage img {
@@ -2461,6 +2548,69 @@ button:disabled {
   }
 }
 
+@keyframes attackLunge {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+
+  48%,
+  60% {
+    transform: translateX(var(--attack-lunge-shift));
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes attackTrailFade {
+  0% {
+    opacity: 0;
+    margin-left: 0;
+  }
+
+  8% {
+    opacity: var(--trail-opacity);
+    margin-left: 0;
+  }
+
+  48% {
+    opacity: var(--trail-opacity);
+    margin-left: var(--trail-offset);
+  }
+
+  59% {
+    opacity: 0;
+    margin-left: 0;
+  }
+
+  100% {
+    opacity: 0;
+    margin-left: 0;
+  }
+}
+
+@keyframes psychedelicArenaFlash {
+  0% {
+    opacity: 0.42;
+    filter: hue-rotate(0deg) saturate(1.7) contrast(1.08);
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    opacity: 0.68;
+    filter: hue-rotate(135deg) saturate(2.2) contrast(1.18);
+    transform: scale(1.08) rotate(4deg);
+  }
+
+  100% {
+    opacity: 0.5;
+    filter: hue-rotate(285deg) saturate(2) contrast(1.12);
+    transform: scale(1.03) rotate(-3deg);
+  }
+}
+
 @keyframes rouletteSpin {
   from {
     transform: rotate(0deg);
@@ -2478,6 +2628,7 @@ button:disabled {
   --attack-shift: 32px;
   --attack-tilt: 2deg;
   --damage-shift: -14px;
+  --attack-lunge-shift: clamp(88px, 14vw, 180px);
 }
 
 .fighter-right {
@@ -2485,6 +2636,7 @@ button:disabled {
   --attack-shift: -32px;
   --attack-tilt: -2deg;
   --damage-shift: 14px;
+  --attack-lunge-shift: calc(0px - clamp(88px, 14vw, 180px));
 }
 
 @media (max-width: 760px) {
@@ -2545,7 +2697,7 @@ button:disabled {
     width: 100%;
     align-self: end;
     justify-self: center;
-    transform: scale(1.1);
+    transform: scale(1);
     transform-origin: center bottom;
   }
 
@@ -2631,6 +2783,10 @@ button:disabled {
     width: 158%;
     max-width: none;
     height: min(46vh, 410px);
+  }
+
+  .fighter-chefe .sprite-stage img {
+    width: 125%;
   }
 
   .health-card {
@@ -2777,7 +2933,7 @@ button:disabled {
     width: 100%;
     align-self: end;
     justify-self: center;
-    transform: scale(1.1);
+    transform: scale(1);
     transform-origin: center bottom;
   }
 
@@ -2853,6 +3009,10 @@ button:disabled {
     width: 166%;
     max-width: none;
     height: min(38svh, 320px);
+  }
+
+  .fighter-chefe .sprite-stage img {
+    width: 132%;
   }
 
   .health-card {
