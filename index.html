@@ -62,11 +62,13 @@
         <div class="credits-content">
           <section>
             <h2>Produção</h2>
-            <p><strong>Personagens</strong><span>Revista Super GamePower</span></p>
+            <p><strong>Personagens Originais</strong><span>Revista Super GamePower</span></p>
             <p><strong>Character Design</strong><span>Christopher de Assis Pereira (CAP)</span></p>
             <p><strong>Interface</strong><span>Christopher de Assis Pereira (CAP)</span></p>
             <p><strong>Assets</strong><span>Christopher de Assis Pereira (CAP)</span></p>
-            <p><strong>Programação</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Programação</strong><span>Christopher de Assis Pereira (CAP) [usando o Codex da OpenAI]</span></p>
+            <p><strong>Animação</strong><span>Christopher de Assis Pereira (CAP)</span></p>
+            <p><strong>Vídeo de Abertura</strong><span>Christopher de Assis Pereira (CAP)</span></p>
             <p><strong>Cenários</strong><span>Christopher de Assis Pereira (CAP)</span></p>
             <p><strong>Músicas</strong><span>SunoAI</span></p>
           </section>
@@ -78,8 +80,8 @@
             <p><strong>Marcelo Kamikaze</strong><span>Wagner Moreira</span></p>
             <p><strong>Baby Betinho</strong><span>Richard (R1TZXL)</span></p>
             <p><strong>Akira e Agora</strong><span>Brunninho (Costeludo)</span></p>
-            <p><strong>Lord Mathias</strong><span>Borgon</span></p>
-            <p><strong>O Chefe</strong><span>Cleber Leite</span></p>
+            <p><strong>Lord Mathias</strong><span>Gabriel Borgon</span></p>
+            <p><strong>O Chefe</strong><span>Cleber S. Leite</span></p>
             <p><strong>Narrador</strong><span>Christopher de Assis Pereira (CAP)</span></p>
           </section>
           <section>
@@ -271,6 +273,11 @@
         <strong id="bonusResultText"></strong>
       </section>
       <section class="arena" aria-label="Arena de combate">
+        <div class="battle-timer">
+          <span id="turnTimer" class="turn-timer timer-green" aria-label="Tempo restante do turno">
+            <span id="turnTimerValue">15</span>
+          </span>
+        </div>
         <article class="fighter fighter-left active">
           <div class="health-card">
             <span class="fighter-label">
@@ -307,13 +314,6 @@
       </section>
 
       <section class="dice-panel" aria-label="Area de assoprada de cartuchos">
-        <div class="turn-board">
-          <span id="turnLabel">Turno de Marjorie</span>
-          <span id="turnTimer" class="turn-timer timer-green" aria-label="Tempo restante do turno">
-            <span id="turnTimerValue">15</span>
-          </span>
-          <strong id="rollsLabel">Assopradas: 0/3</strong>
-        </div>
         <section class="dice-slots" aria-label="Espacos dos cartuchos">
           <button class="die empty" type="button" aria-label="Cartucho 1"></button>
           <button class="die empty" type="button" aria-label="Cartucho 2"></button>

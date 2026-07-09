@@ -1592,6 +1592,17 @@ button:disabled {
     rgba(10, 12, 17, 0.35);
 }
 
+.battle-timer {
+  position: absolute;
+  z-index: 4;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
 .arena::before {
   content: "";
   position: absolute;
@@ -2794,6 +2805,16 @@ button:disabled {
     font-size: 0.78rem;
   }
 
+  .fighter-left .health-card {
+    width: calc(100% - 28px);
+    justify-self: start;
+  }
+
+  .fighter-right .health-card {
+    width: calc(100% - 28px);
+    justify-self: end;
+  }
+
   .health-track {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -3020,6 +3041,11 @@ button:disabled {
     gap: 4px;
     padding: 6px;
     font-size: 0.68rem;
+  }
+
+  .fighter-left .health-card,
+  .fighter-right .health-card {
+    width: calc(100% - 30px);
   }
 
   .health-track {

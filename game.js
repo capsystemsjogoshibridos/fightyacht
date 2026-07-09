@@ -515,10 +515,8 @@ diceButtons.forEach((button, index) => {
   button.title = `Teclado: ${index + 1}`;
   button.setAttribute("aria-keyshortcuts", String(index + 1));
 });
-const turnLabel = document.querySelector("#turnLabel");
 const turnTimer = document.querySelector("#turnTimer");
 const turnTimerValue = document.querySelector("#turnTimerValue");
-const rollsLabel = document.querySelector("#rollsLabel");
 const roundMessage = document.querySelector("#roundMessage");
 const roundOverlay = document.querySelector("#roundOverlay");
 const roundBannerText = document.querySelector("#roundBannerText");
@@ -2994,10 +2992,6 @@ function render() {
   renderPlayers();
   renderActions();
   renderRollButton();
-  turnLabel.textContent = bonusStage.active
-    ? gameOver ? "Bonus Stage encerrado" : "Destrua o Celtinha!"
-    : gameOver ? "Fim de luta" : `Turno de ${players[currentPlayer].name}`;
-  rollsLabel.textContent = bonusStage.active ? `Assopradas: ${rolls} / ∞` : `Assopradas: ${rolls}/3`;
 }
 
 function renderDice() {
