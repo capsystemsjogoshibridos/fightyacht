@@ -35,6 +35,17 @@ const actions = {
   magia3: { type: "multicolor", damage: 22, maxUses: 1 },
   magia4: { type: "fourKind", damage: 24, maxUses: 1 },
   especial: { type: "yacht", damage: 35, maxUses: 1 },
+  tresloucar: { type: "sequence", maxUses: 1 },
+};
+const tresloucarRules = {
+  bill: { sequence: ["yellow", "yellow", "blue", "red", "pink"], damage: 50 },
+  lord: { sequence: ["blue", "pink", "yellow", "pink", "blue"], damage: 50 },
+  marjorie: { sequence: ["yellow", "blue", "yellow", "blue", "yellow"], damage: 55 },
+  akira: { sequence: ["red", "red", "green", "green", "green"], damage: 60 },
+  marcelo: { sequence: ["red", "red", "yellow", "yellow", "red"], damage: 60 },
+  chris: { sequence: ["yellow", "yellow", "blue", "red", "pink"], damage: 60 },
+  chefe: { sequence: ["blue", "pink", "blue", "pink", "blue"], damage: 60 },
+  baby: { sequence: ["green", "blue", "blue", "red", "yellow"], damage: 50 },
 };
 const rooms = Array.from({ length: 6 }, (_, index) => newRoom(index + 1));
 const roomTimeout = 30000;
@@ -136,6 +147,12 @@ function startMatchIfReady(room) {
 
 function calculateDamage(actionKey, dice, characterId) {
   const action = actions[actionKey];
+  if (action.type === "sequence") {
+    const rule = tresloucarRules[characterId];
+    const baseDamage = rule && rule.sequence.every((color, index) => dice[index] === color) ? rule.damage : 0;
+    return { damage: baseDamage, baseDamage, bonus: 0, bonusColor: null };
+  }
+
   const countMap = dice.reduce((counts, color) => {
     if (color) counts[color] = (counts[color] || 0) + 1;
     return counts;
@@ -166,6 +183,7 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   if (actionType === "threeKind") return specialCount >= 3;
   if (actionType === "fourKind") return specialCount >= 4;
   if (actionType === "multicolor") return false;
+  if (actionType === "sequence") return false;
   return specialCount === 5;
 }
 

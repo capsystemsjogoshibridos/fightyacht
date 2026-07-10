@@ -397,7 +397,7 @@ button:disabled {
 
 .character-card {
   min-height: 0;
-  padding: 8px;
+  padding: 6px;
   border-radius: 8px;
   background: var(--panel);
   border: 2px solid rgba(255, 255, 255, 0.08);
@@ -415,9 +415,23 @@ button:disabled {
 
 .character-card .character-portrait {
   width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
+  aspect-ratio: 456 / 536;
+  object-fit: contain;
   border-radius: 6px;
+}
+
+#characterGrid .character-card,
+#specialTestGrid .character-card {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#characterGrid .character-card .character-portrait,
+#specialTestGrid .character-card .character-portrait {
+  display: block;
+  border-radius: 10px;
 }
 
 .character-card small {
@@ -662,6 +676,21 @@ button:disabled {
   font-weight: 800;
 }
 
+.tutorial-actions button[data-tutorial-action="tresloucar"] {
+  padding-block: 6px;
+  background: linear-gradient(180deg, #f4f4f5, #a1a1aa);
+  color: #171717;
+}
+
+.tutorial-actions button[data-tutorial-action="tresloucar"] span {
+  line-height: 0.84;
+}
+
+.tutorial-actions button[data-tutorial-action="tresloucar"] small {
+  color: #3f3f46;
+  margin-block: 3px;
+}
+
 .tutorial-actions button.tutorial-highlight,
 .tutorial-actions button.tutorial-tapped {
   background: var(--gold);
@@ -756,12 +785,18 @@ button:disabled {
 }
 
 .vs-fighter-card img {
-  width: min(250px, 34vw);
-  aspect-ratio: 1;
-  object-fit: cover;
+  width: min(320px, 36vw);
+  height: min(58vh, 470px);
+  object-fit: contain;
+  object-position: center bottom;
   border-radius: 8px;
-  border: 3px solid rgba(246, 200, 76, 0.42);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.42);
+  border: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.46));
+}
+
+.vs-fighter-card:first-child img {
+  transform: scaleX(-1);
 }
 
 .vs-fighter-card strong {
@@ -1633,6 +1668,16 @@ button:disabled {
   animation: psychedelicArenaFlash 240ms steps(2, end) infinite;
 }
 
+.arena.tresloucar-psychedelic::after {
+  background:
+    conic-gradient(from 20deg at 50% 48%, #fff6a8, #f6c84c, #b77912, #fff1a0, #ffcf33, #7a4b06, #fff6a8),
+    radial-gradient(circle at 68% 34%, rgba(255, 255, 210, 0.95) 0 10%, transparent 34%),
+    radial-gradient(circle at 24% 72%, rgba(255, 192, 43, 0.95) 0 16%, transparent 42%);
+  background-blend-mode: screen;
+  mix-blend-mode: screen;
+  animation: tresloucarGoldenFlash 180ms steps(2, end) infinite;
+}
+
 .arena.attack-dim::before {
   opacity: 1;
 }
@@ -1735,6 +1780,16 @@ button:disabled {
 .game-view.bonus-stage .fighter-right .sprite-stage img {
   width: min(145%, 540px);
   height: min(46vh, 430px);
+}
+
+.game-view.bonus-stage .fighter {
+  align-self: stretch;
+  align-content: stretch;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.game-view.bonus-stage .sprite-stage {
+  align-self: stretch;
 }
 
 .game-view.bonus-stage .fighter-right .health-card {
@@ -1869,6 +1924,22 @@ button:disabled {
   transition: width 220ms ease;
 }
 
+.tresloucar-sequence {
+  grid-column: 1 / -1;
+  width: min(34%, 58px);
+  height: auto;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.fighter-left .tresloucar-sequence {
+  justify-self: start;
+}
+
+.fighter-right .tresloucar-sequence {
+  justify-self: end;
+}
+
 .actions {
   min-height: 152px;
   display: grid;
@@ -1948,10 +2019,31 @@ button:disabled {
   text-decoration: line-through;
 }
 
+.special-column {
+  display: grid;
+  gap: 8px;
+}
+
 .special-button {
   height: 98px;
   background: linear-gradient(180deg, #f7d768, #da8b2f) !important;
   color: #271503 !important;
+}
+
+.tresloucar-button {
+  min-height: 48px !important;
+  padding-block: 8px !important;
+  background: linear-gradient(180deg, #f4f4f5, #a1a1aa) !important;
+  color: #171717 !important;
+}
+
+.tresloucar-button span {
+  line-height: 0.84;
+}
+
+.tresloucar-button small {
+  color: #3f3f46 !important;
+  margin-block: 4px;
 }
 
 .special-overlay {
@@ -2622,6 +2714,26 @@ button:disabled {
   }
 }
 
+@keyframes tresloucarGoldenFlash {
+  0% {
+    opacity: 0.38;
+    filter: saturate(1.8) contrast(1.15) brightness(1.05);
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    opacity: 0.7;
+    filter: saturate(2.6) contrast(1.28) brightness(1.25);
+    transform: scale(1.1) rotate(-4deg);
+  }
+
+  100% {
+    opacity: 0.5;
+    filter: saturate(2.2) contrast(1.18) brightness(1.16);
+    transform: scale(1.04) rotate(3deg);
+  }
+}
+
 @keyframes rouletteSpin {
   from {
     transform: rotate(0deg);
@@ -2673,7 +2785,8 @@ button:disabled {
   }
 
   .vs-fighter-card img {
-    width: min(190px, 34vw);
+    width: min(210px, 36vw);
+    height: min(46vh, 340px);
   }
 
   .vs-mark {
@@ -2824,8 +2937,11 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .special-button {
+  .special-column {
     order: 2;
+  }
+
+  .special-button {
     height: 72px;
   }
 
@@ -2992,6 +3108,10 @@ button:disabled {
     font-size: clamp(0.56rem, 2.5vw, 0.7rem);
   }
 
+  .tutorial-actions button[data-tutorial-action="tresloucar"] {
+    padding-block: 5px;
+  }
+
   .tutorial-actions button small {
     font-size: clamp(0.43rem, 2vw, 0.55rem);
   }
@@ -3076,7 +3196,17 @@ button:disabled {
 
   .special-button {
     order: initial;
-    height: 128px;
+    height: 82px;
+  }
+
+  .special-column {
+    order: initial;
+    gap: 5px;
+  }
+
+  .tresloucar-button {
+    min-height: 40px !important;
+    padding-block: 8px !important;
   }
 
   .action-column:last-child {

@@ -88,6 +88,7 @@ const voiceCueByAction = {
   magia3: "poder_3",
   magia4: "poder_4",
   especial: "especial",
+  tresloucar: "especial",
 };
 const voiceCues = [...new Set([...Object.values(voiceCueByAction), "pancada", "select_screen", "vitoria"])];
 
@@ -103,7 +104,7 @@ const actionSpriteDurations = {
 };
 
 const characters = [
-  character("marjorie", "Marjorie Bros.", "assets/select-marjorie.png", "blue", {
+  character("marjorie", "Marjorie Bros.", "assets/select-marjorie-card.png", "blue", {
     idle: "assets/marjorie-idle.webp",
     attack: "assets/marjorie-punch.webp",
     punch: "assets/marjorie-punch.webp",
@@ -116,7 +117,7 @@ const characters = [
     damage: "assets/marjorie-pancada.webp",
     win: "assets/marjorie-win.png",
   }),
-  character("baby", "Baby Betinho", "assets/select-baby.png", "yellow", {
+  character("baby", "Baby Betinho", "assets/select-baby-card.png", "yellow", {
     idle: "assets/baby-idle.webp",
     attack: "assets/baby-punch.webp",
     punch: "assets/baby-punch.webp",
@@ -129,7 +130,7 @@ const characters = [
     damage: "assets/baby-pancada.webp",
     win: "assets/baby-win.png",
   }),
-  character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo.png", "green", {
+  character("marcelo", "Marcelo Kamikaze", "assets/select-marcelo-card.png", "green", {
     idle: "assets/marcelo-idle.webp",
     attack: "assets/marcelo-punch.webp",
     punch: "assets/marcelo-punch.webp",
@@ -142,7 +143,7 @@ const characters = [
     damage: "assets/marcelo-pancada.webp",
     win: "assets/marcelo-win.png",
   }),
-  character("bill", "Bill Games", "assets/select-bill.png", "blue", {
+  character("bill", "Bill Games", "assets/select-bill-card.png", "blue", {
     idle: "assets/bill-idle.webp",
     attack: "assets/bill-punch.webp",
     punch: "assets/bill-punch.webp",
@@ -155,7 +156,7 @@ const characters = [
     damage: "assets/bill-pancada.webp",
     win: "assets/bill-win.png",
   }),
-  character("lord", "Lord Mathias", "assets/select-lord.png", "red", {
+  character("lord", "Lord Mathias", "assets/select-lord-card.png", "red", {
     idle: "assets/lord-idle.webp",
     attack: "assets/lord-punch.webp",
     punch: "assets/lord-punch.webp",
@@ -168,7 +169,7 @@ const characters = [
     damage: "assets/lord-pancada.webp",
     win: "assets/lord-win.png",
   }),
-  character("chris", "Chris Combo", "assets/select-chris.png", "red", {
+  character("chris", "Chris Combo", "assets/select-chris-card.png", "red", {
     idle: "assets/chris-idle.webp",
     attack: "assets/chris-punch.webp",
     punch: "assets/chris-punch.webp",
@@ -181,7 +182,7 @@ const characters = [
     damage: "assets/chris-pancada.webp",
     win: "assets/chris-win.png",
   }),
-  character("akira", "Akira e Agora", "assets/select-akira.png", "green", {
+  character("akira", "Akira e Agora", "assets/select-akira-card.png", "green", {
     idle: "assets/akira-idle.webp",
     attack: "assets/akira-punch.webp",
     punch: "assets/akira-punch.webp",
@@ -194,7 +195,7 @@ const characters = [
     damage: "assets/akira-pancada.webp",
     win: "assets/akira-win.png",
   }),
-  character("chefe", "O Chefe", "assets/select-chefe.png", "pink", {
+  character("chefe", "O Chefe", "assets/select-chefe-card.png", "pink", {
     idle: "assets/chefe-idle.webp",
     attack: "assets/chefe-punch.webp",
     punch: "assets/chefe-punch.webp",
@@ -341,6 +342,7 @@ const actions = {
   magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 22, maxUses: 1 },
   magia4: { label: "Magia", type: "fourKind", damage: 24, maxUses: 1 },
   especial: { label: "Poder Especial", type: "yacht", damage: 35, maxUses: 1 },
+  tresloucar: { label: "Poder Tresloucado", type: "sequence", maxUses: 1 },
 };
 
 const specialMiniGameBonuses = {
@@ -354,8 +356,20 @@ const specialMiniGameBonuses = {
   chefe: 2,
 };
 
+const tresloucarRules = {
+  bill: { sequence: ["yellow", "yellow", "blue", "red", "pink"], damage: 50 },
+  lord: { sequence: ["blue", "pink", "yellow", "pink", "blue"], damage: 50 },
+  marjorie: { sequence: ["yellow", "blue", "yellow", "blue", "yellow"], damage: 55 },
+  akira: { sequence: ["red", "red", "green", "green", "green"], damage: 60 },
+  marcelo: { sequence: ["red", "red", "yellow", "yellow", "red"], damage: 60 },
+  chris: { sequence: ["yellow", "yellow", "blue", "red", "pink"], damage: 60 },
+  chefe: { sequence: ["blue", "pink", "blue", "pink", "blue"], damage: 60 },
+  baby: { sequence: ["green", "blue", "blue", "red", "yellow"], damage: 50 },
+};
+
 const actionKeys = Object.keys(actions);
 const turnDuration = 20;
+const tresloucarModeDuration = 15;
 const screens = {
   loading: document.querySelector("#loadingScreen"),
   splash: document.querySelector("#splashScreen"),
@@ -391,6 +405,7 @@ let roundNumber = 1;
 let turnTimerId = null;
 let turnTimerStartedAt = 0;
 let turnToken = 0;
+let tresloucarMode = { active: false, playerIndex: null, startedAt: 0, resolving: false };
 let mode = null;
 let selectStep = null;
 let pendingP1 = null;
@@ -450,8 +465,6 @@ const vsP1Icon = document.querySelector("#vsP1Icon");
 const vsP2Icon = document.querySelector("#vsP2Icon");
 const vsP1Name = document.querySelector("#vsP1Name");
 const vsP2Name = document.querySelector("#vsP2Name");
-const vsP1Color = document.querySelector("#vsP1Color");
-const vsP2Color = document.querySelector("#vsP2Color");
 const vsSubtitle = document.querySelector("#vsSubtitle");
 const vsBattleButton = document.querySelector("#vsBattleButton");
 const rollButton = document.querySelector("#rollButton");
@@ -477,6 +490,7 @@ const keyboardBattleControls = {
   KeyD: "magia3",
   KeyF: "magia4",
   KeyZ: "especial",
+  KeyX: "tresloucar",
   Space: "roll",
 };
 const gamepadBattleControls = {
@@ -503,6 +517,7 @@ const keyboardShortcutByAction = {
   magia3: "D",
   magia4: "F",
   especial: "Z",
+  tresloucar: "X",
 };
 actionButtons.forEach((button) => {
   const shortcut = keyboardShortcutByAction[button.dataset.action];
@@ -528,6 +543,7 @@ const fighterImages = fighters.map((fighter) => fighter.querySelector(".sprite-s
 const fighterNames = fighters.map((fighter) => fighter.querySelector(".fighter-name"));
 const fighterCartridges = fighters.map((fighter) => fighter.querySelector(".fighter-cartridge"));
 const fighterRoundStars = fighters.map((fighter) => fighter.querySelector(".round-stars"));
+const fighterTresloucarSequences = fighters.map((fighter) => fighter.querySelector(".tresloucar-sequence"));
 const arena = document.querySelector(".arena");
 const loadingText = document.querySelector("#loadingText");
 const loadingFill = document.querySelector("#loadingFill");
@@ -663,6 +679,26 @@ const tutorialSteps = [
     glow: true,
   },
   {
+    text: "PODER TRESLOUCADO: cada lutador tem uma sequencia propria. Aqui a ordem do Chefe e azul, rosa, azul, rosa e azul.",
+    dice: ["blue", "pink", "blue", "pink", "blue"],
+    held: [0, 1, 2, 3, 4],
+    rollText: "Sequência do Poder Tresloucado",
+    focus: "dice",
+    actions: ["tresloucar"],
+    sprite: "especial",
+    glow: true,
+  },
+  {
+    text: "MODO TRESLOUCADO: aperte TRES LOU CAR para ganhar 15 segundos de assopradas infinitas. Se montar a sequencia nas posicoes certas, o combo sai sozinho; se o tempo acabar, o golpe falha.",
+    dice: ["blue", "pink", "yellow", "pink", "blue"],
+    held: [0, 1, 3, 4],
+    rollText: "Assopradas infinitas por 15s",
+    focus: "damage",
+    actions: ["tresloucar"],
+    sprite: "especial",
+    glow: true,
+  },
+  {
     text: "Falha de magia: se voce apertar uma magia sem a combinacao, ela explode no atacante, nao causa dano e mesmo assim gasta o botao.",
     dice: ["blue", "blue", "green", "yellow", "pink"],
     held: [0, 1],
@@ -710,6 +746,8 @@ const tutorialStepTexts = [
   "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "ESPECIAL: precisa de 5 cores iguais. É o golpe mais devastador. Se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico: vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
+  "PODER TRESLOUCADO: cada lutador tem uma sequência própria, mostrada abaixo da sua barra de energia. Diferente dos outros golpes, aqui a posição importa: os cartuchos precisam estar exatamente nos slots certos.",
+  "MODO TRESLOUCADO: aperte TRES LOU CAR para ativar 15 segundos de assopradas infinitas. Segure os cartuchos certos e tente montar a sequência. Se conseguir, o combo sai automaticamente; se o tempo acabar, o golpe falha.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
   "ATENÇÃO: Ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição.",
@@ -974,18 +1012,24 @@ function renderSpecialTestGrid() {
   specialTestSubtitle.textContent = "Escolha um lutador para abrir o minigame do Especial.";
   specialTestGrid.innerHTML = "";
 
-  characters.forEach((fighter) => {
-    const cartridge = cartridgeByColor[fighter.specialColor];
+  ["bill", "lord", "marjorie", "akira", "mystery", "marcelo", "chris", "chefe", "baby"].forEach((fighterId) => {
+    if (fighterId === "mystery") {
+      const mysteryButton = document.createElement("button");
+      mysteryButton.className = "character-card mystery-character";
+      mysteryButton.type = "button";
+      mysteryButton.setAttribute("aria-label", "Personagem misterioso");
+      mysteryButton.innerHTML = `<img class="character-portrait" src="assets/select-secret-card.png" alt="Personagem misterioso">`;
+      specialTestGrid.appendChild(mysteryButton);
+      return;
+    }
+
+    const fighter = getCharacter(fighterId);
     const button = document.createElement("button");
     button.className = "character-card";
     button.type = "button";
     button.innerHTML = `
       <img class="character-portrait" src="${fighter.select}" alt="${fighter.name}">
-      <span>${fighter.name}</span>
-      <small class="character-cartridge">CARTUCHO: <img src="${cartridge.src}" alt="${cartridge.label}"></small>
-      <small>${["baby", "lord", "marjorie", "bill", "chefe", "marcelo", "akira", "chris"].includes(fighter.id) ? "TESTAR ESPECIAL" : "EM BREVE"}</small>
     `;
-    if (!["baby", "lord", "marjorie", "bill", "chefe", "marcelo", "akira", "chris"].includes(fighter.id)) button.disabled = true;
     button.addEventListener("click", () => runSpecialTest(fighter));
     specialTestGrid.appendChild(button);
   });
@@ -1001,19 +1045,10 @@ async function runSpecialTest(fighter) {
 
 function renderCharacterSelect() {
   const isSecondPlayer = selectStep === "versusP2";
-  selectTitle.textContent =
+  selectTitle.textContent = "ESCOLHA O SEU LUTADOR";
+  const subtitle =
     selectStep === "arcadeHero"
-      ? "Arcade: escolha seu lutador"
-      : selectStep === "bonusHero"
-        ? "Bonus Stage: escolha seu lutador"
-      : selectStep === "onlinePick"
-        ? `Sala ${online.roomId}: escolha seu lutador`
-        : isSecondPlayer
-          ? "Jogador 2"
-          : "Jogador 1";
-  selectSubtitle.textContent =
-    selectStep === "arcadeHero"
-      ? "Voce enfrentara uma sequencia aleatoria. O Chefe fica para o final."
+      ? ""
       : selectStep === "bonusHero"
         ? "Escolha quem tentara destruir o Celtinha em 60 segundos."
       : selectStep === "onlinePick"
@@ -1021,17 +1056,27 @@ function renderCharacterSelect() {
       : isSecondPlayer
         ? "Escolha o adversario local."
         : "Escolha quem joga primeiro no controle 1.";
+  selectSubtitle.textContent = subtitle;
+  selectSubtitle.classList.toggle("hidden", !subtitle);
   characterGrid.innerHTML = "";
 
-  characters.forEach((fighter) => {
-    const cartridge = cartridgeByColor[fighter.specialColor];
+  ["bill", "lord", "marjorie", "akira", "mystery", "marcelo", "chris", "chefe", "baby"].forEach((fighterId) => {
+    if (fighterId === "mystery") {
+      const mysteryButton = document.createElement("button");
+      mysteryButton.className = "character-card mystery-character";
+      mysteryButton.type = "button";
+      mysteryButton.setAttribute("aria-label", "Personagem misterioso");
+      mysteryButton.innerHTML = `<img class="character-portrait" src="assets/select-secret-card.png" alt="Personagem misterioso">`;
+      characterGrid.appendChild(mysteryButton);
+      return;
+    }
+
+    const fighter = getCharacter(fighterId);
     const button = document.createElement("button");
     button.className = "character-card";
     button.type = "button";
     button.innerHTML = `
       <img class="character-portrait" src="${fighter.select}" alt="${fighter.name}">
-      <span>${fighter.name}</span>
-      <small class="character-cartridge">CARTUCHO: <img src="${cartridge.src}" alt="${cartridge.label}"></small>
     `;
     if (selectStep === "arcadeHero" && fighter.id === "chefe") button.disabled = true;
     if (isSecondPlayer && pendingP1?.id === fighter.id) button.disabled = true;
@@ -1042,13 +1087,6 @@ function renderCharacterSelect() {
     });
     characterGrid.appendChild(button);
   });
-
-  const mysteryButton = document.createElement("button");
-  mysteryButton.className = "character-card mystery-character";
-  mysteryButton.type = "button";
-  mysteryButton.setAttribute("aria-label", "Personagem misterioso");
-  mysteryButton.textContent = "?";
-  characterGrid.appendChild(mysteryButton);
 }
 
 function selectCharacter(id) {
@@ -1119,14 +1157,12 @@ function playersLabel(index, p1, p2) {
 
 function showVsScreen(p1, p2, starter, message, options = {}) {
   pendingVs = { p1, p2, starter, message };
-  vsP1Icon.src = p1.select;
+  vsP1Icon.src = p1.specialScreen;
   vsP1Icon.alt = p1.name;
-  vsP2Icon.src = p2.select;
+  vsP2Icon.src = p2.specialScreen;
   vsP2Icon.alt = p2.name;
   vsP1Name.textContent = p1.name;
   vsP2Name.textContent = p2.name;
-  vsP1Color.textContent = `COR - ${colorLabels[p1.specialColor]}`;
-  vsP2Color.textContent = `COR - ${colorLabels[p2.specialColor]}`;
   vsSubtitle.textContent = message;
   vsBattleButton.disabled = Boolean(options.autoStart);
   vsBattleButton.textContent = options.autoStart ? "Preparando..." : "Ir pra batalha";
@@ -1239,6 +1275,7 @@ async function chooseOnlineCharacter(fighter) {
     onlineSubtitle.textContent = `Voce e o Jogador ${online.playerIndex + 1}.`;
     showScreen("online");
   } catch (error) {
+    selectSubtitle.classList.remove("hidden");
     selectSubtitle.textContent = error.message;
   }
 }
@@ -1530,6 +1567,7 @@ function makeBonusCar() {
 
 function startBonusStage(hero, fromArcade) {
   stopBonusTimer();
+  resetTresloucarMode();
   mode = fromArcade ? "arcade" : "bonus";
   bonusStage = { active: true, fromArcade, deadline: 0, timerId: null, finishing: false };
   players = [makePlayer(hero), makeBonusCar()];
@@ -1578,6 +1616,10 @@ function stopBonusTimer() {
 
 function updateBonusTimer() {
   if (!bonusStage.active || bonusStage.finishing) return;
+  if (tresloucarMode.active) {
+    updateTresloucarTimer();
+    return;
+  }
   const remaining = Math.max(0, (bonusStage.deadline - performance.now()) / 1000);
   const progress = (remaining / 60) * 100;
   turnTimer.style.setProperty("--timer-progress", `${progress}%`);
@@ -1634,6 +1676,7 @@ async function finishBonusStage(success) {
 
 function startMatch(leftCharacter, rightCharacter, starter = 0, message = "Assopre os cartuchos para iniciar o ataque.") {
   stopBonusTimer();
+  resetTresloucarMode();
   bonusStage.active = false;
   screens.game.classList.remove("bonus-stage");
   players = [makePlayer(leftCharacter), makePlayer(rightCharacter)];
@@ -1665,6 +1708,7 @@ function makePlayer(fighter) {
 }
 
 async function startRound(starter, message) {
+  resetTresloucarMode();
   currentPlayer = starter;
   dice = Array(5).fill(null);
   held = Array(5).fill(false);
@@ -1739,6 +1783,7 @@ function startTurnTimer() {
 
   turnTimerStartedAt = performance.now();
   turnTimer.classList.remove("hidden");
+  turnTimer.setAttribute("aria-label", "Tempo restante do turno");
   updateTurnTimer();
   turnTimerId = window.setInterval(updateTurnTimer, 120);
 }
@@ -1761,6 +1806,11 @@ function updateTurnTimer() {
     return;
   }
 
+  if (tresloucarMode.active) {
+    updateTresloucarTimer();
+    return;
+  }
+
   const elapsed = (performance.now() - turnTimerStartedAt) / 1000;
   const remaining = Math.max(0, turnDuration - elapsed);
   const progress = (remaining / turnDuration) * 100;
@@ -1773,6 +1823,25 @@ function updateTurnTimer() {
   if (remaining <= 0) passTurnByTimeout();
 }
 
+function updateTresloucarTimer() {
+  const elapsed = (performance.now() - tresloucarMode.startedAt) / 1000;
+  const remaining = Math.max(0, tresloucarModeDuration - elapsed);
+  const progress = (remaining / tresloucarModeDuration) * 100;
+  turnTimer.classList.remove("hidden");
+  turnTimer.setAttribute("aria-label", "Tempo restante do Poder Tresloucado");
+  turnTimer.style.setProperty("--timer-progress", `${progress}%`);
+  turnTimerValue.textContent = Math.ceil(remaining).toString();
+  turnTimer.classList.toggle("timer-green", remaining > 10);
+  turnTimer.classList.toggle("timer-yellow", remaining <= 10 && remaining > 5);
+  turnTimer.classList.toggle("timer-red", remaining <= 5);
+  if (remaining <= 0 && !isRolling) void finishTresloucarMode(false);
+}
+
+function resetTresloucarMode() {
+  tresloucarMode = { active: false, playerIndex: null, startedAt: 0, resolving: false };
+  arena.classList.remove("tresloucar-psychedelic");
+}
+
 function clearRollingState() {
   isRolling = false;
   diceButtons.forEach((button) => button.classList.remove("rolling"));
@@ -1780,6 +1849,10 @@ function clearRollingState() {
 
 function passTurnByTimeout() {
   if (!shouldUseTurnTimer() || isAnimating) return;
+  if (tresloucarMode.active) {
+    void finishTresloucarMode(false);
+    return;
+  }
   stopTurnTimer();
 
   const timedOutPlayer = players[currentPlayer];
@@ -1799,7 +1872,7 @@ async function rollDice(syncedDice = null) {
     requestOnlineCommand("roll");
     return;
   }
-  if (gameOver || isRoundTransition || isRolling || (!bonusStage.active && rolls >= 3)) return;
+  if (gameOver || isRoundTransition || isRolling || (!bonusStage.active && !tresloucarMode.active && rolls >= 3)) return;
   const rollingToken = turnToken;
   isRolling = true;
   rollButton.disabled = true;
@@ -1830,12 +1903,15 @@ async function rollDice(syncedDice = null) {
 
   rolls += 1;
   clearRollingState();
-  roundMessage.textContent = bonusStage.active
+  roundMessage.textContent = tresloucarMode.active
+    ? "MODO TRESLOUCADO! Monte a sequência antes do tempo acabar."
+    : bonusStage.active
     ? "Separe os cartuchos desejados, assopre novamente ou use um golpe."
     : rolls === 3
       ? "Ultima assoprada. Escolha um golpe."
       : "Clique nos cartuchos para separar/segurar cores antes de assoprar de novo.";
   render();
+  if (tresloucarMode.active) await maybeFinishTresloucarBySequence();
 }
 
 function toggleHold(index) {
@@ -2478,6 +2554,18 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
     await useBonusAction(actionKey);
     return;
   }
+  if (actionKey === "tresloucar" && !fromServer) {
+    if (mode === "online") {
+      roundMessage.textContent = "Poder Tresloucado online sera ativado em uma proxima etapa.";
+      return;
+    }
+    if (tresloucarMode.active) {
+      await maybeFinishTresloucarBySequence();
+      return;
+    }
+    startTresloucarMode(currentPlayer);
+    return;
+  }
   if (mode === "online" && !fromServer) {
     let specialBonus = 0;
     const player = players[currentPlayer];
@@ -2556,6 +2644,15 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
 }
 
 async function useBonusAction(actionKey) {
+  if (actionKey === "tresloucar") {
+    if (gameOver || bonusStage.finishing || isRolling || isAnimating) return;
+    if (tresloucarMode.active) {
+      await maybeFinishTresloucarBySequence();
+      return;
+    }
+    startTresloucarMode(0);
+    return;
+  }
   if (gameOver || bonusStage.finishing || isRolling || isAnimating || rolls === 0) {
     if (rolls === 0) roundMessage.textContent = "Assopre os cartuchos antes de atacar.";
     return;
@@ -2599,10 +2696,123 @@ async function useBonusAction(actionKey) {
   render();
 }
 
+function startTresloucarMode(playerIndex) {
+  if (gameOver || isRoundTransition || isRolling || isAnimating || isCpuTurn() || isOnlineOpponentTurn()) return;
+  const player = players[playerIndex];
+  if (!player || getUseCount(player, "tresloucar") >= actions.tresloucar.maxUses) return;
+
+  tresloucarMode = { active: true, playerIndex, startedAt: performance.now(), resolving: false };
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  turnTimerStartedAt = tresloucarMode.startedAt;
+  turnTimer.classList.remove("hidden");
+  roundMessage.textContent = "MODO TRESLOUCADO ATIVADO!";
+  arena.classList.add("tresloucar-psychedelic");
+  updateTresloucarTimer();
+  render();
+}
+
+async function maybeFinishTresloucarBySequence() {
+  if (!tresloucarMode.active || tresloucarMode.resolving || isRolling) return;
+  const playerIndex = tresloucarMode.playerIndex ?? currentPlayer;
+  const result = calculateDamage("tresloucar", dice, players[playerIndex]);
+  if (result.damage > 0) {
+    await finishTresloucarMode(true);
+    return;
+  }
+  const elapsed = (performance.now() - tresloucarMode.startedAt) / 1000;
+  if (elapsed >= tresloucarModeDuration) await finishTresloucarMode(false);
+}
+
+async function finishTresloucarMode(success) {
+  if (!tresloucarMode.active || tresloucarMode.resolving) return;
+  tresloucarMode.resolving = true;
+  const playerIndex = tresloucarMode.playerIndex ?? currentPlayer;
+  if (mode !== "online") currentPlayer = playerIndex;
+  tresloucarMode.active = false;
+  arena.classList.remove("tresloucar-psychedelic");
+  if (bonusStage.active) {
+    await resolveBonusTresloucar(success);
+  } else {
+    await resolveBattleTresloucar(success);
+  }
+  tresloucarMode = { active: false, playerIndex: null, startedAt: 0, resolving: false };
+}
+
+async function resolveBattleTresloucar(success) {
+  stopTurnTimer();
+  const player = players[currentPlayer];
+  const opponentIndex = currentPlayer === 0 ? 1 : 0;
+  const opponent = players[opponentIndex];
+  const action = actions.tresloucar;
+  const result = success ? calculateDamage("tresloucar", dice, player) : { damage: 0, baseDamage: 0, bonus: 0, bonusColor: null };
+
+  player.used.tresloucar = getUseCount(player, "tresloucar") + 1;
+  opponent.hp = Math.max(0, opponent.hp - result.damage);
+  isAnimating = true;
+  renderActions();
+  renderRollButton();
+
+  const hitText = result.damage > 0
+    ? `${player.name} usou ${action.label} e causou ${result.damage} de dano.`
+    : `${player.name} tentou ${action.label}, mas a sequência não fechou.`;
+
+  await playCombatAnimation("tresloucar", currentPlayer, opponentIndex, result.damage);
+  isAnimating = false;
+
+  const exhausted = players.every((contestant) => !hasActionsLeft(contestant));
+  if (opponent.hp <= 0 || exhausted) {
+    await finishRound(opponent.hp <= 0 ? currentPlayer : getFinalResult().winnerIndex, hitText);
+    return;
+  }
+
+  currentPlayer = opponentIndex;
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  roundMessage.textContent = `${hitText} Agora e a vez de ${players[currentPlayer].name}.`;
+  render();
+  beginTurn();
+  maybeCpuTurn();
+}
+
+async function resolveBonusTresloucar(success) {
+  const player = players[0];
+  const action = actions.tresloucar;
+  const result = success ? calculateDamage("tresloucar", dice, player) : { damage: 0, baseDamage: 0, bonus: 0, bonusColor: null };
+
+  player.used.tresloucar = getUseCount(player, "tresloucar") + 1;
+  players[1].hp = Math.max(0, players[1].hp - result.damage);
+  isAnimating = true;
+  render();
+
+  const hitText = result.damage > 0
+    ? `${player.name} usou ${action.label} e causou ${result.damage} de dano ao Celtinha.`
+    : `${player.name} tentou ${action.label}, mas a sequência não fechou.`;
+
+  await playBonusCombatAnimation("tresloucar", result.damage);
+  isAnimating = false;
+  if (players[1].hp <= 0) {
+    roundMessage.textContent = hitText;
+    await finishBonusStage(true);
+    return;
+  }
+  dice = Array(5).fill(null);
+  held = Array(5).fill(false);
+  rolls = 0;
+  roundMessage.textContent = `${hitText} Continue atacando!`;
+  render();
+}
+
 async function playBonusCombatAnimation(actionKey, damage) {
   const action = actions[actionKey];
   if (action.type !== "repeat" && damage === 0) {
     await playCombatAnimation(actionKey, 0, 1, 0);
+    return;
+  }
+  if (actionKey === "tresloucar") {
+    await playTresloucarAnimation(0, 1, damage, { bonusStageTarget: true });
     return;
   }
 
@@ -2703,7 +2913,7 @@ function isOnlineOpponentTurn() {
 
 function pickCpuAction() {
   const player = players[currentPlayer];
-  const available = actionKeys.filter((key) => getUseCount(player, key) < actions[key].maxUses);
+  const available = actionKeys.filter((key) => key !== "tresloucar" && getUseCount(player, key) < actions[key].maxUses);
   const magicHits = available
     .filter((key) => actions[key].type !== "repeat" && calculateDamage(key).damage > 0)
     .map((key) => ({ key, damage: calculateDamage(key).damage }))
@@ -2724,11 +2934,11 @@ function pickCpuAction() {
 function chooseCpuStrategy() {
   const player = players[currentPlayer];
   const availableMagic = actionKeys.filter(
-    (key) => actions[key].type !== "repeat" && getUseCount(player, key) < actions[key].maxUses,
+    (key) => key !== "tresloucar" && actions[key].type !== "repeat" && getUseCount(player, key) < actions[key].maxUses,
   );
   const completed = availableMagic
     .filter((key) => calculateDamage(key).damage > 0)
-    .sort((a, b) => actions[b].damage - actions[a].damage);
+    .sort((a, b) => calculateDamage(b).damage - calculateDamage(a).damage);
   const action = completed[0] || availableMagic.sort((a, b) => cpuProgress(b) - cpuProgress(a))[0] || "voadora";
   return { action, held: getCpuHeldDice(action) };
 }
@@ -2736,6 +2946,12 @@ function chooseCpuStrategy() {
 function cpuProgress(actionKey) {
   const counts = Object.values(getCounts()).sort((a, b) => b - a);
   const maxRepeat = counts[0] || 0;
+  if (actionKey === "tresloucar") {
+    const rule = tresloucarRules[players[currentPlayer]?.id];
+    if (!rule) return 0;
+    const exactMatches = rule.sequence.filter((color, index) => dice[index] === color).length;
+    return exactMatches / 5;
+  }
   if (actionKey === "magia3") return counts.length / 5 + (counts.length === 4 ? 0.45 : 0);
   if (actionKey === "magia1") {
     const hasTriple = maxRepeat >= 3 ? 0.6 : maxRepeat / 5;
@@ -2748,6 +2964,15 @@ function cpuProgress(actionKey) {
 }
 
 function getCpuHeldDice(actionKey) {
+  if (actionKey === "tresloucar") {
+    const rule = tresloucarRules[players[currentPlayer]?.id];
+    if (!rule) return [];
+    return dice.reduce((indices, color, index) => {
+      if (color === rule.sequence[index]) indices.push(index);
+      return indices;
+    }, []);
+  }
+
   if (actionKey === "magia3") {
     const kept = new Set();
     return dice.reduce((indices, color, index) => {
@@ -2782,6 +3007,12 @@ function getCpuHeldDice(actionKey) {
 
 function calculateDamage(actionKey, source = dice, player = players[currentPlayer]) {
   const action = actions[actionKey];
+  if (action.type === "sequence") {
+    const rule = tresloucarRules[player?.id];
+    const baseDamage = rule && rule.sequence.every((color, index) => source[index] === color) ? rule.damage : 0;
+    return { damage: baseDamage, baseDamage, bonus: 0, bonusColor: null };
+  }
+
   const countMap = getCounts(source);
   const countValues = Object.values(countMap).sort((a, b) => b - a);
   const maxRepeat = countValues[0] || 0;
@@ -2808,6 +3039,7 @@ function hasSpecialColorBonus(actionType, countMap, specialColor) {
   if (actionType === "threeKind") return specialCount >= 3;
   if (actionType === "fourKind") return specialCount >= 4;
   if (actionType === "multicolor") return false;
+  if (actionType === "sequence") return false;
   return specialCount === 5;
 }
 
@@ -2857,6 +3089,10 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
     arena.classList.remove("attack-dim");
     return;
   }
+  if (actionKey === "tresloucar") {
+    await playTresloucarAnimation(attackerIndex, defenderIndex, damage);
+    return;
+  }
 
   const attackerState = getActionSpriteState(actionKey);
   const spriteAttackDuration = getSpriteDuration(attackerIndex, attackerState);
@@ -2886,6 +3122,49 @@ async function playCombatAnimation(actionKey, attackerIndex, defenderIndex, dama
   arena.classList.remove("attack-dim");
 }
 
+async function playTresloucarAnimation(attackerIndex, defenderIndex, damage, options = {}) {
+  const combo = [
+    { key: "soco", state: "punch", sfx: "punch", glow: false },
+    { key: "chute", state: "kick", sfx: "kick", glow: false },
+    { key: "gancho", state: "punch", sfx: "punch", glow: true },
+    { key: "voadora", state: "kick", sfx: "kick", glow: true },
+  ];
+  const stepDuration = 210;
+  const totalDuration = combo.length * stepDuration + 420;
+
+  arena.classList.add("attack-dim");
+  restartAnimation(arena, "tresloucar-psychedelic", totalDuration);
+
+  for (const step of combo) {
+    setTemporarySprite(attackerIndex, step.state, false);
+    playVoice(players[attackerIndex].id, voiceCueByAction[step.key]);
+    playSfx(step.sfx);
+    if (step.glow) restartAnimation(fighters[attackerIndex], "attack-glow", stepDuration);
+    await wait(stepDuration);
+  }
+
+  if (damage > 0) {
+    if (options.bonusStageTarget) {
+      setBonusCarSprite(true);
+      restartAnimation(fighters[defenderIndex], "fx-hit", getBonusCarLevel() === 4 ? 700 : 1300);
+      await wait(getBonusCarLevel() === 4 ? 700 : 1300);
+      setBonusCarSprite(false);
+    } else {
+      const defenderDuration = getSpriteDuration(defenderIndex, "damage");
+      playVoice(players[defenderIndex].id, "pancada");
+      setTemporarySprite(defenderIndex, "damage", false);
+      restartAnimation(fighters[defenderIndex], "fx-hit", defenderDuration);
+      await wait(defenderDuration);
+      restoreIdleSprite(defenderIndex);
+    }
+  } else {
+    await wait(220);
+  }
+
+  restoreIdleSprite(attackerIndex);
+  arena.classList.remove("attack-dim");
+}
+
 function getSpriteDuration(playerIndex, state) {
   return actionSpriteDurations[players[playerIndex]?.id]?.[state] || spriteDuration;
 }
@@ -2902,6 +3181,7 @@ function getActionSpriteState(actionKey) {
       magia3: "poder3",
       magia4: "poder4",
       especial: "especial",
+      tresloucar: "especial",
     }[actionKey] || "attack"
   );
 }
@@ -3018,6 +3298,7 @@ function renderPlayers() {
     fighters[index].classList.toggle("fighter-chefe", player.id === "chefe");
     updateFighterMirror(index);
     updateRoundStars(index);
+    updateTresloucarSequence(index);
   });
 }
 
@@ -3036,6 +3317,18 @@ function updateRoundStars(playerIndex) {
   });
 }
 
+function updateTresloucarSequence(playerIndex) {
+  const sequence = fighterTresloucarSequences[playerIndex];
+  const player = players[playerIndex];
+  if (!sequence || !player || !tresloucarRules[player.id]) {
+    if (sequence) sequence.classList.add("hidden");
+    return;
+  }
+  sequence.classList.toggle("hidden", mode === "online" || (bonusStage.active && playerIndex === 1));
+  sequence.src = `assets/tresloucado-${player.id}.png`;
+  sequence.alt = `Sequência do Poder Tresloucado de ${player.name}`;
+}
+
 function shouldMirror(playerIndex) {
   return playerIndex === 1;
 }
@@ -3051,6 +3344,8 @@ function renderActions() {
   actionButtons.forEach((button) => {
     const actionKey = button.dataset.action;
     const action = actions[actionKey];
+    const isTresloucar = actionKey === "tresloucar";
+    button.classList.toggle("hidden", isTresloucar && mode === "online");
     const usedCount = players[currentPlayer] ? getUseCount(players[currentPlayer], actionKey) : 0;
     const isUsed = usedCount >= action.maxUses;
     const useCount = button.querySelector("[data-use-count]");
@@ -3059,17 +3354,28 @@ function renderActions() {
         ? `${Math.max(0, action.maxUses - usedCount)}/${action.maxUses}`
         : "∞";
     }
-    button.disabled = gameOver || isRoundTransition || rolls === 0 || isRolling || isAnimating || isUsed || isCpuTurn() || isOnlineOpponentTurn();
+    button.disabled = gameOver
+      || isRoundTransition
+      || (!isTresloucar && rolls === 0)
+      || isRolling
+      || isAnimating
+      || isUsed
+      || isCpuTurn()
+      || isOnlineOpponentTurn()
+      || tresloucarMode.active
+      || (isTresloucar && mode === "online");
     button.classList.toggle("used", isUsed);
   });
 }
 
 function renderRollButton() {
-  rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || (!bonusStage.active && rolls >= 3) || isCpuTurn() || isOnlineOpponentTurn();
+  rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || (!bonusStage.active && !tresloucarMode.active && rolls >= 3) || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
-  if (!bonusStage.active && rolls > 0) rollButton.classList.add(`roll-${rolls}`);
+  if (!bonusStage.active && !tresloucarMode.active && rolls > 0) rollButton.classList.add(`roll-${rolls}`);
   rollButton.textContent = isRolling
     ? "Assoprando..."
+    : tresloucarMode.active
+      ? `Assoprar TRES ${rolls} / ∞`
     : bonusStage.active
       ? `Assoprar Cartuchos ${rolls} / ∞`
       : `Assoprar Cartuchos ${rolls}/3`;
@@ -3110,6 +3416,7 @@ function showArcadeEnding(hero) {
 
 function showHome() {
   stopBonusTimer();
+  resetTresloucarMode();
   bonusStage.active = false;
   bonusStage.finishing = false;
   screens.game.classList.remove("bonus-stage");
@@ -3199,11 +3506,13 @@ async function preloadGameAssets() {
     "assets/title-screen.jpeg",
     "assets/abertura-completa.mp4",
     "assets/cenario-bonus.jpg",
+    "assets/select-secret-card.png",
     ...Object.values(bonusCarSprites).flatMap((sprite) => [sprite.animated, sprite.still]),
     ...battleStages,
     ...Object.values(cartridgeByColor).map((cartridge) => cartridge.src),
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
     ...characters.map((fighter) => `assets/arcade-${fighter.id}.jpg`),
+    ...Object.keys(tresloucarRules).map((fighterId) => `assets/tresloucado-${fighterId}.png`),
     ...Object.values(arcadeEndings).map((ending) => ending.image),
     ...Object.values(audioSources.sfx),
     ...Object.values(audioSources.music),

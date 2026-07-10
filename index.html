@@ -134,6 +134,7 @@
               <button data-tutorial-action="gancho" type="button"><span>SOCAO</span><small>CORES IGUAIS</small></button>
               <button data-tutorial-action="voadora" type="button"><span>CHUTAO</span><small>CORES IGUAIS</small></button>
               <button data-tutorial-action="especial" type="button"><span>ESPECIAL</span><small>5 CORES IGUAIS</small></button>
+              <button data-tutorial-action="tresloucar" type="button"><span>TRES<br>LOU<br>CAR</span><small>SEQUÊNCIA</small></button>
               <button data-tutorial-action="magia1" type="button"><span>EVOCACAO</span><small>3 + 2 CORES IGUAIS</small></button>
               <button data-tutorial-action="magia2" type="button"><span>PODER</span><small>3 CORES IGUAIS</small></button>
               <button data-tutorial-action="magia3" type="button"><span>FEITICO</span><small>5 CORES DIFERENTES</small></button>
@@ -153,8 +154,8 @@
         <header class="screen-header">
           <button class="back-button" data-back type="button">Voltar</button>
           <div>
-            <h1 id="selectTitle">Selecione seu lutador</h1>
-            <p id="selectSubtitle">Escolha quem entra na luta.</p>
+            <h1 id="selectTitle">ESCOLHA O SEU LUTADOR</h1>
+            <p id="selectSubtitle" class="hidden"></p>
           </div>
         </header>
         <div id="characterGrid" class="character-grid" aria-label="Selecao de personagens"></div>
@@ -246,13 +247,11 @@
           <article class="vs-fighter-card">
             <img id="vsP1Icon" src="" alt="" />
             <strong id="vsP1Name">Jogador 1</strong>
-            <small id="vsP1Color">COR - Azul</small>
           </article>
           <div class="vs-mark">VS.</div>
           <article class="vs-fighter-card">
             <img id="vsP2Icon" src="" alt="" />
             <strong id="vsP2Name">Jogador 2</strong>
-            <small id="vsP2Color">COR - Verde</small>
           </article>
         </div>
         <p id="vsSubtitle" class="vs-subtitle">Prepare-se para a batalha.</p>
@@ -288,6 +287,7 @@
             <div class="health-track">
               <div id="p1Health" class="health-fill"></div>
             </div>
+            <img class="tresloucar-sequence" src="assets/tresloucado-marjorie.png" alt="Sequência do Poder Tresloucado de Marjorie" />
           </div>
           <div class="sprite-stage">
             <img src="assets/marjorie.png" alt="Marjorie" />
@@ -305,6 +305,7 @@
             <div class="health-track">
               <div id="p2Health" class="health-fill"></div>
             </div>
+            <img class="tresloucar-sequence" src="assets/tresloucado-akira.png" alt="Sequência do Poder Tresloucado de Akira" />
           </div>
           <div class="sprite-stage">
             <img src="assets/akira.png" alt="Akira" />
@@ -344,10 +345,16 @@
           </button>
         </div>
 
-        <button class="special-button" data-action="especial" type="button">
-          <span>ESPECIAL</span>
-          <small>5 CORES IGUAIS</small>
-        </button>
+        <div class="special-column">
+          <button class="special-button" data-action="especial" type="button">
+            <span>ESPECIAL</span>
+            <small>5 CORES IGUAIS</small>
+          </button>
+          <button class="tresloucar-button" data-action="tresloucar" type="button">
+            <span>TRES<br>LOU<br>CAR</span>
+            <small>SEQUÊNCIA</small>
+          </button>
+        </div>
 
         <div class="action-column">
           <button data-action="magia1" type="button">
