@@ -645,26 +645,33 @@ button:disabled {
 
 .tutorial-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
 .tutorial-actions button {
-  min-height: 58px;
+  min-height: 0;
+  aspect-ratio: 307 / 259;
+  padding: 0;
   display: grid;
   place-items: center;
   align-content: center;
   gap: 3px;
-  border-radius: 8px;
-  background: #313746;
-  color: var(--text);
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: transparent;
   font-weight: 950;
   text-transform: uppercase;
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.22);
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .tutorial-actions button span,
 .tutorial-actions button small {
+  opacity: 0;
   max-width: 100%;
   line-height: 1;
   overflow-wrap: anywhere;
@@ -677,9 +684,8 @@ button:disabled {
 }
 
 .tutorial-actions button[data-tutorial-action="tresloucar"] {
-  padding-block: 6px;
-  background: linear-gradient(180deg, #f4f4f5, #a1a1aa);
-  color: #171717;
+  aspect-ratio: 625 / 195;
+  grid-column: span 2;
 }
 
 .tutorial-actions button[data-tutorial-action="tresloucar"] span {
@@ -693,15 +699,30 @@ button:disabled {
 
 .tutorial-actions button.tutorial-highlight,
 .tutorial-actions button.tutorial-tapped {
-  background: var(--gold);
-  color: #221a05;
-  box-shadow: 0 0 0 3px rgba(246, 200, 76, 0.25), inset 0 -3px 0 rgba(0, 0, 0, 0.22);
+  color: transparent;
+  box-shadow: 0 0 0 3px rgba(246, 200, 76, 0.34), 0 0 20px rgba(246, 200, 76, 0.3);
 }
 
 .tutorial-actions button.tutorial-highlight small,
 .tutorial-actions button.tutorial-tapped small {
   color: #3d2605;
 }
+
+.tutorial-actions button[data-tutorial-action="especial"] {
+  aspect-ratio: 625 / 195;
+  grid-column: span 2;
+}
+
+.tutorial-actions [data-tutorial-action="soco"] { order: 1; }
+.tutorial-actions [data-tutorial-action="chute"] { order: 2; }
+.tutorial-actions [data-tutorial-action="magia1"] { order: 3; }
+.tutorial-actions [data-tutorial-action="magia2"] { order: 4; }
+.tutorial-actions [data-tutorial-action="gancho"] { order: 5; }
+.tutorial-actions [data-tutorial-action="voadora"] { order: 6; }
+.tutorial-actions [data-tutorial-action="magia3"] { order: 7; }
+.tutorial-actions [data-tutorial-action="magia4"] { order: 8; }
+.tutorial-actions [data-tutorial-action="tresloucar"] { order: 9; }
+.tutorial-actions [data-tutorial-action="especial"] { order: 10; }
 
 .tutorial-screen[data-focus="roll"] .tutorial-roll,
 .tutorial-screen[data-focus="dice"] .tutorial-dice,
@@ -1501,6 +1522,41 @@ button:disabled {
   box-shadow: 0 12px 24px rgba(246, 200, 76, 0.2);
 }
 
+.roll-button.roll-visual-1,
+.roll-button.roll-visual-2,
+.roll-button.roll-visual-3,
+.roll-button.roll-visual-supergame {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1264 / 195;
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.roll-button.roll-visual-1 {
+  background-image: url("assets/hud-botao-assoprar-1.png");
+}
+
+.roll-button.roll-visual-2 {
+  background-image: url("assets/hud-botao-assoprar-2.png");
+}
+
+.roll-button.roll-visual-3 {
+  background-image: url("assets/hud-botao-assoprar-3.png");
+}
+
+.roll-button.roll-visual-supergame {
+  background-image: url("assets/hud-botao-assoprar-supergame.png");
+}
+
 .roll-button:disabled {
   opacity: 1;
 }
@@ -1630,7 +1686,7 @@ button:disabled {
 .battle-timer {
   position: absolute;
   z-index: 4;
-  top: 8px;
+  top: clamp(14px, 3.5vw, 24px);
   left: 50%;
   transform: translateX(-50%);
   display: grid;
@@ -2025,14 +2081,14 @@ button:disabled {
 }
 
 .special-button {
-  height: 98px;
+  height: auto;
   background: linear-gradient(180deg, #f7d768, #da8b2f) !important;
   color: #271503 !important;
 }
 
 .tresloucar-button {
-  min-height: 48px !important;
-  padding-block: 8px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   background: linear-gradient(180deg, #f4f4f5, #a1a1aa) !important;
   color: #171717 !important;
 }
@@ -3098,18 +3154,18 @@ button:disabled {
   }
 
   .tutorial-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 5px;
   }
 
   .tutorial-actions button {
     min-height: 42px;
-    padding: 0 3px;
+    padding: 0;
     font-size: clamp(0.56rem, 2.5vw, 0.7rem);
   }
 
   .tutorial-actions button[data-tutorial-action="tresloucar"] {
-    padding-block: 5px;
+    padding: 0;
   }
 
   .tutorial-actions button small {
@@ -3196,7 +3252,8 @@ button:disabled {
 
   .special-button {
     order: initial;
-    height: 82px;
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   .special-column {
@@ -3205,8 +3262,8 @@ button:disabled {
   }
 
   .tresloucar-button {
-    min-height: 40px !important;
-    padding-block: 8px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
   }
 
   .action-column:last-child {
@@ -3235,5 +3292,506 @@ button:disabled {
 
   #endingImage {
     max-height: min(50vh, 440px);
+  }
+}
+
+.dice-panel {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.actions {
+  min-height: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 1.4vw, 14px);
+  align-items: stretch;
+  padding: clamp(8px, 1.4vw, 14px);
+}
+
+.action-column,
+.special-column {
+  display: contents;
+}
+
+.actions button {
+  min-height: 0;
+  height: auto !important;
+  min-width: 0;
+  aspect-ratio: 307 / 259;
+  padding: 0 !important;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: transparent;
+  box-shadow: none;
+  overflow: hidden;
+  text-decoration: none !important;
+}
+
+.actions button > * {
+  opacity: 0;
+}
+
+.actions button:disabled {
+  opacity: 1;
+}
+
+.actions button:hover:not(:disabled),
+.roll-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.actions [data-action="soco"] {
+  order: 1;
+}
+
+.actions [data-action="chute"] {
+  order: 2;
+}
+
+.actions [data-action="magia1"] {
+  order: 3;
+}
+
+.actions [data-action="magia2"] {
+  order: 4;
+}
+
+.actions [data-action="gancho"] {
+  order: 5;
+}
+
+.actions [data-action="voadora"] {
+  order: 6;
+}
+
+.actions [data-action="magia3"] {
+  order: 7;
+}
+
+.actions [data-action="magia4"] {
+  order: 8;
+}
+
+.actions [data-action="tresloucar"] {
+  order: 9;
+  grid-column: span 2;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 625 / 195;
+}
+
+.actions [data-action="especial"] {
+  order: 10;
+  grid-column: span 2;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 625 / 195;
+}
+
+.hud-soco {
+  background-image: url("assets/hud-botao-soco.png") !important;
+}
+
+.hud-chute-1 {
+  background-image: url("assets/hud-botao-chute-1.png") !important;
+}
+
+.hud-chute-2 {
+  background-image: url("assets/hud-botao-chute-2.png") !important;
+}
+
+.hud-socao {
+  background-image: url("assets/hud-botao-socao.png") !important;
+}
+
+.hud-chutao {
+  background-image: url("assets/hud-botao-chutao.png") !important;
+}
+
+.hud-evocacao {
+  background-image: url("assets/hud-botao-evocacao.png") !important;
+}
+
+.hud-poder {
+  background-image: url("assets/hud-botao-poder.png") !important;
+}
+
+.hud-feitico {
+  background-image: url("assets/hud-botao-feitico.png") !important;
+}
+
+.hud-magia {
+  background-image: url("assets/hud-botao-magia.png") !important;
+}
+
+.hud-especial-gamepower {
+  background-image: url("assets/hud-botao-especial-gamepower.png") !important;
+}
+
+.hud-especial-supergame {
+  background-image: url("assets/hud-botao-especial-supergame.png") !important;
+}
+
+.hud-golpes-desativados {
+  background-image: url("assets/hud-botao-golpes-desativados.png") !important;
+}
+
+.hud-poderes-desativado {
+  background-image: url("assets/hud-botao-poderes-desativado.png") !important;
+}
+
+.hud-especiais-desativado {
+  background-image: url("assets/hud-botao-especiais-desativado.png") !important;
+}
+
+@media (max-width: 760px) {
+  .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .special-button {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 540px) and (orientation: portrait) {
+  .actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .actions button {
+    min-height: 0;
+    font-size: 0;
+  }
+
+  .special-column {
+    gap: 0;
+  }
+}
+
+.roll-button.roll-visual-1,
+.roll-button.roll-visual-2,
+.roll-button.roll-visual-3,
+.roll-button.roll-visual-supergame {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1264 / 195;
+  padding: 0 !important;
+  border-radius: 0;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  color: transparent !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.roll-button.roll-visual-1 {
+  background-image: url("assets/hud-botao-assoprar-1.png") !important;
+}
+
+.roll-button.roll-visual-2 {
+  background-image: url("assets/hud-botao-assoprar-2.png") !important;
+}
+
+.roll-button.roll-visual-3 {
+  background-image: url("assets/hud-botao-assoprar-3.png") !important;
+}
+
+.roll-button.roll-visual-supergame {
+  background-image: url("assets/hud-botao-assoprar-supergame.png") !important;
+}
+
+/* HUD nova: grade proporcional fixa
+   - Assoprar: 4/4 da largura
+   - Golpes e poderes: 1/4 da largura
+   - Especiais: 2/4 da largura */
+.game-view .dice-panel {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: clamp(6px, 1.2vw, 10px) !important;
+  align-items: stretch !important;
+  padding: clamp(6px, 1.2vw, 10px) !important;
+  min-height: 0 !important;
+}
+
+.game-view .dice-slots {
+  display: grid !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  justify-content: stretch !important;
+  justify-items: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.game-view .die {
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.game-view .roll-button.roll-visual-1,
+.game-view .roll-button.roll-visual-2,
+.game-view .roll-button.roll-visual-3,
+.game-view .roll-button.roll-visual-supergame {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  aspect-ratio: 1264 / 230 !important;
+  background-size: 100% 100% !important;
+}
+
+.game-view .actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  gap: clamp(6px, 1.2vw, 10px) !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+  min-height: 0 !important;
+  padding: clamp(6px, 1.2vw, 10px) !important;
+}
+
+.game-view .actions button {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  aspect-ratio: 307 / 259 !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.game-view .actions [data-action="tresloucar"],
+.game-view .actions [data-action="especial"] {
+  grid-column: span 2 !important;
+  aspect-ratio: 625 / 195 !important;
+  background-size: 100% 100% !important;
+}
+
+/* Tutorial: mesma lógica proporcional da HUD de batalha */
+.tutorial-board {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: clamp(6px, 1.2vw, 10px) !important;
+  align-items: stretch !important;
+}
+
+.tutorial-board .tutorial-dice {
+  order: 1 !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+.tutorial-board .tutorial-roll {
+  order: 2 !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+.tutorial-board .tutorial-roll > small {
+  display: none !important;
+}
+
+.tutorial-board .roll-button.roll-visual-1,
+.tutorial-board .roll-button.roll-visual-2,
+.tutorial-board .roll-button.roll-visual-3,
+.tutorial-board .roll-button.roll-visual-supergame {
+  width: 100% !important;
+  max-width: none !important;
+  aspect-ratio: 1264 / 230 !important;
+  background-size: 100% 100% !important;
+}
+
+.tutorial-board .tutorial-actions {
+  order: 3 !important;
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: clamp(6px, 1.2vw, 10px) !important;
+  width: 100% !important;
+}
+
+.tutorial-board .tutorial-actions button {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  aspect-ratio: 307 / 259 !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
+.tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
+  grid-column: span 2 !important;
+  aspect-ratio: 625 / 195 !important;
+  background-size: 100% 100% !important;
+}
+
+/* Layout wide/landscape: HUD à esquerda, luta à direita */
+@media (orientation: landscape) and (min-width: 700px) {
+  .game-shell {
+    width: calc(100% - 8px);
+    min-height: 100dvh;
+    padding: 4px 0;
+    gap: 4px;
+  }
+
+  .game-view {
+    height: calc(100dvh - 8px);
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(310px, 42%) minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .game-view .arena {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    min-height: 0;
+    height: 100%;
+    align-self: stretch;
+    border-radius: 6px;
+    padding-inline: clamp(6px, 1vw, 14px);
+  }
+
+  .game-view .dice-panel {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    gap: 5px !important;
+    padding: 6px !important;
+    border-radius: 6px;
+  }
+
+  .game-view .dice-slots {
+    display: grid !important;
+    width: 100% !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    justify-items: stretch !important;
+    min-height: 0;
+    gap: 5px;
+  }
+
+  .game-view .die {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    min-height: 0;
+    border-width: 2px;
+  }
+
+  .game-view .roll-button.roll-visual-1,
+  .game-view .roll-button.roll-visual-2,
+  .game-view .roll-button.roll-visual-3,
+  .game-view .roll-button.roll-visual-supergame {
+    aspect-ratio: 1264 / 230 !important;
+  }
+
+  .game-view .actions {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 6px;
+  }
+
+  .game-view .round-message {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+    min-height: 0;
+    max-height: 100%;
+    padding: 8px 10px;
+    font-size: clamp(0.72rem, 1.25vw, 0.9rem);
+    line-height: 1.25;
+    overflow: auto;
+  }
+
+  .game-view .battle-timer {
+    top: clamp(7px, 1.3vh, 11px);
+  }
+
+  .game-view .fighter {
+    align-self: stretch;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+    gap: 6px;
+  }
+
+  .game-view .health-card {
+    width: min(100%, 300px);
+    padding: 6px 8px;
+    font-size: clamp(0.68rem, 1.15vw, 0.82rem);
+  }
+
+  .game-view .health-track {
+    height: 13px;
+  }
+
+  .game-view .sprite-stage img {
+    width: min(165%, 520px);
+    height: min(82vh, 625px);
+  }
+
+  .game-view .fighter-chefe .sprite-stage img {
+    width: min(128%, 455px);
+  }
+
+  .game-view.bonus-stage .fighter-right .sprite-stage img {
+    width: min(197%, 745px);
+    height: min(82vh, 585px);
+  }
+
+  .spectator-bar {
+    top: 6px;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 700px) {
+  .tutorial-coach {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .tutorial-coach img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  #tutorialCoachSprite {
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    max-height: none;
+    align-self: stretch;
+    justify-self: center;
   }
 }

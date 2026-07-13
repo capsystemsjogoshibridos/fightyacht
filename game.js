@@ -341,8 +341,8 @@ const actions = {
   magia2: { label: "Poder", type: "threeKind", damage: 20, maxUses: 1 },
   magia3: { label: "Feiti\u00e7o", type: "multicolor", damage: 22, maxUses: 1 },
   magia4: { label: "Magia", type: "fourKind", damage: 24, maxUses: 1 },
-  especial: { label: "Poder Especial", type: "yacht", damage: 35, maxUses: 1 },
-  tresloucar: { label: "Poder Tresloucado", type: "sequence", maxUses: 1 },
+  especial: { label: "Especial Game Power", type: "yacht", damage: 35, maxUses: 1 },
+  tresloucar: { label: "Especial Super Game", type: "sequence", maxUses: 1 },
 };
 
 const specialMiniGameBonuses = {
@@ -669,7 +669,7 @@ const tutorialSteps = [
     sprite: "poder4",
   },
   {
-    text: "ESPECIAL: precisa de 5 cores iguais. Se forem da cor especial do lutador, o dano recebe o bonus de +7.",
+    text: "ESPECIAL GAME POWER: precisa de 5 cores iguais. Se forem da cor especial do lutador, o dano recebe o bonus de +7.",
     dice: ["pink", "pink", "pink", "pink", "pink"],
     held: [0, 1, 2, 3, 4],
     rollText: "Assoprar Cartuchos 3/3",
@@ -679,17 +679,17 @@ const tutorialSteps = [
     glow: true,
   },
   {
-    text: "PODER TRESLOUCADO: cada lutador tem uma sequencia propria. Aqui a ordem do Chefe e azul, rosa, azul, rosa e azul.",
+    text: "ESPECIAL SUPER GAME: cada lutador tem uma sequencia propria. Aqui a ordem do Chefe e azul, rosa, azul, rosa e azul.",
     dice: ["blue", "pink", "blue", "pink", "blue"],
     held: [0, 1, 2, 3, 4],
-    rollText: "Sequência do Poder Tresloucado",
+    rollText: "Sequência do Especial Super Game",
     focus: "dice",
     actions: ["tresloucar"],
     sprite: "especial",
     glow: true,
   },
   {
-    text: "MODO TRESLOUCADO: aperte TRES LOU CAR para ganhar 15 segundos de assopradas infinitas. Se montar a sequencia nas posicoes certas, o combo sai sozinho; se o tempo acabar, o golpe falha.",
+    text: "MODO SUPER GAME: aperte Especial Super Game para ganhar 15 segundos de assopradas infinitas. Se montar a sequencia nas posicoes certas, o combo sai sozinho; se o tempo acabar, o golpe falha.",
     dice: ["blue", "pink", "yellow", "pink", "blue"],
     held: [0, 1, 3, 4],
     rollText: "Assopradas infinitas por 15s",
@@ -745,9 +745,9 @@ const tutorialStepTexts = [
   "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez por round.",
-  "ESPECIAL: precisa de 5 cores iguais. É o golpe mais devastador. Se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico: vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
-  "PODER TRESLOUCADO: cada lutador tem uma sequência própria, mostrada abaixo da sua barra de energia. Diferente dos outros golpes, aqui a posição importa: os cartuchos precisam estar exatamente nos slots certos.",
-  "MODO TRESLOUCADO: aperte TRES LOU CAR para ativar 15 segundos de assopradas infinitas. Segure os cartuchos certos e tente montar a sequência. Se conseguir, o combo sai automaticamente; se o tempo acabar, o golpe falha.",
+  "ESPECIAL GAME POWER: precisa de 5 cores iguais. É o golpe mais devastador. Se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico: vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
+  "ESPECIAL SUPER GAME: cada lutador tem uma sequência própria, mostrada abaixo da sua barra de energia. Diferente dos outros golpes, aqui a posição importa: os cartuchos precisam estar exatamente nos slots certos.",
+  "MODO SUPER GAME: aperte Especial Super Game para ativar 15 segundos de assopradas infinitas. Segure os cartuchos certos e tente montar a sequência. Se conseguir, o combo sai automaticamente; se o tempo acabar, o golpe falha.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
   "ATENÇÃO: Ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição.",
@@ -966,12 +966,13 @@ function changeTutorialStep(delta) {
 
 function renderTutorial() {
   const step = tutorialSteps[tutorialStep];
-  const chefe = getCharacter("chefe");
   tutorialStepLabel.textContent = `Passo ${tutorialStep + 1} de ${tutorialSteps.length}`;
   tutorialText.textContent = step.text;
   tutorialRollButton.textContent = step.rollText;
-  tutorialCoachSprite.src = chefe.sprites[step.sprite] || chefe.sprites.idle;
-  tutorialCoachSprite.alt = chefe.name;
+  tutorialRollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3");
+  tutorialRollButton.classList.add(getTutorialRollVisualClass(step.rollText));
+  tutorialCoachSprite.src = "assets/chefe-tutorial.png";
+  tutorialCoachSprite.alt = "O Chefe";
   tutorialCoachSprite.classList.toggle("tutorial-sprite-glow", Boolean(step.glow));
   screens.tutorial.dataset.focus = step.focus;
 
@@ -989,6 +990,8 @@ function renderTutorial() {
 
   tutorialActionButtons.forEach((button) => {
     const isActive = (step.actions || []).includes(button.dataset.tutorialAction);
+    const actionKey = button.dataset.tutorialAction;
+    if (actions[actionKey]) updateActionButtonVisual(button, actionKey, 0, false);
     button.classList.toggle("tutorial-highlight", isActive);
   });
 
@@ -1001,6 +1004,12 @@ function renderTutorial() {
     tutorialDots.appendChild(dot);
   });
 
+}
+
+function getTutorialRollVisualClass(rollText) {
+  if (rollText.includes("1/3")) return "roll-visual-2";
+  if (rollText.includes("2/3") || rollText.includes("3/3")) return "roll-visual-3";
+  return "roll-visual-1";
 }
 
 function showSpecialTest() {
@@ -1828,7 +1837,7 @@ function updateTresloucarTimer() {
   const remaining = Math.max(0, tresloucarModeDuration - elapsed);
   const progress = (remaining / tresloucarModeDuration) * 100;
   turnTimer.classList.remove("hidden");
-  turnTimer.setAttribute("aria-label", "Tempo restante do Poder Tresloucado");
+  turnTimer.setAttribute("aria-label", "Tempo restante do Modo Super Game");
   turnTimer.style.setProperty("--timer-progress", `${progress}%`);
   turnTimerValue.textContent = Math.ceil(remaining).toString();
   turnTimer.classList.toggle("timer-green", remaining > 10);
@@ -1904,7 +1913,7 @@ async function rollDice(syncedDice = null) {
   rolls += 1;
   clearRollingState();
   roundMessage.textContent = tresloucarMode.active
-    ? "MODO TRESLOUCADO! Monte a sequência antes do tempo acabar."
+    ? "MODO SUPER GAME! Monte a sequência antes do tempo acabar."
     : bonusStage.active
     ? "Separe os cartuchos desejados, assopre novamente ou use um golpe."
     : rolls === 3
@@ -2556,7 +2565,7 @@ async function useAction(actionKey, fromServer = false, serverEvent = null) {
   }
   if (actionKey === "tresloucar" && !fromServer) {
     if (mode === "online") {
-      roundMessage.textContent = "Poder Tresloucado online sera ativado em uma proxima etapa.";
+      roundMessage.textContent = "Especial Super Game nao esta disponivel no modo online.";
       return;
     }
     if (tresloucarMode.active) {
@@ -2707,7 +2716,7 @@ function startTresloucarMode(playerIndex) {
   rolls = 0;
   turnTimerStartedAt = tresloucarMode.startedAt;
   turnTimer.classList.remove("hidden");
-  roundMessage.textContent = "MODO TRESLOUCADO ATIVADO!";
+  roundMessage.textContent = "MODO SUPER GAME ATIVADO!";
   arena.classList.add("tresloucar-psychedelic");
   updateTresloucarTimer();
   render();
@@ -3326,7 +3335,7 @@ function updateTresloucarSequence(playerIndex) {
   }
   sequence.classList.toggle("hidden", mode === "online" || (bonusStage.active && playerIndex === 1));
   sequence.src = `assets/tresloucado-${player.id}.png`;
-  sequence.alt = `Sequência do Poder Tresloucado de ${player.name}`;
+  sequence.alt = `Sequência do Especial Super Game de ${player.name}`;
 }
 
 function shouldMirror(playerIndex) {
@@ -3354,6 +3363,7 @@ function renderActions() {
         ? `${Math.max(0, action.maxUses - usedCount)}/${action.maxUses}`
         : "∞";
     }
+    updateActionButtonVisual(button, actionKey, usedCount, isUsed);
     button.disabled = gameOver
       || isRoundTransition
       || (!isTresloucar && rolls === 0)
@@ -3372,13 +3382,66 @@ function renderRollButton() {
   rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || (!bonusStage.active && !tresloucarMode.active && rolls >= 3) || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
   if (!bonusStage.active && !tresloucarMode.active && rolls > 0) rollButton.classList.add(`roll-${rolls}`);
+  rollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3", "roll-visual-supergame");
+  rollButton.classList.add(tresloucarMode.active ? "roll-visual-supergame" : rolls <= 0 ? "roll-visual-1" : rolls === 1 ? "roll-visual-2" : "roll-visual-3");
   rollButton.textContent = isRolling
     ? "Assoprando..."
     : tresloucarMode.active
-      ? `Assoprar TRES ${rolls} / ∞`
+      ? `Assoprar Super Game ${rolls} / ∞`
     : bonusStage.active
       ? `Assoprar Cartuchos ${rolls} / ∞`
       : `Assoprar Cartuchos ${rolls}/3`;
+}
+
+function updateActionButtonVisual(button, actionKey, usedCount, isUsed) {
+  const visualClasses = [
+    "hud-soco",
+    "hud-chute-1",
+    "hud-chute-2",
+    "hud-socao",
+    "hud-chutao",
+    "hud-evocacao",
+    "hud-poder",
+    "hud-feitico",
+    "hud-magia",
+    "hud-especial-gamepower",
+    "hud-especial-supergame",
+    "hud-golpes-desativados",
+    "hud-poderes-desativado",
+    "hud-especiais-desativado",
+  ];
+  button.classList.remove(...visualClasses);
+
+  const spentClassByAction = {
+    chute: "hud-golpes-desativados",
+    gancho: "hud-golpes-desativados",
+    voadora: "hud-golpes-desativados",
+    magia1: "hud-poderes-desativado",
+    magia2: "hud-poderes-desativado",
+    magia3: "hud-poderes-desativado",
+    magia4: "hud-poderes-desativado",
+    especial: "hud-especiais-desativado",
+    tresloucar: "hud-especiais-desativado",
+  };
+
+  if (isUsed && spentClassByAction[actionKey]) {
+    button.classList.add(spentClassByAction[actionKey]);
+    return;
+  }
+
+  const activeClassByAction = {
+    soco: "hud-soco",
+    chute: usedCount === 0 ? "hud-chute-1" : "hud-chute-2",
+    gancho: "hud-socao",
+    voadora: "hud-chutao",
+    magia1: "hud-evocacao",
+    magia2: "hud-poder",
+    magia3: "hud-feitico",
+    magia4: "hud-magia",
+    especial: "hud-especial-gamepower",
+    tresloucar: "hud-especial-supergame",
+  };
+  if (activeClassByAction[actionKey]) button.classList.add(activeClassByAction[actionKey]);
 }
 
 function showArcadeMap() {
@@ -3507,6 +3570,24 @@ async function preloadGameAssets() {
     "assets/abertura-completa.mp4",
     "assets/cenario-bonus.jpg",
     "assets/select-secret-card.png",
+    "assets/hud-botao-assoprar-1.png",
+    "assets/hud-botao-assoprar-2.png",
+    "assets/hud-botao-assoprar-3.png",
+    "assets/hud-botao-assoprar-supergame.png",
+    "assets/hud-botao-soco.png",
+    "assets/hud-botao-chute-1.png",
+    "assets/hud-botao-chute-2.png",
+    "assets/hud-botao-socao.png",
+    "assets/hud-botao-chutao.png",
+    "assets/hud-botao-evocacao.png",
+    "assets/hud-botao-poder.png",
+    "assets/hud-botao-feitico.png",
+    "assets/hud-botao-magia.png",
+    "assets/hud-botao-especial-gamepower.png",
+    "assets/hud-botao-especial-supergame.png",
+    "assets/hud-botao-golpes-desativados.png",
+    "assets/hud-botao-poderes-desativado.png",
+    "assets/hud-botao-especiais-desativado.png",
     ...Object.values(bonusCarSprites).flatMap((sprite) => [sprite.animated, sprite.still]),
     ...battleStages,
     ...Object.values(cartridgeByColor).map((cartridge) => cartridge.src),
