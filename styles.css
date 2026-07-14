@@ -304,40 +304,73 @@ button:disabled {
 .credits-screen {
   align-content: start;
   place-items: stretch;
-  gap: 16px;
-  min-height: 100svh;
-  padding: 12px 0 28px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(6px, 1.4dvh, 14px);
+  height: calc(100dvh - 16px);
+  min-height: 0;
+  padding: clamp(4px, 1dvh, 10px) 0;
+  overflow: hidden;
+}
+
+.credits-screen .screen-header {
+  min-height: 0;
+  padding: clamp(6px, 1.4dvh, 12px);
+  gap: clamp(6px, 1.4dvh, 14px);
+}
+
+.credits-screen .screen-header h1 {
+  font-size: clamp(1rem, 3.2dvh, 2.1rem);
+}
+
+.credits-screen .screen-header p {
+  font-size: clamp(0.66rem, 1.8dvh, 1rem);
+}
+
+.credits-screen .back-button {
+  min-height: 0;
+  height: clamp(32px, 6dvh, 54px);
+  padding: 0 12px;
+  font-size: clamp(0.66rem, 1.8dvh, 0.95rem);
 }
 
 .credits-content {
-  width: min(760px, 100%);
+  width: min(1040px, 100%);
+  min-height: 0;
+  height: 100%;
   margin: 0 auto;
   display: grid;
-  gap: 24px;
-  padding: clamp(16px, 4vw, 32px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: clamp(8px, 1.8dvh, 20px);
+  padding: clamp(7px, 1.6dvh, 18px);
   border-top: 2px solid var(--gold);
   border-bottom: 2px solid var(--gold);
   background: rgba(13, 17, 25, 0.92);
+  overflow: hidden;
+  font-size: clamp(0.58rem, 1.85dvh, 0.98rem);
 }
 
 .credits-content section {
   display: grid;
-  gap: 7px;
+  align-content: start;
+  gap: clamp(2px, 0.7dvh, 7px);
+  min-width: 0;
 }
 
 .credits-content h2 {
-  margin: 0 0 5px;
+  margin: 0 0 clamp(2px, 0.6dvh, 5px);
   color: var(--gold);
-  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-size: clamp(0.72rem, 2.15dvh, 1.25rem);
   text-transform: uppercase;
 }
 
 .credits-content p {
   margin: 0;
   display: grid;
-  grid-template-columns: minmax(150px, 0.8fr) minmax(0, 1.2fr);
-  gap: 12px;
-  line-height: 1.35;
+  grid-template-columns: minmax(86px, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(5px, 1vw, 12px);
+  line-height: 1.12;
+  min-width: 0;
 }
 
 .credits-content strong {
@@ -350,9 +383,74 @@ button:disabled {
 }
 
 @media (max-width: 540px) {
-  .credits-content p {
+  .credits-screen {
+    gap: clamp(4px, 0.9dvh, 8px);
+  }
+
+  .credits-screen .screen-header {
     grid-template-columns: 1fr;
-    gap: 1px;
+    padding: clamp(5px, 1.1dvh, 9px);
+  }
+
+  .credits-content {
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: clamp(6px, 1.2dvh, 10px);
+    padding: clamp(6px, 1.2dvh, 10px);
+    font-size: clamp(0.5rem, 1.55dvh, 0.72rem);
+  }
+
+  .credits-content section {
+    gap: clamp(1px, 0.35dvh, 4px);
+  }
+
+  .credits-content section:last-child {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2px, 0.8dvh, 6px) clamp(6px, 2vw, 12px);
+  }
+
+  .credits-content section:last-child h2 {
+    grid-column: 1 / -1;
+  }
+
+  .credits-content p {
+    display: block;
+    gap: 0;
+    line-height: 1.04;
+  }
+
+  .credits-content strong,
+  .credits-content span {
+    display: inline;
+  }
+
+  .credits-content strong::after {
+    content: ": ";
+  }
+
+  .credits-content section:last-child p {
+    line-height: 1.08;
+  }
+
+  .credits-content h2 {
+    font-size: clamp(0.6rem, 1.8dvh, 0.86rem);
+  }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+  .credits-content p {
+    display: block;
+    line-height: 1.05;
+  }
+
+  .credits-content strong,
+  .credits-content span {
+    display: inline;
+  }
+
+  .credits-content strong::after {
+    content: ": ";
   }
 }
 
@@ -651,7 +749,7 @@ button:disabled {
 
 .tutorial-actions button {
   min-height: 0;
-  aspect-ratio: 307 / 259;
+  aspect-ratio: 320 / 268;
   padding: 0;
   display: grid;
   place-items: center;
@@ -684,7 +782,7 @@ button:disabled {
 }
 
 .tutorial-actions button[data-tutorial-action="tresloucar"] {
-  aspect-ratio: 625 / 195;
+  aspect-ratio: 638 / 211;
   grid-column: span 2;
 }
 
@@ -709,7 +807,7 @@ button:disabled {
 }
 
 .tutorial-actions button[data-tutorial-action="especial"] {
-  aspect-ratio: 625 / 195;
+  aspect-ratio: 638 / 211;
   grid-column: span 2;
 }
 
@@ -799,6 +897,8 @@ button:disabled {
 .vs-fighter-card {
   min-width: 0;
   display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 10px;
   justify-items: center;
   text-align: center;
@@ -806,8 +906,10 @@ button:disabled {
 }
 
 .vs-fighter-card img {
-  width: min(320px, 36vw);
-  height: min(58vh, 470px);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  align-self: end;
   object-fit: contain;
   object-position: center bottom;
   border-radius: 8px;
@@ -1525,11 +1627,12 @@ button:disabled {
 .roll-button.roll-visual-1,
 .roll-button.roll-visual-2,
 .roll-button.roll-visual-3,
+.roll-button.roll-visual-4,
 .roll-button.roll-visual-supergame {
   width: 100%;
   min-width: 0;
   min-height: 0;
-  aspect-ratio: 1264 / 195;
+  aspect-ratio: 1276 / 226;
   padding: 0;
   border-radius: 0;
   background-color: transparent;
@@ -1551,6 +1654,10 @@ button:disabled {
 
 .roll-button.roll-visual-3 {
   background-image: url("assets/hud-botao-assoprar-3.png");
+}
+
+.roll-button.roll-visual-4 {
+  background-image: url("assets/hud-botao-assoprar-4.png");
 }
 
 .roll-button.roll-visual-supergame {
@@ -2841,8 +2948,8 @@ button:disabled {
   }
 
   .vs-fighter-card img {
-    width: min(210px, 36vw);
-    height: min(46vh, 340px);
+    width: 100%;
+    height: 100%;
   }
 
   .vs-mark {
@@ -3317,7 +3424,7 @@ button:disabled {
   min-height: 0;
   height: auto !important;
   min-width: 0;
-  aspect-ratio: 307 / 259;
+  aspect-ratio: 320 / 268;
   padding: 0 !important;
   border-radius: 0;
   background-color: transparent;
@@ -3380,7 +3487,7 @@ button:disabled {
   grid-column: span 2;
   height: auto !important;
   min-height: 0 !important;
-  aspect-ratio: 625 / 195;
+  aspect-ratio: 638 / 211;
 }
 
 .actions [data-action="especial"] {
@@ -3388,7 +3495,7 @@ button:disabled {
   grid-column: span 2;
   height: auto !important;
   min-height: 0 !important;
-  aspect-ratio: 625 / 195;
+  aspect-ratio: 638 / 211;
 }
 
 .hud-soco {
@@ -3479,11 +3586,12 @@ button:disabled {
 .roll-button.roll-visual-1,
 .roll-button.roll-visual-2,
 .roll-button.roll-visual-3,
+.roll-button.roll-visual-4,
 .roll-button.roll-visual-supergame {
   width: 100%;
   min-width: 0;
   min-height: 0;
-  aspect-ratio: 1264 / 195;
+  aspect-ratio: 1276 / 226;
   padding: 0 !important;
   border-radius: 0;
   background-color: transparent !important;
@@ -3505,6 +3613,10 @@ button:disabled {
 
 .roll-button.roll-visual-3 {
   background-image: url("assets/hud-botao-assoprar-3.png") !important;
+}
+
+.roll-button.roll-visual-4 {
+  background-image: url("assets/hud-botao-assoprar-4.png") !important;
 }
 
 .roll-button.roll-visual-supergame {
@@ -3545,13 +3657,14 @@ button:disabled {
 .game-view .roll-button.roll-visual-1,
 .game-view .roll-button.roll-visual-2,
 .game-view .roll-button.roll-visual-3,
+.game-view .roll-button.roll-visual-4,
 .game-view .roll-button.roll-visual-supergame {
   grid-column: 1 / -1 !important;
   grid-row: 2 !important;
   justify-self: stretch !important;
   width: 100% !important;
   max-width: none !important;
-  aspect-ratio: 1264 / 230 !important;
+  aspect-ratio: 1276 / 226 !important;
   background-size: 100% 100% !important;
 }
 
@@ -3574,7 +3687,7 @@ button:disabled {
   height: auto !important;
   padding: 0 !important;
   margin: 0 !important;
-  aspect-ratio: 307 / 259 !important;
+  aspect-ratio: 320 / 268 !important;
   background-size: 100% 100% !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -3583,7 +3696,7 @@ button:disabled {
 .game-view .actions [data-action="tresloucar"],
 .game-view .actions [data-action="especial"] {
   grid-column: span 2 !important;
-  aspect-ratio: 625 / 195 !important;
+  aspect-ratio: 638 / 211 !important;
   background-size: 100% 100% !important;
 }
 
@@ -3614,10 +3727,11 @@ button:disabled {
 .tutorial-board .roll-button.roll-visual-1,
 .tutorial-board .roll-button.roll-visual-2,
 .tutorial-board .roll-button.roll-visual-3,
+.tutorial-board .roll-button.roll-visual-4,
 .tutorial-board .roll-button.roll-visual-supergame {
   width: 100% !important;
   max-width: none !important;
-  aspect-ratio: 1264 / 230 !important;
+  aspect-ratio: 1276 / 226 !important;
   background-size: 100% 100% !important;
 }
 
@@ -3638,7 +3752,7 @@ button:disabled {
   height: auto !important;
   padding: 0 !important;
   margin: 0 !important;
-  aspect-ratio: 307 / 259 !important;
+  aspect-ratio: 320 / 268 !important;
   background-size: 100% 100% !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -3647,7 +3761,7 @@ button:disabled {
 .tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
 .tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
   grid-column: span 2 !important;
-  aspect-ratio: 625 / 195 !important;
+  aspect-ratio: 638 / 211 !important;
   background-size: 100% 100% !important;
 }
 
@@ -3665,24 +3779,24 @@ button:disabled {
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(310px, 42%) minmax(0, 1fr);
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
     gap: 4px;
     overflow: hidden;
   }
 
   .game-view .arena {
     grid-column: 2;
-    grid-row: 1 / 5;
+    grid-row: 1 / 6;
     min-height: 0;
     height: 100%;
     align-self: stretch;
     border-radius: 6px;
-    padding-inline: clamp(6px, 1vw, 14px);
+    padding-inline: 0;
   }
 
   .game-view .dice-panel {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
     align-self: start;
     gap: 5px !important;
     padding: 6px !important;
@@ -3709,13 +3823,14 @@ button:disabled {
   .game-view .roll-button.roll-visual-1,
   .game-view .roll-button.roll-visual-2,
   .game-view .roll-button.roll-visual-3,
+  .game-view .roll-button.roll-visual-4,
   .game-view .roll-button.roll-visual-supergame {
-    aspect-ratio: 1264 / 230 !important;
+    aspect-ratio: 1276 / 226 !important;
   }
 
   .game-view .actions {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
     align-self: start;
     gap: 6px !important;
     padding: 6px !important;
@@ -3724,7 +3839,7 @@ button:disabled {
 
   .game-view .round-message {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 4;
     align-self: start;
     min-height: 0;
     max-height: 100%;
@@ -3746,9 +3861,17 @@ button:disabled {
   }
 
   .game-view .health-card {
-    width: min(100%, 300px);
+    width: min(calc(100% - 64px), 380px);
     padding: 6px 8px;
     font-size: clamp(0.68rem, 1.15vw, 0.82rem);
+  }
+
+  .game-view .fighter-left .health-card {
+    justify-self: start;
+  }
+
+  .game-view .fighter-right .health-card {
+    justify-self: end;
   }
 
   .game-view .health-track {
@@ -3793,5 +3916,1092 @@ button:disabled {
     max-height: none;
     align-self: stretch;
     justify-self: center;
+  }
+}
+
+/* Encaixe controlado: só nas telas que conseguem encolher sem quebrar */
+html,
+body {
+  width: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+body.select-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.select-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow: hidden;
+}
+
+body.select-screen-active .select-screen {
+  height: calc(100dvh - 8px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.tutorial-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.tutorial-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow: hidden;
+}
+
+body.tutorial-screen-active .tutorial-screen {
+  height: calc(100dvh - 8px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.draw-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.draw-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow: hidden;
+}
+
+body.draw-screen-active .draw-screen {
+  height: calc(100dvh - 8px);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  align-content: stretch;
+  gap: clamp(6px, 1.4dvh, 16px);
+  padding: clamp(4px, 1dvh, 8px) 0;
+  overflow: hidden;
+}
+
+body.draw-screen-active .draw-screen .screen-header {
+  min-height: 0;
+  padding: clamp(5px, 1.2dvh, 10px);
+}
+
+body.draw-screen-active .draw-screen .screen-header h1 {
+  font-size: clamp(1rem, 3.2dvh, 2.1rem);
+}
+
+body.draw-screen-active .draw-screen .screen-header p {
+  font-size: clamp(0.66rem, 1.8dvh, 1rem);
+}
+
+body.draw-screen-active .draw-screen .back-button,
+body.draw-screen-active .draw-screen .battle-button {
+  min-height: 0;
+  height: clamp(34px, 6dvh, 54px);
+  padding: 0 14px;
+  font-size: clamp(0.68rem, 1.8dvh, 0.95rem);
+}
+
+body.draw-screen-active .roulette-stage {
+  align-self: center;
+  width: min(420px, 78vw, calc((100dvh - 168px) * 0.96));
+  max-height: 100%;
+}
+
+body.draw-screen-active .draw-result {
+  min-height: 0;
+  font-size: clamp(0.9rem, 2.7dvh, 1.4rem);
+}
+
+body.vs-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.vs-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow: hidden;
+}
+
+body.vs-screen-active .vs-screen {
+  height: calc(100dvh - 8px);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, auto) auto auto;
+  place-items: center;
+  align-content: center;
+  gap: clamp(6px, 1.5dvh, 16px);
+  padding: clamp(4px, 1dvh, 8px) 0;
+  overflow: hidden;
+}
+
+body.vs-screen-active .vs-matchup {
+  width: min(840px, 100%);
+  min-height: 0;
+  height: min(66dvh, 500px);
+  align-self: center;
+  align-items: end;
+}
+
+body.vs-screen-active .vs-fighter-card {
+  width: min(320px, 33vw);
+  height: 100%;
+  min-height: 0;
+  align-content: end;
+  gap: clamp(4px, 1dvh, 10px);
+}
+
+body.vs-screen-active .vs-fighter-card img {
+  width: 100%;
+  height: 100%;
+  max-height: min(58dvh, 430px);
+}
+
+body.vs-screen-active .vs-mark {
+  font-size: clamp(2.8rem, 11vw, 7.4rem);
+  align-self: center;
+}
+
+body.vs-screen-active .vs-subtitle {
+  margin: 0;
+  font-size: clamp(0.68rem, 1.9dvh, 0.95rem);
+}
+
+body.vs-screen-active .battle-button {
+  min-height: 0;
+  height: clamp(34px, 6dvh, 54px);
+  padding: 0 18px;
+  font-size: clamp(0.68rem, 1.8dvh, 0.95rem);
+}
+
+@media (orientation: portrait) {
+  body.vs-screen-active .vs-screen {
+    gap: clamp(5px, 1.2dvh, 12px);
+  }
+
+  body.vs-screen-active .vs-matchup {
+    --vs-portrait-card-width: min(190px, 40vw);
+    --vs-portrait-image-height: min(48dvh, calc(var(--vs-portrait-card-width) * 1.45));
+    width: 100%;
+    height: auto;
+    gap: clamp(4px, 1.5vw, 8px);
+    align-items: end;
+  }
+
+  body.vs-screen-active .vs-fighter-card {
+    width: var(--vs-portrait-card-width);
+    height: auto;
+    grid-template-rows: auto auto;
+  }
+
+  body.vs-screen-active .vs-fighter-card img {
+    width: auto;
+    height: var(--vs-portrait-image-height);
+    max-width: 100%;
+    max-height: none;
+  }
+
+  body.vs-screen-active .vs-mark {
+    font-size: clamp(2.2rem, 13vw, 3.8rem);
+  }
+
+  body.vs-screen-active .vs-fighter-card strong {
+    font-size: clamp(0.72rem, 3.3vw, 1rem);
+  }
+}
+
+body.map-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.map-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  overflow: hidden;
+}
+
+body.map-screen-active .map-screen {
+  height: calc(100dvh - 8px);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: clamp(5px, 1.2dvh, 12px);
+  padding: clamp(4px, 1dvh, 8px) 0;
+  overflow: hidden;
+}
+
+body.map-screen-active .map-screen-header {
+  min-height: 0;
+  gap: clamp(6px, 1.4dvh, 14px);
+}
+
+body.map-screen-active .map-screen-header h1 {
+  font-size: clamp(1rem, 3.3dvh, 2.1rem);
+}
+
+body.map-screen-active .map-screen-header p {
+  font-size: clamp(0.62rem, 1.8dvh, 0.85rem);
+}
+
+body.map-screen-active .map-screen .back-button,
+body.map-screen-active .map-screen .battle-button {
+  min-height: 0;
+  height: clamp(32px, 5.8dvh, 52px);
+  padding: 0 14px;
+  font-size: clamp(0.66rem, 1.8dvh, 0.95rem);
+}
+
+body.game-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.game-screen-active .game-shell {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (orientation: portrait) {
+  body.game-screen-active .game-shell {
+    width: calc(100% - 8px);
+    height: 100dvh;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    gap: 4px;
+  }
+
+  body.game-screen-active .game-view {
+    --battle-arena-height: clamp(300px, min(52dvh, 82vw), 620px);
+    width: 100%;
+    justify-self: center;
+    height: calc(100dvh - 8px);
+    min-height: 0;
+    display: grid;
+    grid-template-rows: var(--battle-arena-height) auto auto auto;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  body.game-screen-active .arena {
+    min-height: 0 !important;
+    height: 100%;
+    align-items: stretch;
+    border-radius: 6px;
+  }
+
+  body.game-screen-active .fighter {
+    align-self: stretch;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  body.game-screen-active .fighter-left .health-card,
+  body.game-screen-active .fighter-right .health-card {
+    align-self: start;
+  }
+
+  body.game-screen-active .battle-timer {
+    top: clamp(10px, 2.8dvh, 18px);
+  }
+
+  body.game-screen-active .health-card {
+    width: min(100%, 190px) !important;
+    padding: 4px 5px;
+    gap: 4px;
+    font-size: clamp(0.54rem, 1.55dvh, 0.7rem);
+  }
+
+  body.game-screen-active .health-track {
+    height: 8px;
+  }
+
+  body.game-screen-active .fighter-cartridge {
+    width: clamp(20px, 6vw, 30px);
+    height: clamp(15px, 4.4vw, 22px);
+  }
+
+  body.game-screen-active .round-stars span {
+    font-size: clamp(0.58rem, 1.8dvh, 0.78rem);
+  }
+
+  body.game-screen-active .sprite-stage img {
+    width: 156%;
+    height: min(43dvh, 410px);
+  }
+
+  body.game-screen-active .fighter-chefe .sprite-stage img {
+    width: 104%;
+  }
+
+  body.game-screen-active .dice-panel {
+    width: min(100%, 450px);
+    justify-self: center;
+    gap: 5px !important;
+    padding: 5px !important;
+    border-radius: 6px;
+  }
+
+  body.game-screen-active .dice-slots {
+    min-height: 0 !important;
+    gap: 4px !important;
+    padding: 0 !important;
+  }
+
+  body.game-screen-active .die {
+    min-height: 0 !important;
+    border-width: 2px;
+  }
+
+  body.game-screen-active .roll-button.roll-visual-1,
+  body.game-screen-active .roll-button.roll-visual-2,
+  body.game-screen-active .roll-button.roll-visual-3,
+  body.game-screen-active .roll-button.roll-visual-4,
+  body.game-screen-active .roll-button.roll-visual-supergame {
+    aspect-ratio: 1276 / 226 !important;
+    background-size: contain !important;
+  }
+
+  body.game-screen-active .actions {
+    width: min(100%, 450px);
+    justify-self: center;
+    align-items: start !important;
+    grid-auto-rows: auto !important;
+    column-gap: 5px !important;
+    row-gap: 8px !important;
+    padding: 5px !important;
+    overflow: visible !important;
+    border-radius: 6px;
+  }
+
+  body.game-screen-active .actions button {
+    min-height: 0 !important;
+    height: auto !important;
+    aspect-ratio: 320 / 268 !important;
+    align-self: start !important;
+    background-size: contain !important;
+    overflow: visible !important;
+  }
+
+  body.game-screen-active .actions [data-action="tresloucar"],
+  body.game-screen-active .actions [data-action="especial"] {
+    height: auto !important;
+    aspect-ratio: 638 / 211 !important;
+    background-size: contain !important;
+    overflow: visible !important;
+  }
+
+  body.game-screen-active .round-message {
+    width: min(100%, 450px);
+    justify-self: center;
+    min-height: 0;
+    max-height: 44px;
+    padding: 6px 8px;
+    font-size: clamp(0.68rem, 1.75dvh, 0.82rem);
+    line-height: 1.15;
+    overflow: auto;
+  }
+}
+
+@media (orientation: portrait) and (max-height: 760px) {
+  body.game-screen-active .game-view {
+    --battle-arena-height: clamp(280px, min(47dvh, 78vw), 350px);
+  }
+
+  body.game-screen-active .dice-panel,
+  body.game-screen-active .actions,
+  body.game-screen-active .round-message {
+    width: min(100%, 340px);
+  }
+
+  body.game-screen-active .actions {
+    row-gap: 7px !important;
+  }
+
+  body.game-screen-active .sprite-stage img {
+    height: min(39dvh, 308px);
+  }
+}
+
+@media (orientation: portrait) and (max-height: 660px) {
+  body.game-screen-active .game-view {
+    --battle-arena-height: clamp(260px, min(45dvh, 74vw), 300px);
+  }
+
+  body.game-screen-active .dice-panel,
+  body.game-screen-active .actions,
+  body.game-screen-active .round-message {
+    width: min(100%, 300px);
+  }
+
+  body.game-screen-active .actions {
+    row-gap: 6px !important;
+  }
+
+  body.game-screen-active .sprite-stage img {
+    height: min(38dvh, 260px);
+  }
+}
+
+body.map-screen-active .arcade-map {
+  width: min(760px, 100%);
+  min-height: 0;
+  height: 100%;
+  padding: clamp(6px, 1.2dvh, 12px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+body.map-screen-active .map-heading {
+  margin-bottom: clamp(4px, 0.9dvh, 8px);
+  font-size: clamp(0.64rem, 1.7dvh, 0.9rem);
+}
+
+body.map-screen-active .map-route {
+  --map-route-card-width: min(620px, calc((100dvh - 180px) * 0.38));
+  width: min(620px, 100%);
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: auto;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(4px, 1dvh, 9px);
+  overflow: hidden;
+}
+
+body.map-screen-active .route-fight,
+body.map-screen-active .route-fight:nth-child(even) {
+  width: min(100%, var(--map-route-card-width));
+  height: auto;
+  min-height: 0;
+  display: block;
+  justify-self: center;
+  text-align: left;
+  aspect-ratio: 400 / 141;
+}
+
+body.map-screen-active .route-fight img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: rgba(5, 8, 15, 0.76);
+}
+
+body.map-screen-active .bonus-route-card {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 400 / 141;
+}
+
+body.map-screen-active .route-fight span {
+  display: none;
+}
+
+body.map-screen-active .route-fight.done::before,
+body.map-screen-active .route-fight:nth-child(even).done::before {
+  left: clamp(5px, 1vw, 10px);
+  top: clamp(4px, 0.9dvh, 8px);
+  font-size: clamp(1rem, 2.4dvh, 1.6rem);
+}
+
+@media (orientation: portrait) {
+  body.map-screen-active .map-route {
+    --map-route-card-width: min(100%, calc((100dvh - 170px) * 0.34));
+    gap: clamp(3px, 0.75dvh, 7px);
+  }
+
+  body.map-screen-active .route-fight span {
+    font-size: clamp(0.48rem, 1.25dvh, 0.66rem);
+    line-height: 1;
+  }
+
+  body.map-screen-active .bonus-route-card strong {
+    font-size: clamp(0.68rem, 2.1dvh, 1rem);
+  }
+
+  body.map-screen-active .bonus-route-card small {
+    font-size: clamp(0.48rem, 1.3dvh, 0.66rem);
+  }
+}
+
+@media (orientation: landscape) {
+  body.map-screen-active .arcade-map {
+    width: min(920px, 100%);
+  }
+
+  body.map-screen-active .map-route {
+    --map-route-card-width: 100%;
+    width: min(760px, 100%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  body.map-screen-active .route-fight,
+  body.map-screen-active .route-fight:nth-child(even) {
+    width: 100%;
+    height: 100%;
+    align-self: stretch;
+  }
+}
+
+.menu-screen {
+  min-height: calc(100dvh - 16px);
+  grid-template-rows: minmax(0, auto) minmax(0, auto) minmax(0, auto);
+  align-content: center;
+  gap: clamp(8px, 2.2dvh, 24px);
+  padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  overflow: hidden;
+}
+
+.menu-screen .game-logo {
+  width: min(520px, 74vw);
+  max-height: clamp(88px, 24dvh, 210px);
+}
+
+.menu-screen .main-menu {
+  width: min(360px, 88vw);
+  max-height: min(62dvh, 500px);
+  gap: clamp(4px, 1.2dvh, 10px);
+}
+
+.menu-screen .main-menu button {
+  min-height: 0;
+  height: clamp(36px, 6.3dvh, 54px);
+  padding: 0 12px;
+  font-size: clamp(0.72rem, 1.7dvh, 1rem);
+}
+
+.menu-screen .creator-credit {
+  font-size: clamp(0.62rem, 1.8dvh, 0.95rem);
+}
+
+.select-screen {
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: clamp(6px, 1.5dvh, 14px);
+  padding: clamp(4px, 1dvh, 10px) 0;
+  overflow: visible;
+}
+
+.select-screen .screen-header {
+  min-height: 0;
+  padding: clamp(6px, 1.5dvh, 12px);
+  gap: clamp(6px, 1.6dvh, 14px);
+}
+
+.select-screen .screen-header h1 {
+  font-size: clamp(1rem, 3.2dvh, 2.1rem);
+}
+
+.select-screen .screen-header p {
+  font-size: clamp(0.68rem, 1.8dvh, 1rem);
+}
+
+.select-screen .back-button {
+  min-height: 0;
+  height: clamp(34px, 6dvh, 54px);
+  padding: 0 12px;
+  font-size: clamp(0.68rem, 1.7dvh, 0.95rem);
+}
+
+.select-screen .character-grid {
+  min-height: 0;
+  height: auto;
+  max-height: calc(100dvh - 92px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, var(--select-card-width, 1fr)));
+  grid-auto-rows: auto;
+  gap: clamp(4px, 1.35dvh, 12px);
+  align-content: center;
+  justify-content: center;
+  align-items: start;
+  justify-items: center;
+  overflow: visible;
+}
+
+.select-screen .character-card {
+  min-height: 0;
+  height: auto;
+  width: min(100%, var(--select-card-width, 100%));
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.select-screen .character-card .character-portrait {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 456 / 536;
+  object-fit: contain;
+}
+
+@media (orientation: landscape) {
+  .menu-screen {
+    gap: clamp(5px, 1.7dvh, 16px);
+  }
+
+  .menu-screen .game-logo {
+    max-height: clamp(70px, 22dvh, 160px);
+  }
+
+  .menu-screen .main-menu {
+    max-height: 66dvh;
+    gap: clamp(3px, 0.9dvh, 8px);
+  }
+
+  .menu-screen .main-menu button {
+    height: clamp(28px, 6.1dvh, 48px);
+    font-size: clamp(0.62rem, 1.8dvh, 0.9rem);
+  }
+
+  .select-screen {
+    min-height: calc(100dvh - 16px);
+    height: calc(100dvh - 16px);
+    overflow: hidden;
+    gap: clamp(4px, 1.2dvh, 10px);
+  }
+
+  .select-screen .screen-header {
+    grid-template-columns: minmax(76px, 0.16fr) minmax(0, 1fr);
+    padding: clamp(4px, 1.1dvh, 8px);
+  }
+
+  .select-screen .screen-header h1 {
+    font-size: clamp(0.95rem, 4.2dvh, 1.65rem);
+  }
+
+  .select-screen .screen-header p {
+    font-size: clamp(0.62rem, 2.2dvh, 0.86rem);
+  }
+
+  .select-screen .back-button {
+    height: clamp(28px, 7dvh, 42px);
+    font-size: clamp(0.62rem, 2dvh, 0.82rem);
+  }
+
+  .select-screen .character-grid {
+    --select-card-width: min(
+      calc((100vw - 32px) / 3),
+      calc((100dvh - 92px) * 456 / 536 / 3)
+    );
+    max-height: calc(100dvh - 76px);
+    gap: clamp(3px, 1.1dvh, 8px);
+  }
+}
+
+@media (orientation: portrait) {
+  .menu-screen .main-menu {
+    max-height: 58dvh;
+  }
+
+  .select-screen {
+    min-height: calc(100dvh - 16px);
+    height: calc(100dvh - 16px);
+    overflow: hidden;
+  }
+
+  .select-screen .screen-header {
+    padding: clamp(4px, 1dvh, 8px);
+  }
+
+  .select-screen .back-button {
+    height: clamp(30px, 5.2dvh, 42px);
+  }
+
+  .select-screen .character-grid {
+    --select-card-width: min(
+      calc((100vw - 24px) / 3),
+      calc((100dvh - 150px) * 456 / 536 / 3)
+    );
+    max-height: calc(100dvh - 128px);
+    gap: clamp(4px, 1.1dvh, 10px);
+  }
+}
+
+/* Encaixe específico do tutorial em uma única tela */
+.tutorial-screen {
+  height: calc(100dvh - 16px);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  gap: clamp(5px, 1.15dvh, 10px);
+  padding: clamp(4px, 0.9dvh, 8px) 0;
+  overflow: hidden;
+}
+
+.tutorial-screen .screen-header {
+  min-height: 0;
+  padding: clamp(5px, 1.25dvh, 10px);
+  gap: clamp(5px, 1.2dvh, 12px);
+}
+
+.tutorial-screen .screen-header h1 {
+  font-size: clamp(0.98rem, 3dvh, 2rem);
+}
+
+.tutorial-screen .screen-header p {
+  font-size: clamp(0.68rem, 1.85dvh, 1rem);
+}
+
+.tutorial-screen .back-button {
+  min-height: 0;
+  height: clamp(30px, 5.8dvh, 48px);
+  padding: 0 12px;
+  font-size: clamp(0.66rem, 1.8dvh, 0.9rem);
+}
+
+.tutorial-stage {
+  min-height: 0;
+  height: 100%;
+  gap: clamp(5px, 1.2dvh, 12px);
+  overflow: hidden;
+}
+
+.tutorial-coach {
+  min-height: 0;
+  height: 100%;
+  gap: clamp(5px, 1.1dvh, 10px);
+  padding: clamp(6px, 1.2dvh, 12px);
+}
+
+.tutorial-bubble {
+  min-height: 0;
+  padding: clamp(7px, 1.35dvh, 12px);
+  font-size: clamp(0.68rem, 1.9dvh, 1rem);
+  overflow: hidden;
+}
+
+.tutorial-bubble strong {
+  margin-bottom: clamp(2px, 0.6dvh, 5px);
+  font-size: clamp(0.6rem, 1.65dvh, 0.82rem);
+}
+
+.tutorial-bubble p {
+  line-height: 1.22;
+}
+
+.tutorial-board {
+  min-height: 0;
+  height: 100%;
+  align-content: start !important;
+  gap: clamp(4px, 1dvh, 8px) !important;
+  padding: clamp(5px, 1.1dvh, 10px) !important;
+  overflow: hidden;
+}
+
+.tutorial-board .tutorial-dice {
+  min-height: 0;
+  gap: clamp(4px, 0.9dvh, 8px);
+}
+
+.tutorial-cart {
+  min-height: 0;
+  height: auto;
+  border-width: clamp(2px, 0.45dvh, 3px);
+}
+
+.tutorial-board .roll-button.roll-visual-1,
+.tutorial-board .roll-button.roll-visual-2,
+.tutorial-board .roll-button.roll-visual-3,
+.tutorial-board .roll-button.roll-visual-4,
+.tutorial-board .roll-button.roll-visual-supergame {
+  min-height: 0 !important;
+}
+
+.tutorial-board .tutorial-actions {
+  min-height: 0;
+  gap: clamp(4px, 0.95dvh, 8px) !important;
+}
+
+.tutorial-controls {
+  min-height: 0;
+  gap: clamp(5px, 1dvh, 10px);
+}
+
+.tutorial-controls button {
+  min-height: 0;
+  height: clamp(30px, 5.8dvh, 46px);
+  font-size: clamp(0.62rem, 1.75dvh, 0.9rem);
+}
+
+.tutorial-dots {
+  gap: clamp(4px, 0.9dvh, 7px);
+}
+
+.tutorial-dots span {
+  width: clamp(6px, 1.4dvh, 10px);
+}
+
+@media (orientation: landscape) and (min-width: 700px) {
+  .tutorial-stage {
+    grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr);
+  }
+
+  .tutorial-coach {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  #tutorialCoachSprite {
+    height: 100%;
+    max-height: 100%;
+  }
+}
+
+@media (orientation: portrait) {
+  .tutorial-stage {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 0.46fr) minmax(0, 0.54fr);
+  }
+
+  .tutorial-coach {
+    grid-template-columns: minmax(72px, 0.34fr) minmax(0, 0.66fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .tutorial-coach img {
+    height: 100%;
+    max-height: 100%;
+  }
+
+  #tutorialCoachSprite {
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .tutorial-board {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .tutorial-board .tutorial-actions {
+    align-self: start;
+  }
+}
+
+/* Correção fina do tutorial: HUD demonstrativa cabe sem cortar */
+.tutorial-board .tutorial-dice {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+.tutorial-board .tutorial-cart {
+  width: 100%;
+  min-height: 0 !important;
+}
+
+.tutorial-board .roll-button.roll-visual-1,
+.tutorial-board .roll-button.roll-visual-2,
+.tutorial-board .roll-button.roll-visual-3,
+.tutorial-board .roll-button.roll-visual-4,
+.tutorial-board .roll-button.roll-visual-supergame {
+  aspect-ratio: auto !important;
+  background-size: 100% 100% !important;
+}
+
+.tutorial-board .tutorial-actions button,
+.tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
+.tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
+  aspect-ratio: auto !important;
+  background-size: 100% 100% !important;
+}
+
+@media (orientation: landscape) and (min-width: 700px) {
+  .tutorial-stage {
+    grid-template-columns: minmax(210px, 0.55fr) minmax(0, 1fr);
+  }
+
+  .tutorial-board {
+    grid-template-rows: auto auto auto !important;
+  }
+
+  .tutorial-board .tutorial-cart {
+    height: clamp(54px, 12dvh, 78px) !important;
+  }
+
+  .tutorial-board .roll-button.roll-visual-1,
+  .tutorial-board .roll-button.roll-visual-2,
+  .tutorial-board .roll-button.roll-visual-3,
+  .tutorial-board .roll-button.roll-visual-4,
+  .tutorial-board .roll-button.roll-visual-supergame {
+    height: clamp(58px, 15dvh, 104px) !important;
+  }
+
+  .tutorial-board .tutorial-actions button {
+    height: clamp(52px, 12.5dvh, 78px) !important;
+  }
+
+  .tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
+  .tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
+    height: clamp(42px, 10dvh, 62px) !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .tutorial-stage {
+    grid-template-rows: minmax(0, 0.34fr) minmax(0, 0.66fr);
+  }
+
+  .tutorial-coach {
+    padding: 6px;
+  }
+
+  .tutorial-bubble {
+    font-size: clamp(0.62rem, 1.55dvh, 0.88rem);
+  }
+
+  .tutorial-bubble p {
+    line-height: 1.14;
+  }
+
+  .tutorial-board {
+    grid-template-rows: auto auto auto !important;
+  }
+
+  .tutorial-board .tutorial-cart {
+    height: clamp(40px, 8.3dvh, 62px) !important;
+  }
+
+  .tutorial-board .roll-button.roll-visual-1,
+  .tutorial-board .roll-button.roll-visual-2,
+  .tutorial-board .roll-button.roll-visual-3,
+  .tutorial-board .roll-button.roll-visual-4,
+  .tutorial-board .roll-button.roll-visual-supergame {
+    height: clamp(46px, 10.4dvh, 78px) !important;
+  }
+
+  .tutorial-board .tutorial-actions button {
+    height: clamp(34px, 7.2dvh, 56px) !important;
+  }
+
+  .tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
+  .tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
+    height: clamp(32px, 6.4dvh, 50px) !important;
+  }
+}
+
+/* Tutorial: preservar proporção das artes, reduzindo o conjunto em vez de esticar */
+.tutorial-board {
+  justify-items: center !important;
+}
+
+.tutorial-board .tutorial-dice,
+.tutorial-board .tutorial-roll,
+.tutorial-board .tutorial-actions {
+  width: min(100%, var(--tutorial-hud-width, 560px)) !important;
+}
+
+.tutorial-board .tutorial-cart {
+  height: auto !important;
+  aspect-ratio: 1.34 !important;
+}
+
+.tutorial-board .roll-button.roll-visual-1,
+.tutorial-board .roll-button.roll-visual-2,
+.tutorial-board .roll-button.roll-visual-3,
+.tutorial-board .roll-button.roll-visual-4,
+.tutorial-board .roll-button.roll-visual-supergame {
+  height: auto !important;
+  aspect-ratio: 1276 / 226 !important;
+  background-size: 100% 100% !important;
+}
+
+.tutorial-board .tutorial-actions button {
+  height: auto !important;
+  aspect-ratio: 320 / 268 !important;
+  background-size: 100% 100% !important;
+}
+
+.tutorial-board .tutorial-actions [data-tutorial-action="tresloucar"],
+.tutorial-board .tutorial-actions [data-tutorial-action="especial"] {
+  height: auto !important;
+  aspect-ratio: 638 / 211 !important;
+  background-size: 100% 100% !important;
+}
+
+@media (orientation: landscape) and (min-width: 700px) {
+  .tutorial-board {
+    --tutorial-hud-width: min(62vw, 640px);
+  }
+}
+
+@media (orientation: portrait) {
+  .tutorial-board {
+    --tutorial-hud-width: min(82vw, 335px);
+  }
+}
+
+/* Tutorial horizontal: composição mais compacta e equilibrada */
+@media (orientation: landscape) and (min-width: 700px) {
+  .tutorial-stage {
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    gap: 6px;
+  }
+
+  .tutorial-coach {
+    grid-template-columns: minmax(120px, 0.42fr) minmax(0, 0.58fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: center;
+    padding: 8px;
+  }
+
+  .tutorial-coach img {
+    height: min(100%, 72dvh);
+    max-height: 100%;
+  }
+
+  #tutorialCoachSprite {
+    width: auto;
+    max-width: 100%;
+    height: min(100%, 72dvh);
+    max-height: 100%;
+  }
+
+  .tutorial-bubble {
+    align-self: center;
+    font-size: clamp(0.62rem, 1.95dvh, 0.9rem);
+  }
+
+  .tutorial-board {
+    --tutorial-hud-width: min(48vw, 580px);
+    align-content: center !important;
+    justify-content: center !important;
+    padding: 6px !important;
+  }
+
+  .tutorial-board .tutorial-dice,
+  .tutorial-board .tutorial-roll,
+  .tutorial-board .tutorial-actions {
+    width: min(100%, var(--tutorial-hud-width)) !important;
   }
 }

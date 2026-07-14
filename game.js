@@ -969,7 +969,7 @@ function renderTutorial() {
   tutorialStepLabel.textContent = `Passo ${tutorialStep + 1} de ${tutorialSteps.length}`;
   tutorialText.textContent = step.text;
   tutorialRollButton.textContent = step.rollText;
-  tutorialRollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3");
+  tutorialRollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3", "roll-visual-4");
   tutorialRollButton.classList.add(getTutorialRollVisualClass(step.rollText));
   tutorialCoachSprite.src = "assets/chefe-tutorial.png";
   tutorialCoachSprite.alt = "O Chefe";
@@ -1007,8 +1007,9 @@ function renderTutorial() {
 }
 
 function getTutorialRollVisualClass(rollText) {
+  if (rollText.includes("3/3")) return "roll-visual-4";
   if (rollText.includes("1/3")) return "roll-visual-2";
-  if (rollText.includes("2/3") || rollText.includes("3/3")) return "roll-visual-3";
+  if (rollText.includes("2/3")) return "roll-visual-3";
   return "roll-visual-1";
 }
 
@@ -3382,8 +3383,18 @@ function renderRollButton() {
   rollButton.disabled = gameOver || isRoundTransition || isRolling || isAnimating || (!bonusStage.active && !tresloucarMode.active && rolls >= 3) || isCpuTurn() || isOnlineOpponentTurn();
   rollButton.classList.remove("roll-1", "roll-2", "roll-3");
   if (!bonusStage.active && !tresloucarMode.active && rolls > 0) rollButton.classList.add(`roll-${rolls}`);
-  rollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3", "roll-visual-supergame");
-  rollButton.classList.add(tresloucarMode.active ? "roll-visual-supergame" : rolls <= 0 ? "roll-visual-1" : rolls === 1 ? "roll-visual-2" : "roll-visual-3");
+  rollButton.classList.remove("roll-visual-1", "roll-visual-2", "roll-visual-3", "roll-visual-4", "roll-visual-supergame");
+  rollButton.classList.add(
+    tresloucarMode.active
+      ? "roll-visual-supergame"
+      : !bonusStage.active && rolls >= 3
+        ? "roll-visual-4"
+        : rolls <= 0
+          ? "roll-visual-1"
+          : rolls === 1
+            ? "roll-visual-2"
+            : "roll-visual-3"
+  );
   rollButton.textContent = isRolling
     ? "Assoprando..."
     : tresloucarMode.active
@@ -3538,6 +3549,12 @@ function finishOpening() {
 function showScreen(name) {
   Object.values(screens).forEach((screen) => screen.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+  document.body.classList.toggle("select-screen-active", name === "select" || name === "specialTest");
+  document.body.classList.toggle("tutorial-screen-active", name === "tutorial");
+  document.body.classList.toggle("draw-screen-active", name === "draw");
+  document.body.classList.toggle("vs-screen-active", name === "vs");
+  document.body.classList.toggle("map-screen-active", name === "map");
+  document.body.classList.toggle("game-screen-active", name === "game");
   updateMusicForScreen(name);
 }
 
@@ -3573,6 +3590,7 @@ async function preloadGameAssets() {
     "assets/hud-botao-assoprar-1.png",
     "assets/hud-botao-assoprar-2.png",
     "assets/hud-botao-assoprar-3.png",
+    "assets/hud-botao-assoprar-4.png",
     "assets/hud-botao-assoprar-supergame.png",
     "assets/hud-botao-soco.png",
     "assets/hud-botao-chute-1.png",
