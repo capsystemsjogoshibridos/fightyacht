@@ -382,6 +382,141 @@ button:disabled {
   color: var(--muted);
 }
 
+.newsstand-screen {
+  align-content: stretch;
+  place-items: stretch;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  height: calc(100dvh - 16px);
+  min-height: 0;
+  padding: 8px 0;
+  overflow: hidden;
+}
+
+.newsstand-panel {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(8px, 2vw, 16px);
+  border: 1px solid rgba(246, 200, 76, 0.36);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at top, rgba(246, 200, 76, 0.12), transparent 28rem),
+    rgba(10, 13, 20, 0.72);
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
+  gap: clamp(10px, 2vw, 16px);
+  align-items: start;
+}
+
+.sticker-card {
+  display: grid;
+  width: 100%;
+  gap: 6px;
+  justify-items: center;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  background: rgba(20, 24, 34, 0.88);
+  color: rgba(246, 241, 232, 0.72);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  cursor: default;
+}
+
+.sticker-card.collected {
+  cursor: pointer;
+}
+
+.sticker-card img {
+  width: 100%;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #252a36;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.32);
+}
+
+.sticker-card.sticker-vertical img,
+.sticker-card.sticker-vertical .sticker-placeholder {
+  aspect-ratio: 250 / 333;
+}
+
+.sticker-card.sticker-horizontal img,
+.sticker-card.sticker-horizontal .sticker-placeholder {
+  aspect-ratio: 333 / 250;
+}
+
+.sticker-placeholder {
+  width: 100%;
+  border-radius: 6px;
+  background: #252a36;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.32);
+}
+
+.sticker-placeholder {
+  display: grid;
+  place-items: center;
+  border: 2px dashed rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.26);
+  font-size: clamp(2rem, 8vw, 4rem);
+}
+
+.sticker-card.collected {
+  border-color: rgba(246, 200, 76, 0.42);
+  color: var(--gold);
+}
+
+.sticker-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  background: rgba(2, 4, 9, 0.82);
+}
+
+.sticker-viewer-card {
+  width: min(92vw, 760px);
+  max-height: 92dvh;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  padding: clamp(10px, 2vw, 16px);
+  border: 2px solid rgba(246, 200, 76, 0.56);
+  border-radius: 12px;
+  background: rgba(13, 17, 25, 0.98);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.62);
+}
+
+.sticker-viewer-card img {
+  max-width: 100%;
+  max-height: min(76dvh, 720px);
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.sticker-viewer-card button {
+  justify-self: end;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--gold);
+  color: #221a05;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.sticker-viewer-card strong {
+  color: var(--gold);
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  text-transform: uppercase;
+}
+
 @media (max-width: 540px) {
   .credits-screen {
     gap: clamp(4px, 0.9dvh, 8px);
@@ -1526,6 +1661,14 @@ button:disabled {
   color: #edf3ff;
   font-size: clamp(1rem, 2.2vw, 1.2rem);
   line-height: 1.55;
+}
+
+.sticker-reward-text {
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+  font-weight: 950;
+  text-transform: uppercase;
 }
 
 .battle-button {
@@ -4026,6 +4169,17 @@ body.draw-screen-active .draw-result {
 
 body.vs-screen-active {
   height: 100dvh;
+  overflow: hidden;
+}
+
+body.newsstand-screen-active {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.newsstand-screen-active .game-shell {
+  height: 100dvh;
+  min-height: 0;
   overflow: hidden;
 }
 

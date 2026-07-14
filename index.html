@@ -96,6 +96,26 @@
         </div>
       </section>
 
+      <section id="newsstandScreen" class="screen newsstand-screen hidden">
+        <header class="screen-header">
+          <button class="back-button" data-back type="button">Voltar</button>
+          <div>
+            <h1>Banca de Revistas</h1>
+            <p id="newsstandStatus">Seu álbum de figurinhas colecionáveis.</p>
+          </div>
+        </header>
+        <section class="newsstand-panel" aria-label="Álbum de figurinhas">
+          <div id="stickerGrid" class="sticker-grid"></div>
+        </section>
+        <section id="stickerViewer" class="sticker-viewer hidden" aria-live="polite" aria-hidden="true">
+          <div class="sticker-viewer-card">
+            <button id="stickerViewerClose" type="button">Fechar</button>
+            <img id="stickerViewerImage" src="" alt="" />
+            <strong id="stickerViewerTitle"></strong>
+          </div>
+        </section>
+      </section>
+
       <section id="tutorialScreen" class="screen tutorial-screen hidden">
         <header class="screen-header">
           <button class="back-button" data-back type="button">Voltar</button>
@@ -238,6 +258,7 @@
           <h1 id="endingTitle">Final</h1>
           <img id="endingImage" src="" alt="">
           <p id="endingText" class="ending-text"></p>
+          <p id="endingRewardText" class="sticker-reward-text"></p>
           <button id="endingButton" class="battle-button" type="button">Voltar a tela inicial</button>
         </div>
       </section>

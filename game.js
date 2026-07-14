@@ -77,7 +77,7 @@ let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
 
-const voicedFighters = new Set(["akira", "baby", "bill", "chris", "lord", "marcelo", "marjorie"]);
+const voicedFighters = new Set(["akira", "baby", "bill", "chefe", "chris", "lord", "marcelo", "marjorie"]);
 const voiceCueByAction = {
   soco: "soco",
   gancho: "socao",
@@ -91,6 +91,14 @@ const voiceCueByAction = {
   tresloucar: "especial",
 };
 const voiceCues = [...new Set([...Object.values(voiceCueByAction), "pancada", "select_screen", "vitoria"])];
+const stickerTotal = 51;
+const stickerStorageKey = "sgp-fighting-stickers-v1";
+const horizontalStickerIds = new Set([5, 7, 8, 9, 11, 12, 14, 15, 24, 29, 30, 33, 35, 38, 39]);
+const stickers = Array.from({ length: stickerTotal }, (_, index) => ({
+  id: index + 1,
+  src: `assets/figurinhas/fig_${index + 1}.jpg`,
+  orientation: horizontalStickerIds.has(index + 1) ? "horizontal" : "vertical",
+}));
 
 const actionSpriteDurations = {
   akira: { punch: 1280, kick: 1280, poder1: 770, poder2: 880, poder3: 1170, poder4: 990, especial: 1080, damage: 810 },
@@ -377,6 +385,7 @@ const screens = {
   opening: document.querySelector("#openingScreen"),
   home: document.querySelector("#homeScreen"),
   credits: document.querySelector("#creditsScreen"),
+  newsstand: document.querySelector("#newsstandScreen"),
   tutorial: document.querySelector("#tutorialScreen"),
   select: document.querySelector("#selectScreen"),
   specialTest: document.querySelector("#specialTestScreen"),
@@ -418,6 +427,7 @@ let arcade = { heroId: null, opponents: [], index: 0, continues: 3 };
 let bonusStage = { active: false, fromArcade: false, deadline: 0, timerId: null, finishing: false };
 let versusDraw = null;
 let pendingVs = null;
+let pendingStickerReward = null;
 let online = {
   clientId: getClientId(),
   roomId: null,
@@ -445,7 +455,14 @@ const battleButton = document.querySelector("#battleButton");
 const endingTitle = document.querySelector("#endingTitle");
 const endingImage = document.querySelector("#endingImage");
 const endingText = document.querySelector("#endingText");
+const endingRewardText = document.querySelector("#endingRewardText");
 const endingButton = document.querySelector("#endingButton");
+const newsstandStatus = document.querySelector("#newsstandStatus");
+const stickerGrid = document.querySelector("#stickerGrid");
+const stickerViewer = document.querySelector("#stickerViewer");
+const stickerViewerImage = document.querySelector("#stickerViewerImage");
+const stickerViewerTitle = document.querySelector("#stickerViewerTitle");
+const stickerViewerClose = document.querySelector("#stickerViewerClose");
 const fullscreenButton = document.querySelector("#fullscreenButton");
 const drawBattleButton = document.querySelector("#drawBattleButton");
 const rouletteWheel = document.querySelector("#rouletteWheel");
@@ -736,22 +753,22 @@ const tutorialSteps = [
 
 const tutorialStepTexts = [
   "INÍCIO: primeiro, você assopra os cartuchos. Cada turno permite até 3 assopradas, e os cartuchos aparecem um por um.",
-  "CONTINUIDADE: depois da primeira assoprada, segure os cartuchos que parecem bons. Aqui, três da cor ROSA (ATARI) foram separados para o exemplo do Chefe.",
+  "CONTINUIDADE: nas assopradas seguintes, segure os cartuchos de acordo com a sua estratégia de combinação. Aqui, três da cor ROSA (ATARI) foram separados para o exemplo do chefe. Você pode ativar seu golpe ou poder no momento que preferir.",
   "SOCO: use quando tiver cores repetidas. Neste exemplo há 2 cartuchos ROSAS (ATARI); o dano vem da maior repetição. Esse golpe normal não tem limite de uso no round.",
   "CHUTE: use quando tiver cores repetidas. Neste exemplo há 3 cartuchos VERDES (PC ENGINE); quanto mais cores iguais, mais dano. Esse golpe normal pode ser usado até 2 vezes por round.",
   "SOCÃO: use quando tiver cores repetidas. Neste exemplo há 4 cartuchos ROSAS (ATARI); quanto mais cores iguais, mais danos. Como o cartucho do Chefe é o ROSA (ATARI), neste exemplo também teria bônus de +7 de dano. Esse golpe normal pode ser usado 1 vez por round.",
-  "CHUTÃO: use quando tiver cores repetidas. Neste exemplo há 5 cartuchos VERMELHOS (32X); lembrando que, quanto mais cores iguais, mais danos. Esse golpe normal pode ser usado 1 vez por round.",
+  "CHUTÃO: use quando tiver cores repetidas. Neste exemplo, há 5 cartuchos VERMELHOS (32X), e daria para fazer muitos pontos usando o CHUTÃO ou o ESPECIAL GAME POWER; lembrando que, quanto mais cores iguais, mais danos. Esse golpe normal pode ser usado uma vez por round.",
   "EVOCAÇÃO: para ativá-lo, precisa de 3 cartuchos de uma cor e 2 cartuchos de outra cor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "PODER: precisa de pelo menos 3 cores iguais. Neste exemplo, os 3 AMARELOS (NINTENDO 64) já liberam o botão. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "FEITIÇO: precisa das 5 cores diferentes. Um cartucho de cada cor fecha a combinação multicolor. Este é um golpe de energia, e só pode ser usado uma vez por round.",
   "MAGIA: precisa de pelo menos 4 cores iguais. Neste exemplo, 4 ROSAS (ATARI) ativam a Magia e ainda combinam com o cartucho especial do Chefe, acrescentando danos extras. Este é um golpe de energia, e só pode ser usado uma vez por round.",
-  "ESPECIAL GAME POWER: precisa de 5 cores iguais. É o golpe mais devastador. Se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico: vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
-  "ESPECIAL SUPER GAME: cada lutador tem uma sequência própria, mostrada abaixo da sua barra de energia. Diferente dos outros golpes, aqui a posição importa: os cartuchos precisam estar exatamente nos slots certos.",
-  "MODO SUPER GAME: aperte Especial Super Game para ativar 15 segundos de assopradas infinitas. Segure os cartuchos certos e tente montar a sequência. Se conseguir, o combo sai automaticamente; se o tempo acabar, o golpe falha.",
+  "ESPECIAL GAME POWER: precisa de 5 cores iguais. Assim como nos outros golpes e poderes, se os cartuchos forem da cor especial do lutador, acrescenta +7 de dano. Ao ativá-lo, aparece um minigame específico. Vencê-lo concede um bônus extra de +2 a +5 de dano, dependendo do personagem escolhido. Você pode treinar cada minigame em \"Teste de Especiais\", na tela inicial.",
+  "ESPECIAL SUPER GAME: cada lutador tem uma sequência própria, indicada abaixo da sua barra de energia. Diferente dos outros golpes, aqui a posição importa: os cartuchos precisam estar exatamente nos slots corretos. É o poder mais difícil de ser executado, mas em compensação, é o mais devastador.",
+  "ESPECIAL SUPER GAME: aqui, o funcionamento é diferente dos outros golpes e poderes: você pode ativá-lo a qualquer momento, e o botão de assoprar cartuchos fica infinito até acabar o tempo. Durante esse período, se fizer a sequência correta, ela será detectada e ativada automaticamente.",
   "FALHA DE GOLPE: se você apertar um botão sem combinação, ela explode no atacante. Não causa danos mas inutiliza aquele golpe específico.",
   "Quando o ataque e válido, você pode ver na caixa de texto um resumo do que aconteceu. Depois, o turno passa para o adversário.",
-  "ATENÇÃO: Ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição.",
-  "FIM: O lutador que esgotar sua barra de energia é derrotado, e o rival vence. Agora, você está pronto para a batalha!",
+  "ATENÇÃO: ao separar os cartuchos, os mesmos não precisam estar lado a lado para ter efeito. O que importa é fazer a combinação, independente de posição. Essa regra só não se aplica ao ESPECIAL SUPER GAME, como explicado nos passos anteriores.",
+  "FIM: o lutador que vencer dois rounds é o grande vencedor. Agora, você está pronto para a batalha!",
 ];
 
 tutorialSteps.forEach((step, index) => {
@@ -811,6 +828,10 @@ drawBattleButton.addEventListener("click", startDrawnVersusBattle);
 vsBattleButton.addEventListener("click", startPendingVsBattle);
 onlineBackButton.addEventListener("click", leaveOnlineRoom);
 spectatorLeaveButton.addEventListener("click", leaveOnlineRoom);
+stickerViewerClose.addEventListener("click", closeStickerViewer);
+stickerViewer.addEventListener("click", (event) => {
+  if (event.target === stickerViewer) closeStickerViewer();
+});
 tutorialPrevButton.addEventListener("click", () => changeTutorialStep(-1));
 tutorialNextButton.addEventListener("click", () => changeTutorialStep(1));
 tutorialRollButton.addEventListener("click", () => {
@@ -828,6 +849,10 @@ actionButtons.forEach((button) => button.addEventListener("click", () => {
   useAction(button.dataset.action);
 }));
 document.addEventListener("keydown", (event) => {
+  if (event.code === "Escape" && !stickerViewer.classList.contains("hidden")) {
+    closeStickerViewer();
+    return;
+  }
   const control = keyboardBattleControls[event.code];
   if (!control || event.repeat || !canUseBattleControls()) return;
   event.preventDefault();
@@ -922,6 +947,80 @@ function character(id, name, select, specialColor, sprites) {
   return { id, name, select, specialColor, sprites, specialScreen: `assets/${id}-especial-screen.png` };
 }
 
+function loadStickerCollection() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(stickerStorageKey) || "[]");
+    if (!Array.isArray(saved)) return [];
+    return [...new Set(saved.map(Number).filter((id) => Number.isInteger(id) && id >= 1 && id <= stickerTotal))].sort((a, b) => a - b);
+  } catch {
+    return [];
+  }
+}
+
+function saveStickerCollection(collection) {
+  try {
+    localStorage.setItem(stickerStorageKey, JSON.stringify([...new Set(collection)].sort((a, b) => a - b)));
+  } catch {
+    // Se o navegador bloquear armazenamento local, o jogo continua funcionando sem travar.
+  }
+}
+
+function awardSticker() {
+  const collection = loadStickerCollection();
+  if (collection.length >= stickerTotal) return { complete: true, sticker: null, total: collection.length };
+  const owned = new Set(collection);
+  const missing = stickers.filter((sticker) => !owned.has(sticker.id));
+  const sticker = missing[Math.floor(Math.random() * missing.length)];
+  saveStickerCollection([...collection, sticker.id]);
+  return { complete: false, sticker, total: collection.length + 1 };
+}
+
+function getStickerRewardMessage(reward) {
+  if (!reward) return "";
+  if (reward.complete) return "ÁLBUM COMPLETO! Você já tem todas as figurinhas da Banca de Revistas.";
+  return `FIGURINHA NOVA! Nº ${reward.sticker.id} desbloqueada na Banca de Revistas. (${reward.total}/${stickerTotal})`;
+}
+
+function renderNewsstand() {
+  const collection = loadStickerCollection();
+  const owned = new Set(collection);
+  newsstandStatus.textContent = `${collection.length}/${stickerTotal} figurinhas conquistadas.`;
+  stickerGrid.innerHTML = "";
+  stickers.forEach((sticker) => {
+    const hasSticker = owned.has(sticker.id);
+    const card = document.createElement(hasSticker ? "button" : "article");
+    card.className = `sticker-card sticker-${sticker.orientation}${hasSticker ? " collected" : ""}`;
+    if (hasSticker) {
+      card.type = "button";
+      card.addEventListener("click", () => openStickerViewer(sticker));
+    }
+    card.innerHTML = hasSticker
+      ? `<img src="${sticker.src}" alt="Figurinha ${sticker.id}"><span>Nº ${sticker.id}</span>`
+      : `<div class="sticker-placeholder" aria-hidden="true">?</div><span>Nº ${sticker.id}</span>`;
+    stickerGrid.appendChild(card);
+  });
+}
+
+function openStickerViewer(sticker) {
+  stickerViewerImage.src = sticker.src;
+  stickerViewerImage.alt = `Figurinha ${sticker.id}`;
+  stickerViewerTitle.textContent = `Figurinha Nº ${sticker.id}`;
+  stickerViewer.classList.remove("hidden");
+  stickerViewer.setAttribute("aria-hidden", "false");
+}
+
+function closeStickerViewer() {
+  stickerViewer.classList.add("hidden");
+  stickerViewer.setAttribute("aria-hidden", "true");
+  stickerViewerImage.src = "";
+  stickerViewerImage.alt = "";
+}
+
+function showNewsstand() {
+  renderNewsstand();
+  showScreen("newsstand");
+}
+
 function chooseMode(nextMode) {
   mode = nextMode;
   if (mode === "tutorial") {
@@ -937,7 +1036,7 @@ function chooseMode(nextMode) {
     return;
   }
   if (mode === "newsstand") {
-    showScreen("soon");
+    showNewsstand();
     return;
   }
   if (mode === "credits") {
@@ -1667,7 +1766,7 @@ async function finishBonusStage(success) {
     ? earnedContinue
       ? "PARABÉNS! CELTINHA DESTRUÍDO! GANHOU +1 CONTINUE"
       : "PARABÉNS! CELTINHA DESTRUÍDO!"
-    : "VOCE E MUITO FRACO!";
+    : "VOCÊ É MUITO FRACO!";
   bonusResultOverlay.classList.add("show");
   bonusResultOverlay.setAttribute("aria-hidden", "false");
   await wait(3200);
@@ -2854,6 +2953,12 @@ function finishMatch(winnerIndex, message) {
   hideTurnTimer();
   gameOver = true;
   matchWinnerIndex = winnerIndex;
+  pendingStickerReward = (
+    (mode === "online" && !online.isSpectator && winnerIndex === online.playerIndex)
+    || (mode === "arcade" && winnerIndex === 0 && players[0]?.id === arcade.heroId)
+  )
+    ? awardSticker()
+    : null;
   if (winnerIndex !== null) setTemporarySprite(winnerIndex, "win", false);
   roundMessage.textContent = message;
   showKo(winnerIndex);
@@ -3239,7 +3344,7 @@ function showKo(winnerIndex) {
   winnerText.textContent = canContinue
     ? "Deseja continuar a campanha?"
     : winner
-      ? `${winner.name} venceu!`
+      ? `${winner.name} venceu!${pendingStickerReward ? ` ${getStickerRewardMessage(pendingStickerReward)}` : ""}`
       : "Empate!";
   winnerSprite.classList.toggle("hidden", !winner);
   if (winner) {
@@ -3485,6 +3590,7 @@ function showArcadeEnding(hero) {
   endingImage.src = ending.image;
   endingImage.alt = `Final de ${hero.name}`;
   endingText.textContent = ending.text;
+  endingRewardText.textContent = "";
   showScreen("ending");
 }
 
@@ -3510,6 +3616,7 @@ function showHome() {
   pendingP1 = null;
   versusDraw = null;
   pendingVs = null;
+  pendingStickerReward = null;
   showScreen("home");
 }
 
@@ -3555,6 +3662,7 @@ function showScreen(name) {
   document.body.classList.toggle("vs-screen-active", name === "vs");
   document.body.classList.toggle("map-screen-active", name === "map");
   document.body.classList.toggle("game-screen-active", name === "game");
+  document.body.classList.toggle("newsstand-screen-active", name === "newsstand");
   updateMusicForScreen(name);
 }
 
@@ -3612,6 +3720,7 @@ async function preloadGameAssets() {
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
     ...characters.map((fighter) => `assets/arcade-${fighter.id}.jpg`),
     ...Object.keys(tresloucarRules).map((fighterId) => `assets/tresloucado-${fighterId}.png`),
+    ...stickers.map((sticker) => sticker.src),
     ...Object.values(arcadeEndings).map((ending) => ending.image),
     ...Object.values(audioSources.sfx),
     ...Object.values(audioSources.music),
