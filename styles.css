@@ -260,6 +260,34 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.home-audio-controls {
+  position: absolute;
+  z-index: 2;
+  top: max(14px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  display: flex;
+  gap: 6px;
+}
+
+.home-audio-controls button {
+  min-height: 28px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(10, 13, 20, 0.58);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.56rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.home-audio-controls button.is-muted {
+  border-color: rgba(255, 105, 105, 0.32);
+  color: rgba(255, 175, 175, 0.78);
+}
+
 .game-logo {
   width: min(520px, 74vw);
   max-height: min(28vh, 210px);

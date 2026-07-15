@@ -76,6 +76,12 @@ const decodedAudioBuffers = new Map();
 let audioUnlocked = false;
 let currentMusicKey = null;
 let requestedMusicKey = null;
+const audioPreferenceKeys = {
+  sfx: "sgp-fighting-sfx-muted-v1",
+  music: "sgp-fighting-music-muted-v1",
+};
+let sfxMuted = loadAudioPreference(audioPreferenceKeys.sfx);
+let musicMuted = loadAudioPreference(audioPreferenceKeys.music);
 
 const voicedFighters = new Set(["akira", "baby", "bill", "chefe", "chris", "lord", "marcelo", "marjorie"]);
 const voiceCueByAction = {
@@ -416,6 +422,7 @@ let turnTimerStartedAt = 0;
 let turnToken = 0;
 let tresloucarMode = { active: false, playerIndex: null, startedAt: 0, resolving: false };
 let mode = null;
+let activeScreenName = "loading";
 let selectStep = null;
 let pendingP1 = null;
 let splashTimer = null;
@@ -464,6 +471,8 @@ const stickerViewerImage = document.querySelector("#stickerViewerImage");
 const stickerViewerTitle = document.querySelector("#stickerViewerTitle");
 const stickerViewerClose = document.querySelector("#stickerViewerClose");
 const fullscreenButton = document.querySelector("#fullscreenButton");
+const soundToggleButton = document.querySelector("#soundToggleButton");
+const musicToggleButton = document.querySelector("#musicToggleButton");
 const drawBattleButton = document.querySelector("#drawBattleButton");
 const rouletteWheel = document.querySelector("#rouletteWheel");
 const rouletteP1 = document.querySelector("#rouletteP1");
@@ -825,6 +834,8 @@ loadingContinueButton.addEventListener("click", () => {
 battleButton.addEventListener("click", startCurrentArcadeBattle);
 endingButton.addEventListener("click", showHome);
 fullscreenButton.addEventListener("click", toggleFullscreen);
+soundToggleButton.addEventListener("click", toggleSfxMute);
+musicToggleButton.addEventListener("click", toggleMusicMute);
 document.addEventListener("fullscreenchange", updateFullscreenButton);
 document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 drawBattleButton.addEventListener("click", startDrawnVersusBattle);
@@ -878,6 +889,7 @@ document.addEventListener("pointerdown", () => {
   if (requestedMusicKey) playMusic(requestedMusicKey);
 }, { capture: true });
 
+renderAudioToggles();
 showScreen("loading");
 preloadGameAssets();
 window.requestAnimationFrame(pollGamepads);
@@ -1559,7 +1571,53 @@ function getClientId() {
   return generated;
 }
 
+function loadAudioPreference(key) {
+  try {
+    return localStorage.getItem(key) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function saveAudioPreference(key, value) {
+  try {
+    localStorage.setItem(key, value ? "true" : "false");
+  } catch {
+    // Se o navegador bloquear o armazenamento, o controle ainda funciona nesta sessão.
+  }
+}
+
+function renderAudioToggles() {
+  soundToggleButton.textContent = sfxMuted ? "SOM OFF" : "SOM ON";
+  soundToggleButton.setAttribute("aria-pressed", String(!sfxMuted));
+  soundToggleButton.classList.toggle("is-muted", sfxMuted);
+  soundToggleButton.title = sfxMuted ? "Ativar sons e vozes" : "Desativar sons e vozes";
+
+  musicToggleButton.textContent = musicMuted ? "MÚSICA OFF" : "MÚSICA ON";
+  musicToggleButton.setAttribute("aria-pressed", String(!musicMuted));
+  musicToggleButton.classList.toggle("is-muted", musicMuted);
+  musicToggleButton.title = musicMuted ? "Ativar músicas" : "Desativar músicas";
+}
+
+function toggleSfxMute() {
+  sfxMuted = !sfxMuted;
+  saveAudioPreference(audioPreferenceKeys.sfx, sfxMuted);
+  renderAudioToggles();
+}
+
+function toggleMusicMute() {
+  musicMuted = !musicMuted;
+  saveAudioPreference(audioPreferenceKeys.music, musicMuted);
+  renderAudioToggles();
+  if (musicMuted) {
+    musicPlayer.pause();
+    return;
+  }
+  updateMusicForScreen(activeScreenName);
+}
+
 function playSfx(key) {
+  if (sfxMuted) return Promise.resolve();
   const source = audioSources.sfx[key];
   if (!source) return Promise.resolve();
   const bufferedDuration = playDecodedAudio(source, 0.72);
@@ -1582,6 +1640,7 @@ function playSfx(key) {
 }
 
 function playVoice(fighterId, cue) {
+  if (sfxMuted) return Promise.resolve();
   if (!voicedFighters.has(fighterId) || !voiceCues.includes(cue)) return Promise.resolve();
   const source = `assets/voice-${fighterId}-${cue}.m4a`;
   const bufferedDuration = playDecodedAudio(source, 0.8);
@@ -1637,6 +1696,10 @@ function playMusic(key) {
   const source = audioSources.music[key];
   if (!source) return;
   requestedMusicKey = key;
+  if (musicMuted) {
+    musicPlayer.pause();
+    return;
+  }
   if (currentMusicKey !== key) {
     musicPlayer.pause();
     musicPlayer.currentTime = 0;
@@ -3686,6 +3749,7 @@ function finishOpening() {
 function showScreen(name) {
   Object.values(screens).forEach((screen) => screen.classList.add("hidden"));
   screens[name].classList.remove("hidden");
+  activeScreenName = name;
   document.body.classList.toggle("select-screen-active", name === "select" || name === "specialTest");
   document.body.classList.toggle("tutorial-screen-active", name === "tutorial");
   document.body.classList.toggle("draw-screen-active", name === "draw");
