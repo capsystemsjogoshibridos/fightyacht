@@ -2071,7 +2071,7 @@ button:disabled {
 }
 
 .fighter-chefe .sprite-stage img {
-  width: min(92%, 330px);
+  width: min(116%, 410px);
 }
 
 .fighter.mirror .sprite-stage img {
@@ -3216,7 +3216,7 @@ button:disabled {
   }
 
   .fighter-chefe .sprite-stage img {
-    width: 125%;
+    width: 158%;
   }
 
   .health-card {
@@ -3459,7 +3459,7 @@ button:disabled {
   }
 
   .fighter-chefe .sprite-stage img {
-    width: 132%;
+    width: 166%;
   }
 
   .health-card {
@@ -4027,7 +4027,7 @@ button:disabled {
   }
 
   .game-view .fighter-chefe .sprite-stage img {
-    width: min(128%, 455px);
+    width: min(165%, 520px);
   }
 
   .game-view.bonus-stage .fighter-right .sprite-stage img {
@@ -4402,7 +4402,7 @@ body.game-screen-active .game-shell {
   }
 
   body.game-screen-active .fighter-chefe .sprite-stage img {
-    width: 104%;
+    width: 156%;
   }
 
   body.game-screen-active .dice-panel {
