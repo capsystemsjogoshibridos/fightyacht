@@ -62,6 +62,11 @@ const mimeTypes = {
   ".m4a": "audio/mp4",
   ".mp4": "video/mp4",
 };
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
 function newRoom(id) {
   return { id, members: [], spectators: [], match: null, events: [], eventId: 0 };
@@ -306,11 +311,20 @@ function readBody(request) {
 }
 
 function sendJson(response, status, data) {
-  response.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+  response.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    ...corsHeaders,
+  });
   response.end(JSON.stringify(data));
 }
 
 async function handleApi(request, response, url) {
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, corsHeaders);
+    response.end();
+    return true;
+  }
   const parts = url.pathname.split("/").filter(Boolean);
   if (request.method === "GET" && url.pathname === "/api/rooms") {
     sendJson(response, 200, rooms.map(roomSummary));

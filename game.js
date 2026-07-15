@@ -787,6 +787,9 @@ screens.legal.addEventListener("click", (event) => {
   finishLegal();
 });
 openingVideo.addEventListener("ended", finishOpening);
+openingVideo.addEventListener("error", () => {
+  skipOpeningButton.classList.remove("hidden");
+});
 screens.opening.addEventListener("pointerdown", (event) => {
   if (event.target === skipOpeningButton) return;
   skipOpeningButton.classList.remove("hidden");
@@ -1023,6 +1026,10 @@ function showNewsstand() {
 
 function chooseMode(nextMode) {
   mode = nextMode;
+  if (mode === "randomBattle") {
+    startRandomBattle();
+    return;
+  }
   if (mode === "tutorial") {
     startTutorial();
     return;
@@ -1258,6 +1265,18 @@ function startVersus(p1, p2) {
     drawResult.textContent = `${playersLabel(starter, p1, p2)} comeca!`;
     drawBattleButton.disabled = false;
   }, 2920);
+}
+
+function startRandomBattle() {
+  const [p1, p2] = shuffle(characters).slice(0, 2);
+  const starter = Math.random() < 0.5 ? 0 : 1;
+  showVsScreen(
+    p1,
+    p2,
+    starter,
+    `Batalha aleatória: ${playersLabel(starter, p1, p2)} começa! Sem tempo de turno.`,
+    { autoStart: true, delay: 1200 },
+  );
 }
 
 function playersLabel(index, p1, p2) {
@@ -1521,7 +1540,9 @@ function scheduleOnlinePoll(callback, duration) {
 }
 
 async function onlineApi(path, options = {}) {
-  const response = await fetch(path, {
+  const base = String(window.SGP_ONLINE_API_BASE || "").replace(/\/$/, "");
+  const url = base && path.startsWith("/") ? `${base}${path}` : path;
+  const response = await fetch(url, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -1875,7 +1896,7 @@ function setRandomBattleStage() {
 }
 
 function shouldUseTurnTimer() {
-  return mode !== "online" && !bonusStage.active && players.length === 2 && !gameOver && !isRoundTransition;
+  return mode !== "online" && mode !== "randomBattle" && !bonusStage.active && players.length === 2 && !gameOver && !isRoundTransition;
 }
 
 function beginTurn() {
@@ -1910,13 +1931,13 @@ function hideTurnTimer() {
 }
 
 function updateTurnTimer() {
-  if (!shouldUseTurnTimer()) {
-    hideTurnTimer();
+  if (tresloucarMode.active) {
+    updateTresloucarTimer();
     return;
   }
 
-  if (tresloucarMode.active) {
-    updateTresloucarTimer();
+  if (!shouldUseTurnTimer()) {
+    hideTurnTimer();
     return;
   }
 
@@ -2810,6 +2831,7 @@ function startTresloucarMode(playerIndex) {
   const player = players[playerIndex];
   if (!player || getUseCount(player, "tresloucar") >= actions.tresloucar.maxUses) return;
 
+  stopTurnTimer();
   tresloucarMode = { active: true, playerIndex, startedAt: performance.now(), resolving: false };
   dice = Array(5).fill(null);
   held = Array(5).fill(false);
@@ -2819,6 +2841,7 @@ function startTresloucarMode(playerIndex) {
   roundMessage.textContent = "MODO SUPER GAME ATIVADO!";
   arena.classList.add("tresloucar-psychedelic");
   updateTresloucarTimer();
+  turnTimerId = window.setInterval(updateTurnTimer, 120);
   render();
 }
 
@@ -3642,9 +3665,16 @@ function finishLegal() {
 
 function showOpening() {
   showScreen("opening");
-  skipOpeningButton.classList.add("hidden");
+  skipOpeningButton.classList.toggle("hidden", !window.SGP_ITCH_BUILD);
   openingVideo.currentTime = 0;
-  openingVideo.play().catch(() => {});
+  openingVideo.play().catch(() => {
+    skipOpeningButton.classList.remove("hidden");
+  });
+  window.setTimeout(() => {
+    if (!screens.opening.classList.contains("hidden") && openingVideo.readyState < 2) {
+      skipOpeningButton.classList.remove("hidden");
+    }
+  }, 1500);
 }
 
 function finishOpening() {
@@ -3688,10 +3718,14 @@ function wait(ms) {
 
 async function preloadGameAssets() {
   splashStartedAt = performance.now();
-  const assetSources = new Set([
+  const useLightPreload = Boolean(window.SGP_ITCH_BUILD);
+  const coreAssetSources = [
     "assets/cap-systems-logo.png",
     "assets/sgp-logo.png",
     "assets/title-screen.jpeg",
+  ];
+  const fullAssetSources = [
+    ...coreAssetSources,
     "assets/abertura-completa.mp4",
     "assets/cenario-bonus.jpg",
     "assets/select-secret-card.png",
@@ -3720,13 +3754,15 @@ async function preloadGameAssets() {
     ...characters.flatMap((fighter) => [fighter.select, fighter.specialScreen, ...Object.values(fighter.sprites)]),
     ...characters.map((fighter) => `assets/arcade-${fighter.id}.jpg`),
     ...Object.keys(tresloucarRules).map((fighterId) => `assets/tresloucado-${fighterId}.png`),
+    "assets/abertura-completa.mp4",
     ...stickers.map((sticker) => sticker.src),
     ...Object.values(arcadeEndings).map((ending) => ending.image),
     ...Object.values(audioSources.sfx),
     ...Object.values(audioSources.music),
     ...[...voicedFighters].flatMap((fighterId) => voiceCues.map((cue) => `assets/voice-${fighterId}-${cue}.m4a`)),
-  ]);
-  document.querySelectorAll("img[src]").forEach((image) => assetSources.add(image.getAttribute("src")));
+  ];
+  const assetSources = new Set(useLightPreload ? coreAssetSources : fullAssetSources);
+  if (!useLightPreload) document.querySelectorAll("img[src]").forEach((image) => assetSources.add(image.getAttribute("src")));
 
   const assets = [...assetSources].filter(Boolean);
   let completed = 0;
@@ -3738,14 +3774,17 @@ async function preloadGameAssets() {
   };
   updateProgress();
 
+  const assetTimeoutMs = useLightPreload ? 5000 : 15000;
   await Promise.all(assets.map((src) => new Promise((resolve) => {
     const isAudio = /\.(mp3|m4a|ogg|wav)$/i.test(src);
     const isVideo = /\.(mp4|webm|mov)$/i.test(src);
     const resource = isAudio ? new Audio() : isVideo ? document.createElement("video") : new Image();
+    const timeoutId = window.setTimeout(() => complete(), assetTimeoutMs);
     let settled = false;
     const complete = () => {
       if (settled) return;
       settled = true;
+      window.clearTimeout(timeoutId);
       completed += 1;
       updateProgress();
       resolve();
