@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fight-yacht-shell-v1';
+const CACHE_NAME = 'fight-yacht-shell-v2';
 const APP_SHELL = [
   './',
   './index.html',
