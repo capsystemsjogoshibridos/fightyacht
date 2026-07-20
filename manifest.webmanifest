@@ -11,7 +11,7 @@
   "theme_color": "#11151f",
   "icons": [
     {
-      "src": "assets/sgp-logo.png",
+      "src": "assets/sgp_icone_1024x1024.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

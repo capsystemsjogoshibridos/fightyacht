@@ -1,1 +1,1 @@
-window.SGP_ONLINE_API_BASE = "";
+window.SGP_ONLINE_API_BASE = "https://fightyacht-production.up.railway.app";
