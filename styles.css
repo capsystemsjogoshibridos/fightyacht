@@ -4665,19 +4665,20 @@ body.map-screen-active .route-fight:nth-child(even).done::before {
 
 .menu-screen .main-menu {
   width: min(360px, 88vw);
-  max-height: min(62dvh, 500px);
-  gap: clamp(4px, 1.2dvh, 10px);
+  max-height: none;
+  gap: clamp(3px, 0.85dvh, 8px);
 }
 
 .menu-screen .main-menu button {
   min-height: 0;
-  height: clamp(36px, 6.3dvh, 54px);
+  height: clamp(30px, 5.25dvh, 50px);
   padding: 0 12px;
-  font-size: clamp(0.72rem, 1.7dvh, 1rem);
+  font-size: clamp(0.66rem, 1.55dvh, 0.95rem);
 }
 
 .menu-screen .creator-credit {
-  font-size: clamp(0.62rem, 1.8dvh, 0.95rem);
+  font-size: clamp(0.58rem, 1.55dvh, 0.9rem);
+  line-height: 1.1;
 }
 
 .select-screen {
@@ -4756,13 +4757,13 @@ body.map-screen-active .route-fight:nth-child(even).done::before {
   }
 
   .menu-screen .main-menu {
-    max-height: 66dvh;
-    gap: clamp(3px, 0.9dvh, 8px);
+    max-height: none;
+    gap: clamp(2px, 0.65dvh, 6px);
   }
 
   .menu-screen .main-menu button {
-    height: clamp(28px, 6.1dvh, 48px);
-    font-size: clamp(0.62rem, 1.8dvh, 0.9rem);
+    height: clamp(25px, 5.4dvh, 44px);
+    font-size: clamp(0.56rem, 1.55dvh, 0.84rem);
   }
 
   .select-screen {
@@ -4802,7 +4803,7 @@ body.map-screen-active .route-fight:nth-child(even).done::before {
 
 @media (orientation: portrait) {
   .menu-screen .main-menu {
-    max-height: 58dvh;
+    max-height: none;
   }
 
   .select-screen {
@@ -4826,6 +4827,29 @@ body.map-screen-active .route-fight:nth-child(even).done::before {
     );
     max-height: calc(100dvh - 128px);
     gap: clamp(4px, 1.1dvh, 10px);
+  }
+}
+
+@media (max-height: 620px) {
+  .menu-screen {
+    gap: clamp(4px, 1.1dvh, 10px);
+  }
+
+  .menu-screen .game-logo {
+    max-height: clamp(62px, 18dvh, 120px);
+  }
+
+  .menu-screen .main-menu {
+    gap: clamp(2px, 0.55dvh, 5px);
+  }
+
+  .menu-screen .main-menu button {
+    height: clamp(24px, 4.75dvh, 34px);
+    font-size: clamp(0.52rem, 1.45dvh, 0.74rem);
+  }
+
+  .menu-screen .creator-credit {
+    font-size: clamp(0.5rem, 1.35dvh, 0.72rem);
   }
 }
 
