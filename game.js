@@ -1552,7 +1552,7 @@ function scheduleOnlinePoll(callback, duration) {
 }
 
 async function onlineApi(path, options = {}) {
-  const base = String(window.SGP_ONLINE_API_BASE || "").replace(/\/$/, "");
+  const base = String(window.SGP_ONLINE_API_BASE || "https://fightyacht-production.up.railway.app").replace(/\/$/, "");
   const url = base && path.startsWith("/") ? `${base}${path}` : path;
   const response = await fetch(url, {
     headers: { "Content-Type": "application/json" },
